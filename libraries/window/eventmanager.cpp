@@ -1,4 +1,5 @@
 #include "eventmanager.h"
+#include <limits>
 
 using namespace gjh;
 using namespace std;

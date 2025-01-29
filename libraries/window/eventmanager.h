@@ -2,6 +2,8 @@
 #define EVENTMANAGER_H
 
 #include <vector>
+#include <cstdint>
+#include <cmath>
 
 #include "windowevents.h"
 

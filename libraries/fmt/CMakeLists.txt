@@ -5,7 +5,7 @@ set(NAME "fmt")
 CPMAddPackage(
     NAME  fmt
     GIT_REPOSITORY  https://github.com/fmtlib/fmt.git
-    GIT_TAG 11.0.2
+    GIT_TAG 11.1.3
     GIT_SHALLOW     TRUE
     EXCLUDE_FROM_ALL TRUE
 )

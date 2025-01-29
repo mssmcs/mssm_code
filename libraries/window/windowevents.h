@@ -2,7 +2,7 @@
 #define WINDOWEVENTS_H
 
 #include <iostream>
-
+#include <vector>
 
 namespace gjh {
 

@@ -4,6 +4,7 @@
 #include <array>
 #include <algorithm>
 #include <concepts>
+#include <cstdint>
 
 namespace mssm {
 

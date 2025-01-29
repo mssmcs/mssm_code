@@ -5,6 +5,18 @@ set(CMAKE_C_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # set(CMAKE_C_STANDARD_REQUIRED ON)
 
+
+
+# Not your situation, but in case you have a different linker
+# set(CMAKE_EXE_LINKER_FLAGS "-Wl,--verbose")
+# Clang passes flags through to the linker (likely ld) by
+# set(CMAKE_EXE_LINKER_FLAGS "-Xlinker -v")
+# Clang passing flags to the linker (likely ld) AND using -v itself to show how it calls the linker
+# set(CMAKE_EXE_LINKER_FLAGS "-Xlinker -v -v")
+
+
+
+
 include("${CMAKE_SOURCE_DIR}/../libraries/cmake/get_cpm.cmake")
 # include("${CMAKE_SOURCE_DIR}/../libraries/cmake/StandardProjectSettings.cmake")
 
