@@ -53,13 +53,6 @@ endif()
 #       COMPILE_OPTIONS --target-env vulkan1.1)
 # ~~~
 function(target_glsl_shaders TARGET_NAME)
-
-          message("HELLO glsl ${TARGET_NAME}")
-          message("${OPTIONS}")
-          message("${SINGLE_VALUE_KEYWORDS}")
-          message("${MULTI_VALUE_KEYWORDS}")
-          message("${ARGN}")
-
   if(NOT GLSLANGVALIDATOR_EXE)
     message(
       FATAL_ERROR "Cannot compile GLSL to SPIR-V is glslangValidator not found!"
@@ -73,16 +66,9 @@ function(target_glsl_shaders TARGET_NAME)
     target_glsl_shaders "${OPTIONS}" "${SINGLE_VALUE_KEYWORDS}"
     "${MULTI_VALUE_KEYWORDS}" ${ARGN})
 
-
-message("target_glsl_shaders_INTERFACE ${target_glsl_shaders_INTERFACE}")
-message("target_glsl_shaders_PUBLIC ${target_glsl_shaders_PUBLIC}")
-message("target_glsl_shaders_PRIVATE ${target_glsl_shaders_PRIVATE}")
-message("target_glsl_shaders_COMPILE_OPTIONS ${target_glsl_shaders_COMPILE_OPTIONS}")
-
     set(ASSETS_SOURCE_FOLDER "${CMAKE_SOURCE_DIR}/src/assets")
 
     foreach(GLSL_FILE IN LISTS target_glsl_shaders_INTERFACE)
-        message("Booping ${GLSL_FILE}")
 
       file(RELATIVE_PATH NEW_FILE "${ASSETS_SOURCE_FOLDER}" "${GLSL_FILE}.spv")
 
@@ -98,7 +84,7 @@ message("target_glsl_shaders_COMPILE_OPTIONS ${target_glsl_shaders_COMPILE_OPTIO
   endforeach()
 
   foreach(GLSL_FILE IN LISTS target_glsl_shaders_PUBLIC)
-              message("Booping ${GLSL_FILE}")
+
       file(RELATIVE_PATH NEW_FILE "${ASSETS_SOURCE_FOLDER}" "${GLSL_FILE}.spv")
 
       add_custom_command(
@@ -113,7 +99,7 @@ message("target_glsl_shaders_COMPILE_OPTIONS ${target_glsl_shaders_COMPILE_OPTIO
   endforeach()
 
   foreach(GLSL_FILE IN LISTS target_glsl_shaders_PRIVATE)
-              message("Booping ${GLSL_FILE}")
+
       file(RELATIVE_PATH NEW_FILE "${ASSETS_SOURCE_FOLDER}" "${GLSL_FILE}.spv")
 
       add_custom_command(
