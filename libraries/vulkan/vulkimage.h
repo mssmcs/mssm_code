@@ -53,6 +53,7 @@ public:
         return {{0, 0}, {extent.width, extent.height}};
     }
 
+    // set a rectangle of pixels.  The span of pixels must be the same size as the rectangle
     template <typename PIXEL>
     void setPixels(VkRect2D rect, std::span<const PIXEL> pixels) {
         assertm(bytesPerPixel == sizeof(PIXEL), "VulkImageBuffer::setPixels() called with wrong pixel type");
@@ -66,6 +67,7 @@ public:
         }
     }
 
+    // set a sub-rectangle of pixels.  The span of pixels must be the same size as the entire image
     template <typename PIXEL>
     void updatePixels(VkRect2D rect, std::span<const PIXEL> fullSizePixels)
     {
@@ -146,11 +148,18 @@ public:
     void create(VulkCommandPool &commandPool, int width, int height, VkFormat format, bool retainBuffer);
     void createDepthBuffer(VulkDevice &device, int width, int height);
 
+
+    template <typename PIXEL>
+    PIXEL* data() { return stagingBuffer.data<PIXEL>(); }
+
     template <typename PIXEL>
     void setPixels(VulkCommandPool &commandPool, VkRect2D rect, std::span<const PIXEL> pixels);
 
     template <typename PIXEL>
     void updatePixels(VulkCommandPool &commandPool, VkRect2D rect, std::span<const PIXEL> fullSizePixels);
+
+    template <typename PIXEL>
+    void setPixels(VulkCommandPool &commandPool,  std::span<const PIXEL> pixels);
 
     const VulkImageView& imageView() const { return view; }
 
@@ -187,6 +196,20 @@ void VulkImage::setPixels(VulkCommandPool &commandPool,  VkRect2D rect, std::spa
     }
 
     stagingBuffer.setPixels(rect, pixels);
+
+    transitionImageLayout(commandPool, handle, format, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    copyBufferToImage(commandPool, stagingBuffer, handle, width(), height());
+    transitionImageLayout(commandPool, handle, format, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+}
+
+template <typename PIXEL>
+void VulkImage::setPixels(VulkCommandPool &commandPool,  std::span<const PIXEL> pixels)
+{
+    if (!stagingBuffer.isHandleValid()) {
+        throw std::runtime_error("staging buffer not initialized");
+    }
+
+    stagingBuffer.setPixels(pixels);
 
     transitionImageLayout(commandPool, handle, format, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
     copyBufferToImage(commandPool, stagingBuffer, handle, width(), height());

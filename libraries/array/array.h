@@ -209,6 +209,10 @@ public:
     bool empty() const { return elements.empty(); }
     std::vector<Q>& asVector() { return elements; }
     const std::vector<Q>& asVector() const { return elements; }
+
+    operator std::vector<Q>&() { return elements; }
+    operator const std::vector<Q>&() const { return elements; }
+
 private:
     constexpr bool isIndexInRangeIncludingEnd(int index) const { return index >= 0 && index <= elements.size(); }
     inline void throwOnBadIndexIncludingEnd(int index) const;
@@ -728,7 +732,7 @@ void ArrayBase<T,Q>::throwIndexError(int index) const
 {
     std::string msg = "Error:  ArrayBase index " + std::to_string(index) + " out of range";
     if (elements.size() > 0) {
-        msg.append(" (0, " + to_string(elements.size()-1) + ")");
+        msg.append(" (0, " + std::to_string(elements.size()-1) + ")");
     }
     else {
         msg.append(" (ArrayBase is empty!");

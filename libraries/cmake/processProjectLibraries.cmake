@@ -12,6 +12,7 @@ include(${CMAKE_SOURCE_DIR}/../libraries/cmake/util.cmake)
 # (determined by DEPENDS_ON: in the CMakeLists.txt file of each library)
 resolve_library_dependencies("${LIBRARIES}" LIBRARIES)
 
+# message("Setting libraries: ${LIBRARIES}")
 
 # add each library to the project and add them as link libraries to the main executable
 foreach (LIBRARY ${LIBRARIES})
@@ -22,3 +23,4 @@ foreach (LIBRARY ${LIBRARIES})
     message(">>>> Library ${LIBRARY} Target Name: ${LIB_TARG_NAME}  #define: ${LIBCOMPDEF}")
     target_link_libraries(${PROJECT_NAME} PUBLIC ${LIB_TARG_NAME} )
 endforeach ()
+

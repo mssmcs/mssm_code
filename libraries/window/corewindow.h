@@ -21,6 +21,11 @@ class CoreWindow : public EventManager
     int         currentHeight{100};
 
     bool        gotResizeEvent{false};
+
+    std::chrono::microseconds::rep start_time;
+    std::chrono::steady_clock::time_point lastDrawTime;
+    std::chrono::microseconds::rep elapsed;
+
 public:
     CoreWindow(std::string title, int width, int height);
     virtual ~CoreWindow();
@@ -54,8 +59,21 @@ protected:
     bool isClosed() const { return closed; }
     void toggleFullScreen() override;
     void setGotResize(int width, int height) override;
+public:
+    double timeMicros() const override
+    {
+        auto microseconds_since_epoch =
+            std::chrono::duration_cast<std::chrono::microseconds>
+            (std::chrono::steady_clock::now().time_since_epoch()).count();
 
+        return microseconds_since_epoch - start_time;
+    }
 
+    double timeSeconds() const override{ return timeMicros() / 1000000.0; }
+    double timeMs() const override { return timeMicros() / 1000.0; }
+    double elapsedMs() const override{ return elapsed/1000.0; }
+    double elapsedMicros() const override { return elapsed; }
+    double elapsedSeconds() const override { return elapsed/1000000.0; }
 };
 }
 

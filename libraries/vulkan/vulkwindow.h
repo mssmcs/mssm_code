@@ -31,9 +31,7 @@ class VulkanGraphicsWindow : public WINDOW, public mssm::ImageLoader
 
     std::unique_ptr<CANVAS> canvas;
 
-    std::chrono::microseconds::rep start_time;
-    std::chrono::steady_clock::time_point lastDrawTime;
-    std::chrono::microseconds::rep elapsed;
+
 
 public:
     VulkanGraphicsWindow(const std::string &title,
@@ -52,24 +50,21 @@ protected:
     void detachRenderer(bool releaseSurface) override;
     // ImageLoader interface
 public:
-    virtual std::shared_ptr<mssm::ImageInternal> loadImg(std::string filename) override;
+    virtual std::shared_ptr<mssm::ImageInternal> loadImg(std::string filename, bool cachePixels) override;
 
-    double timeMicros() const
-    {
-        auto microseconds_since_epoch =
-            std::chrono::duration_cast<std::chrono::microseconds>
-            (std::chrono::steady_clock::now().time_since_epoch()).count();
+    // ImageLoader interface
+public:
+    std::shared_ptr<mssm::ImageInternal> createImg(int width,
+                                                   int height,
+                                                   mssm::Color c,
+                                                   bool cachePixels) override;
+    std::shared_ptr<mssm::ImageInternal> initImg(int width,
+                                                 int height,
+                                                 mssm::Color *pixels,
+                                                 bool cachePixels) override;
+    void saveImg(std::shared_ptr<mssm::ImageInternal> img, std::string filename) override;
 
-        return microseconds_since_epoch - start_time;
-    }
-
-    double timeSeconds() const { return timeMicros() / 1000000.0; }
-    double timeMs() const { return timeMicros() / 1000.0; }
-    double elapsedMs() const { return elapsed/1000.0; }
-    double elapsedMicros() const { return elapsed; }
-    double elapsedSeconds() const { return elapsed/1000000.0; }
 };
-
 
 template <typename WINDOW, typename CANVAS> requires SupportsVulkanWindow<WINDOW> && IsCanvas<CANVAS>
 VulkanGraphicsWindow<WINDOW, CANVAS>::VulkanGraphicsWindow(const std::string &title,
@@ -108,10 +103,6 @@ void VulkanGraphicsWindow<WINDOW, CANVAS>::configure()
 
     canvas->initializePipelines();
 
-    start_time =
-        std::chrono::duration_cast<std::chrono::microseconds>
-        (std::chrono::steady_clock::now().time_since_epoch()).count();
-    lastDrawTime = std::chrono::steady_clock::now();
 }
 
 template <typename WINDOW, typename CANVAS> requires SupportsVulkanWindow<WINDOW> && IsCanvas<CANVAS>
@@ -121,9 +112,7 @@ void VulkanGraphicsWindow<WINDOW, CANVAS>::beginDrawing(bool wasResized)
     if (renderManager->isDrawable()) {
         canvas->beginPaint();
     }
-    auto currDrawTime = std::chrono::steady_clock::now();
-    elapsed = std::chrono::duration_cast<std::chrono::microseconds>(currDrawTime - lastDrawTime).count();
-    lastDrawTime = currDrawTime;
+
 }
 
 template <typename WINDOW, typename CANVAS> requires SupportsVulkanWindow<WINDOW> && IsCanvas<CANVAS>
@@ -137,9 +126,28 @@ void VulkanGraphicsWindow<WINDOW, CANVAS>::endDrawing()
 }
 
 template <typename WINDOW, typename CANVAS> requires SupportsVulkanWindow<WINDOW> && IsCanvas<CANVAS>
-std::shared_ptr<mssm::ImageInternal> VulkanGraphicsWindow<WINDOW, CANVAS>::loadImg(std::string filename)
+std::shared_ptr<mssm::ImageInternal> VulkanGraphicsWindow<WINDOW, CANVAS>::loadImg(std::string filename, bool cachePixels)
 {
-    return renderManager->loadImg(filename);
+    return renderManager->loadImg(filename, cachePixels);
+}
+
+template <typename WINDOW, typename CANVAS> requires SupportsVulkanWindow<WINDOW> && IsCanvas<CANVAS>
+std::shared_ptr<mssm::ImageInternal> VulkanGraphicsWindow<WINDOW, CANVAS>::createImg(int width, int height, mssm::Color c, bool cachePixels)
+{
+    return renderManager->createImg(width, height, c, cachePixels);
+}
+
+template <typename WINDOW, typename CANVAS> requires SupportsVulkanWindow<WINDOW> && IsCanvas<CANVAS>
+std::shared_ptr<mssm::ImageInternal> VulkanGraphicsWindow<WINDOW, CANVAS>::initImg(int width, int height, mssm::Color *pixels, bool cachePixels)
+{
+    return renderManager->initImg(width, height, pixels, cachePixels);
+}
+
+template <typename WINDOW, typename CANVAS> requires SupportsVulkanWindow<WINDOW> && IsCanvas<CANVAS>
+void VulkanGraphicsWindow<WINDOW, CANVAS>::saveImg(std::shared_ptr<mssm::ImageInternal> img,
+                                          std::string filename)
+{
+    renderManager->saveImg(img, filename);
 }
 
 template <typename WINDOW, typename CANVAS> requires SupportsVulkanWindow<WINDOW> && IsCanvas<CANVAS>

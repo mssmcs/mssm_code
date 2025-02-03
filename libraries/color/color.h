@@ -4,7 +4,7 @@
 #include <array>
 #include <algorithm>
 #include <concepts>
-#include <cstdint>
+#include <iostream>
 
 namespace mssm {
 
@@ -46,9 +46,13 @@ public:
     static constexpr Color fromUIntRGBA(unsigned int c) { return Color(static_cast<uint8_t>(c >> 24), static_cast<uint8_t>(c >> 16), static_cast<uint8_t>(c >> 8), static_cast<uint8_t>(c)); }
     static constexpr Color fromUIntABGR(unsigned int c) { return Color(static_cast<uint8_t>(c), static_cast<uint8_t>(c >> 8), static_cast<uint8_t>(c >> 16), static_cast<uint8_t>(c >> 24)); }
     static constexpr Color fromUIntARGB(unsigned int c) { return Color(static_cast<uint8_t>(c >> 16), static_cast<uint8_t>(c >> 8), static_cast<uint8_t>(c), static_cast<uint8_t>(c >> 24)); }
+    static constexpr Color fromUIntRGB(unsigned int c) { return Color(static_cast<uint8_t>(c >> 16), static_cast<uint8_t>(c >> 8), static_cast<uint8_t>(c)); }
+    static constexpr Color fromUIntBGR(unsigned int c) { return Color(static_cast<uint8_t>(c), static_cast<uint8_t>(c >> 8), static_cast<uint8_t>(c >> 16)); }
     static constexpr Color fromIntRGBA(int c) { return Color(static_cast<uint8_t>(c >> 24), static_cast<uint8_t>(c >> 16), static_cast<uint8_t>(c >> 8), static_cast<uint8_t>(c)); }
     static constexpr Color fromIntABGR(int c) { return Color(static_cast<uint8_t>(c), static_cast<uint8_t>(c >> 8), static_cast<uint8_t>(c >> 16), static_cast<uint8_t>(c >> 24)); }
     static constexpr Color fromIntARGB(int c) { return Color(static_cast<uint8_t>(c >> 16), static_cast<uint8_t>(c >> 8), static_cast<uint8_t>(c), static_cast<uint8_t>(c >> 24)); }
+    static constexpr Color fromIntRGB(int c) { return Color(static_cast<uint8_t>(c >> 16), static_cast<uint8_t>(c >> 8), static_cast<uint8_t>(c)); }
+    static constexpr Color fromIntBGR(int c) { return Color(static_cast<uint8_t>(c), static_cast<uint8_t>(c >> 8), static_cast<uint8_t>(c >> 16)); }
     static constexpr Color fromFloats(float r, float g, float b, float a = 1.0f) { return Color(static_cast<uint8_t>(r*255), static_cast<uint8_t>(g*255), static_cast<uint8_t>(b*255), static_cast<uint8_t>(a*255)); }
     static constexpr Color fromDoubles(double r, double g, double b, double a = 1.0) { return Color(static_cast<uint8_t>(r*255), static_cast<uint8_t>(g*255), static_cast<uint8_t>(b*255), static_cast<uint8_t>(a*255)); }
 
@@ -70,6 +74,15 @@ public:
     static constexpr Color PURPLE(uint8_t alpha = 0xFF) { return {128u, 0u, 255u,alpha}; }
     static constexpr Color MAGENTA(uint8_t alpha = 0xFF) { return {255u, 0u, 255u,alpha}; }
     static constexpr Color NEON_ROSE(uint8_t alpha = 0xFF) { return {255u, 0u, 128u,alpha}; }
+
+    friend std::ostream& operator<<(std::ostream& os, const Color& color) {
+        // Format the output as RGBA (or you can use another format like RGB if desired)
+        os << "RGBA(" << static_cast<int>(color.r) << ", "
+           << static_cast<int>(color.g) << ", "
+           << static_cast<int>(color.b) << ", "
+           << static_cast<int>(color.a) << ")";
+        return os;
+    }
 };
 
 constexpr Color TRANSPARENT = Color::TRANSPARENT();

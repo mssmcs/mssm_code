@@ -1,5 +1,5 @@
 set(NAME "vulk_qt")
-# DEPENDS_ON: vulkan window canvas
+# DEPENDS_ON: vulkan window vulk_canvas
 
 # include(${PROJECT_SOURCE_DIR}/cmake/StaticAnalyzers.cmake)
 

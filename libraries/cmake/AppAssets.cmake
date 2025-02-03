@@ -65,45 +65,50 @@ foreach (FILE ${ASSETS})
 
 endforeach ()
 
+if ("vulkan" IN_LIST LIBRARIES)
+    message("Vulkan library being used: setting up shader compilation...")
 
-set(ASSETS_SOURCE_FOLDER "${CMAKE_SOURCE_DIR}/src/assets")
-file(GLOB_RECURSE GLSL_SOURCE_FILES "${CMAKE_SOURCE_DIR}/src/assets/vulkan/*.glsl")
+    set(ASSETS_SOURCE_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/src/assets")
+    file(GLOB_RECURSE GLSL_SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/assets/vulkan/*.glsl")
 
-foreach (FILE ${GLSL_SOURCE_FILES})
+    include(${CMAKE_SOURCE_DIR}/../libraries/cmake/glsl-shaders.cmake)
 
-    set(ORIG_FILE ${FILE})
-    set(FILE "${FILE}.spv")
+    target_glsl_shaders(${PROJECT_NAME} PRIVATE "${GLSL_SOURCE_FILES}" COMPILE_OPTIONS --target-env vulkan1.1)
 
+    foreach (FILE ${GLSL_SOURCE_FILES})
 
+        set(ORIG_FILE ${FILE})
+        set(FILE "${FILE}.spv")
 
-    # message("Procesing GLSL file: ${FILE}")
+        message("Processing GLSL file: ${FILE}")
 
-    # Get the relative path from the data-folder to the particular file.
-    file(RELATIVE_PATH NEW_FILE "${ASSETS_SOURCE_FOLDER}" ${FILE})
+        # Get the relative path from the data-folder to the particular file.
+        file(RELATIVE_PATH NEW_FILE "${ASSETS_SOURCE_FOLDER}" ${FILE})
 
-    # Get the relative path to the file.
-    get_filename_component(NEW_FILE_PATH ${NEW_FILE} DIRECTORY)
+        # Get the relative path to the file.
+        get_filename_component(NEW_FILE_PATH ${NEW_FILE} DIRECTORY)
 
-    # MAC:  Set it's location inside the app package (under Resources).
-    set_property(SOURCE ${FILE} PROPERTY MACOSX_PACKAGE_LOCATION "Resources/${NEW_FILE_PATH}")
+        # MAC:  Set it's location inside the app package (under Resources).
+        set_property(SOURCE ${FILE} PROPERTY MACOSX_PACKAGE_LOCATION "Resources/${NEW_FILE_PATH}")
 
-    install(FILES ${FILE} DESTINATION ${CMAKE_INSTALL_BINDIR}/assets/${NEW_FILE_PATH})
+        install(FILES ${FILE} DESTINATION ${CMAKE_INSTALL_BINDIR}/assets/${NEW_FILE_PATH})
 
-#    message("Setting property")
+    #    message("Setting property")
 
-    if(NOT APPLE)
-        add_custom_command(
-            TARGET ${PROJECT_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets"
-            COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${FILE}" "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets/${NEW_FILE}"
-        )
-    endif()
+        if(NOT APPLE)
+            add_custom_command(
+                TARGET ${PROJECT_NAME} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets"
+                COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${FILE}" "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets/${NEW_FILE}"
+            )
+        endif()
 
-# message("Assets/${NEW_FILE} FILE ${FILE}")
-# Make sure it shows up in the IDE Assets folder
-source_group("Assets/${NEW_FILE_PATH}" FILES "${FILE}")
+        # message("Assets/${NEW_FILE} FILE ${FILE}")
+        # Make sure it shows up in the IDE Assets folder
+        source_group("Assets/${NEW_FILE_PATH}" FILES "${FILE}")
 
-endforeach ()
+    endforeach ()
+endif()
 
 # # SEE THIS! https://discourse.cmake.org/t/how-to-add-resources-to-macos-bundle/9323
 # if(APPLE)

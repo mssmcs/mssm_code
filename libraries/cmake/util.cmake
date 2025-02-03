@@ -55,7 +55,7 @@ endfunction()
 
 function(get_library_dependencies cmake_filename output_variable)
 
-    # message("Getting Library Dependencies: ${cmake_filename}")
+    message("Getting Library Dependencies: ${cmake_filename}")
 
     if(NOT EXISTS "${cmake_filename}/CMakeLists.txt")
         message(FATAL_ERROR "Library not found!!: ${cmake_filename}")
@@ -64,8 +64,25 @@ function(get_library_dependencies cmake_filename output_variable)
 
     file(STRINGS "${cmake_filename}/CMakeLists.txt" THIS_FILE)
 
+    message("CMAKE_HOST_SYSTEM_NAME: ${CMAKE_HOST_SYSTEM_NAME}")
+
+    if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
+        # Windows-specific libraries
+        set(OS_DEP_LIBRARIES "WINDOWS_DEPENDS_ON")
+    elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
+        # Linux-specific libraries
+        set(OS_DEP_LIBRARIES "LINUX_DEPENDS_ON")
+    elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
+        # macOS-specific libraries
+        set(OS_DEP_LIBRARIES "MAC_DEPENDS_ON")
+    else()
+        set(OS_DEP_LIBRARIES "UNKOS_LIBRARIES")
+    endif()
     
-    set(${output_variable} "" PARENT_SCOPE)
+
+    message("OS DEPENDENCIES: ${OS_DEP_LIBRARIES}")
+
+    set(TMP_DEP_LIST "")
 
     while(THIS_FILE)
         list(POP_FRONT THIS_FILE LINE)
@@ -73,10 +90,19 @@ function(get_library_dependencies cmake_filename output_variable)
         # search for lines of the form:  # DEPENDS_ON: lib_one lib_two lib_three
         if (LINE MATCHES "[ \\t]*#[ \\t]*DEPENDS_ON:?(.+)")
             string(REGEX MATCHALL "[a-zA-Z_0-9]+\ |[a-zA-Z_0-9]+$" DEPS_LIST "${CMAKE_MATCH_1}")
-            set(${output_variable} ${DEPS_LIST} PARENT_SCOPE)
-            break()
+            # string(CONCAT TMP_DEP_LIST ${TMP_DEP_LIST} " " ${DEPS_LIST})
+            list(APPEND TMP_DEP_LIST ${DEPS_LIST})
         endif()
+
+        if (LINE MATCHES "[ \\t]*#[ \\t]*${OS_DEP_LIBRARIES}:?(.+)")
+            string(REGEX MATCHALL "[a-zA-Z_0-9]+\ |[a-zA-Z_0-9]+$" DEPS_LIST "${CMAKE_MATCH_1}")
+            # string(CONCAT TMP_DEP_LIST ${TMP_DEP_LIST} " " ${DEPS_LIST})
+            list(APPEND TMP_DEP_LIST ${DEPS_LIST})
+        endif()
+
     endwhile()
+
+    set(${output_variable} ${TMP_DEP_LIST} PARENT_SCOPE)
 endfunction()
 
 function(get_library_list cmake_filename output_variable)
@@ -93,8 +119,9 @@ function(get_library_list cmake_filename output_variable)
         return()
     endif()
 
-    # Initialize the output variable as an empty list
-    set(${output_variable} "" PARENT_SCOPE)
+
+    set(TMP_DEP_LIST "")
+
 
     # Parse the file line by line to find the LIBRARIES definition
     foreach(LINE IN LISTS THIS_FILE)
@@ -111,12 +138,44 @@ function(get_library_list cmake_filename output_variable)
             # Split the matched libraries into a list
 
             string(REPLACE " " ";" DEPS_LIST "${CMAKE_MATCH_1}")
-            set(${output_variable} ${DEPS_LIST} PARENT_SCOPE)
-            return()
+
+            message("Concatenating: ${DEPS_LIST}")
+            # string(CONCAT TMP_DEP_LIST ${TMP_DEP_LIST} ";" ${DEPS_LIST})
+            list(APPEND TMP_DEP_LIST ${DEPS_LIST})
+            # set(${output_variable} ${DEPS_LIST} PARENT_SCOPE)
         endif()
+
+
+        if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
+            # Windows-specific libraries
+            set(OS_LIBRARIES "WINDOWS_LIBRARIES")
+        elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
+            # Linux-specific libraries
+            set(OS_LIBRARIES "LINUX_LIBRARIES")
+        elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
+            # macOS-specific libraries
+            set(OS_LIBRARIES "MAC_LIBRARIES")
+        else()
+            set(OS_LIBRARIES "UNKOS_LIBRARIES")
+        endif()
+
+        if(LINE MATCHES "set\\(${OS_LIBRARIES} ([^\\)]+)\\)")
+            # Split the matched libraries into a list
+
+            string(REPLACE " " ";" DEPS_LIST "${CMAKE_MATCH_1}")
+            # set(${output_variable} ${DEPS_LIST} PARENT_SCOPE)
+
+            message("Concatenating: ${DEPS_LIST}")
+            # string(CONCAT TMP_DEP_LIST ${TMP_DEP_LIST} ";" ${DEPS_LIST})
+            list(APPEND TMP_DEP_LIST ${DEPS_LIST})
+        endif()
+
+
     endforeach()
 
-    # If no match is found, output_variable will remain empty (empty list)
+     message("RETURNING: ${TMP_DEP_LIST}")
+    set(${output_variable} ${TMP_DEP_LIST} PARENT_SCOPE)
+
 endfunction()
 
 
@@ -172,6 +231,26 @@ function(check_uses_qt CMAKE_FILE RESULT)
 
     # Check for Qt-related keywords
     string(REGEX MATCH "find_package\\(Qt[^\)]*\\)|target_link_libraries\\([^\\)]*Qt[^\)]*\\)" MATCHED "${CMAKE_CONTENT}")
+
+    # Set the result
+    if (MATCHED)
+        set(${RESULT} TRUE PARENT_SCOPE)
+    else()
+        set(${RESULT} FALSE PARENT_SCOPE)
+    endif()
+endfunction()
+
+function(check_supports_os CMAKE_FILE RESULT)
+    # Ensure the input file exists
+    if (NOT EXISTS "${CMAKE_FILE}")
+        message(FATAL_ERROR "File ${CMAKE_FILE} does not exist.")
+    endif()
+
+    # Read the file content
+    file(READ "${CMAKE_FILE}" CMAKE_CONTENT)
+
+    # Check for Qt-related keywords
+    string(REGEX MATCH "SUPPORTS_OS_${CMAKE_HOST_SYSTEM_NAME}" MATCHED "${CMAKE_CONTENT}")
 
     # Set the result
     if (MATCHED)

@@ -118,15 +118,4 @@ elseif(APPLE)
     target_compile_definitions(${NAME} PUBLIC VK_USE_PLATFORM_MACOS_MVK)
 endif()
 
-# file(GLOB_RECURSE GLSL_SOURCE_FILES "${PROJECT_SOURCE_DIR}/src/assets/vulkan/*.glsl")
 
-
-# # message("Assets/${NEW_FILE} FILE ${FILE}")
-# # Make sure it shows up in the IDE Assets folder
-# source_group("Assets/${NEW_FILE_PATH}" FILES "${FILE}")
-
-
-
-# target_glsl_shaders(${NAME}
-#     PRIVATE ${GLSL_SOURCE_FILES}
-#     COMPILE_OPTIONS --target-env vulkan1.1)

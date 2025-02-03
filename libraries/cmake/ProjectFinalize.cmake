@@ -5,6 +5,8 @@
 include(${CMAKE_SOURCE_DIR}/../libraries/cmake/CompilerWarnings.cmake)
 set_project_warnings(${PROJECT_NAME})
 
+message("Calling processProjectLibraries.cmake")
+
 include(${CMAKE_SOURCE_DIR}/../libraries/cmake/processProjectLibraries.cmake)
 
 include( InstallRequiredSystemLibraries )

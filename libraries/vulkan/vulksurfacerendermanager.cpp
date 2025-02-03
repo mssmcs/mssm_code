@@ -1,5 +1,6 @@
 #include "vulksurfacerendermanager.h"
 #include <array>
+#include "stb_image_write.h"
 
 VulkSurfaceRenderManager::VulkSurfaceRenderManager() {}
 
@@ -97,18 +98,6 @@ void VulkSurfaceRenderManager::endDrawing()
     processDrawCommands(imageIndex);
 }
 
-std::shared_ptr<mssm::ImageInternal> VulkSurfaceRenderManager::loadImg(std::string filename)
-{
-    for (auto& img : images) {
-        if (img->getFilename() == filename) {
-            return img;
-        }
-    }
-    imagesDirty = true;
-    auto img = std::make_shared<VulkImageInternal>(filename, images.size());
-    images.push_back(img);
-    return img;
-}
 
 std::vector<VkImageView> VulkSurfaceRenderManager::imageViews()
 {
@@ -122,23 +111,62 @@ std::vector<VkImageView> VulkSurfaceRenderManager::imageViews()
     return views;
 }
 
-void VulkImageInternal::load(VulkCommandPool& commandPool)
+VulkImageInternal::VulkImageInternal(std::string filename, uint32_t texIndex, bool cachePixels)
+    : filename{filename}, texIndex{texIndex}, cachePixels{cachePixels}
 {
-    if (isLoaded) {
+}
+
+VulkImageInternal::VulkImageInternal(int width, int height, uint32_t texIndex, bool cachePixels)
+: filename{}, texIndex{texIndex}, cachePixels{cachePixels}
+{
+    w = width;
+    h = height;
+    if (cachePixels) {
+        pixels = new mssm::Color[w*h];
+    }
+}
+
+void VulkImageInternal::load(VulkCommandPool &commandPool)
+{
+    if (isLoaded && !pixelsDirty) {
         return;
     }
-    image.load(commandPool, filename, false);
-    isLoaded = true;
+    if (!isLoaded) {
+        if (filename.empty()) {
+            // TODO: do this in one step
+            image.create(commandPool, w, h, VK_FORMAT_R8G8B8A8_SRGB, cachePixels);
+            image.setPixels(commandPool, std::span<const mssm::Color>(pixels, w*h));
+            delete [] pixels;
+            if (cachePixels) {
+                pixels = image.data<mssm::Color>();
+            }
+            else {
+                pixels = nullptr;
+            }
+            isLoaded = true;
+        }
+        else {
+            image.load(commandPool, filename, cachePixels);
+            if (cachePixels) {
+                pixels = image.data<mssm::Color>();
+            }
+            w = image.width();
+            h = image.height();
+            isLoaded = true;
+        }
+    }
+    else {
+        image.setPixels(commandPool, std::span<const mssm::Color>(pixels, w*h));
+        pixelsDirty = false;
+    }
 }
 
-int VulkImageInternal::width() const
+void VulkImageInternal::updatePixels()
 {
-    return image.width();
-}
-
-int VulkImageInternal::height() const
-{
-    return image.height();
+    pixelsDirty = true;
+    // VulkCommandPool& commandPool;
+    // image.setPixels(commandPool, std::span<const mssm::Color>(pixels, w*h));
+    //throw std::runtime_error("VulkImageInternal::updatePixels() not implemented");
 }
 
 uint32_t VulkImageInternal::textureIndex() const
@@ -373,3 +401,53 @@ void VulkDrawContext::cmdBindDescriptorSetsImpl(VulkPipelineLayout& layout, Vulk
 }
 
 
+
+std::shared_ptr<mssm::ImageInternal> VulkSurfaceRenderManager::loadImg(std::string filename, bool cachePixels)
+{
+    for (auto& img : images) {
+        if (img->getFilename() == filename) {
+            return img;
+        }
+    }
+    imagesDirty = true;
+    auto img = std::make_shared<VulkImageInternal>(filename, images.size(), cachePixels);
+    images.push_back(img);
+    return img;
+}
+
+
+std::shared_ptr<mssm::ImageInternal> VulkSurfaceRenderManager::createImg(int width,
+                                                                         int height,
+                                                                         mssm::Color c,
+                                                                         bool cachePixels)
+{
+    imagesDirty = true;
+    auto img = std::make_shared<VulkImageInternal>(width, height, images.size(), true);
+    auto p = img->getPixels();
+    for (int i = 0; i < width*height; i++) {
+        p[i] = c;
+    }
+    images.push_back(img);
+    return img;
+}
+
+std::shared_ptr<mssm::ImageInternal> VulkSurfaceRenderManager::initImg(int width,
+                                                                       int height,
+                                                                       mssm::Color *pixels,
+                                                                       bool cachePixels)
+{
+    imagesDirty = true;
+    auto img = std::make_shared<VulkImageInternal>(width, height, images.size(), true);
+    auto p = img->getPixels();
+    for (int i = 0; i < width*height; i++) {
+        p[i] = pixels[i];
+    }
+    images.push_back(img);
+    return img;
+}
+
+void VulkSurfaceRenderManager::saveImg(std::shared_ptr<mssm::ImageInternal> img,
+                                       std::string filename)
+{
+    stbi_write_png(filename.c_str(), img->width(), img->height(), 4, img->getPixels(), 4*img->width());
+}

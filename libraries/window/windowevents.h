@@ -2,7 +2,7 @@
 #define WINDOWEVENTS_H
 
 #include <iostream>
-#include <vector>
+
 
 namespace gjh {
 
@@ -243,14 +243,14 @@ public:
     virtual int   mouseDragStartX(MouseButton button) const = 0;
     virtual int   mouseDragStartY(MouseButton button) const = 0;
 
+    template <typename V>
+    constexpr V mouseDragStart(MouseButton button) const { return V{mouseDragStartX(button), mouseDragStartY(button)}; }
+
     virtual int   mousePosX() const = 0;
     virtual int   mousePosY() const = 0;
 
     template <typename V>
     constexpr V mousePos() const { return V{mousePosX(), mousePosY()}; }
-
-    template <typename V>
-    constexpr V mouseDragStart(MouseButton button) const { return V{mouseDragStartX(button), mouseDragStartY(button)}; }
 
     virtual const std::vector<Event>& events() const = 0;
 
@@ -266,7 +266,44 @@ public:
     bool   isShiftKeyPressed() const { return isKeyPressed(Key::LeftShift) || isKeyPressed(Key::RightShift); }
     bool   isCtrlKeyPressed() const { return isKeyPressed(Key::LeftCtrl) || isKeyPressed(Key::RightCtrl); }
     bool   isAltKeyPressed() const { return isKeyPressed(Key::LeftAlt) || isKeyPressed(Key::RightAlt); }
+
+    virtual double timeMicros() const = 0;
+    virtual double timeSeconds() const = 0;
+    virtual double timeMs() const = 0;
+    virtual double elapsedMs() const = 0;
+    virtual double elapsedMicros() const = 0;
+    virtual double elapsedSeconds() const = 0;
 };
+
+class EvtSourceWrapper : public gjh::EventSource
+{
+protected:
+    gjh::EventSource* eventSource{};
+public:
+    EvtSourceWrapper(gjh::EventSource* es) : eventSource{es} {}
+    inline bool isKeyPressed(gjh::Key c) const override { return eventSource->isKeyPressed(c); }
+    inline bool onKeyPress(gjh::Key c) const override { return eventSource->onKeyPress(c); }
+    inline bool onKeyRelease(gjh::Key c) const override { return eventSource->onKeyRelease(c); }
+    inline bool isMousePressed(gjh::MouseButton button) const override { return eventSource->isMousePressed(button); }
+    inline bool onMousePress(gjh::MouseButton button) const override { return eventSource->onMousePress(button); }
+    inline bool onMouseRelease(gjh::MouseButton button) const override { return eventSource->onMouseRelease(button); }
+    inline gjh::Key getKeyPressed() const override  { return eventSource->getKeyPressed(); }
+    inline gjh::MouseButton getMousePressed() const override { return eventSource->getMousePressed(); }
+    inline int getWheelDelta() const override  { return eventSource->getWheelDelta(); }
+    inline double maxDragDistance(gjh::MouseButton button) const override { return eventSource->maxDragDistance(button); }
+    inline int mouseDragStartX(gjh::MouseButton button) const override { return eventSource->mouseDragStartX(button); }
+    inline int mouseDragStartY(gjh::MouseButton button) const override { return eventSource->mouseDragStartY(button); }
+    inline int mousePosX() const override { return eventSource->mousePosX(); }
+    inline int mousePosY() const override { return eventSource->mousePosY(); }
+    inline const std::vector<gjh::Event> &events() const override { return eventSource->events(); }
+    inline double timeMicros() const override { return eventSource->timeMicros(); }
+    inline double timeSeconds() const override { return eventSource->timeSeconds(); }
+    inline double timeMs() const override { return eventSource->timeMs(); }
+    inline double elapsedMs() const override { return eventSource->elapsedMs(); }
+    inline double elapsedMicros() const override { return eventSource->elapsedMicros(); }
+    inline double elapsedSeconds() const override  { return eventSource->elapsedSeconds(); }    
+};
+
 
 } // namespace gjh
 

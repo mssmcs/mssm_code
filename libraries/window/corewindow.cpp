@@ -30,6 +30,10 @@ bool CoreWindow::update(bool autoEndDrawing)
     if (!configured) {
         configure();
         lateConfigure();
+        start_time =
+            std::chrono::duration_cast<std::chrono::microseconds>
+            (std::chrono::steady_clock::now().time_since_epoch()).count();
+        lastDrawTime = std::chrono::steady_clock::now();
     }
     else if (autoEndDrawing) {
         // submit previous drawing commands
@@ -58,6 +62,10 @@ bool CoreWindow::update(bool autoEndDrawing)
     }
 
     beginDrawing(wasResized);
+
+    auto currDrawTime = std::chrono::steady_clock::now();
+    elapsed = std::chrono::duration_cast<std::chrono::microseconds>(currDrawTime - lastDrawTime).count();
+    lastDrawTime = currDrawTime;
 
     return true;
 }
@@ -99,6 +107,8 @@ const std::vector<Event>& EventManager::events() const
 void CoreWindow::configure()
 {
     configured = true;
+
+
 }
 
 void CoreWindow::lateConfigure()

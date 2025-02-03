@@ -94,19 +94,22 @@ class VulkImageInternal : public mssm::ImageInternal
     VulkImage image;
     uint32_t texIndex{0};
     bool isLoaded{false};
+    bool pixelsDirty{false};
+    bool cachePixels{false};
 public:
-    VulkImageInternal(std::string filename, uint32_t texIndex) : filename{filename}, texIndex{texIndex} {}
+    VulkImageInternal(std::string filename, uint32_t texIndex, bool cachePixels);
+    VulkImageInternal(int width, int height, uint32_t texIndex, bool cachePixels);
     void load(VulkCommandPool& commandPool);
-    virtual int width() const override;
-    virtual int height() const override;
     virtual uint32_t textureIndex() const override;
     VkImageView imageView() const { return image.imageView(); }
     std::string getFilename() const { return filename; }
+
+    // ImageInternal interface
+protected:
+    void updatePixels() override;
 };
 
-
-
-class VulkSurfaceRenderManager
+class VulkSurfaceRenderManager : public mssm::ImageLoader
 {
 public:
     std::vector<float> timeStats;
@@ -215,7 +218,6 @@ public:
     }
 
 
-    std::shared_ptr<mssm::ImageInternal> loadImg(std::string filename);
 
     bool getImagesDirty() { return imagesDirty; }
     void clearImagesDirty() { imagesDirty = false; }
@@ -248,9 +250,21 @@ protected:
     }
 
     friend class VulkDrawContext;
+
+    // ImageLoader interface
+public:
+    std::shared_ptr<mssm::ImageInternal> loadImg(std::string filename, bool cachePixels) override;
+    std::shared_ptr<mssm::ImageInternal> createImg(int width,
+                                                   int height,
+                                                   mssm::Color c,
+                                                   bool cachePixels) override;
+    std::shared_ptr<mssm::ImageInternal> initImg(int width,
+                                                 int height,
+                                                 mssm::Color *pixels,
+                                                 bool cachePixels) override;
+    void saveImg(std::shared_ptr<mssm::ImageInternal> img, std::string filename) override;
+
 };
-
-
 
 template<typename T>
 inline VulkSmartBuffer<T> *VulkSurfaceRenderManager::createBuffer(VkDeviceSize vertexCount)
