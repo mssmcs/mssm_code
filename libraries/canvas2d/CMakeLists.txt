@@ -1,5 +1,5 @@
 set(NAME "canvas2d")
-# DEPENDS_ON: array color vec font linmath
+# DEPENDS_ON: array color vec fontinfo linmath
 
 #include(${PROJECT_SOURCE_DIR}/cmake/StaticAnalyzers.cmake)
 
@@ -14,7 +14,7 @@ target_link_libraries(${NAME} INTERFACE
 mssm_array
 mssm_color
 mssm_vec
-mssm_font
+mssm_fontinfo
 mssm_linmath
 )
 

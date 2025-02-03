@@ -1,6 +1,6 @@
 #include "nanovggraphicsbackend.h"
 
-GraphicsBackend<NanovgWindow, mssm::Canvas2d> *loadGraphicsBackend(std::string title,
+GraphicsBackendBase *loadGraphicsBackend(std::string title,
                                                                    int width,
                                                                    int height)
 {

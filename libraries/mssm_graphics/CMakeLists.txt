@@ -1,5 +1,5 @@
 set(NAME "mssm_graphics")
-# DEPENDS_ON: window paths array sound rand canvas2d
+# DEPENDS_ON: window paths array sound rand canvas2d image
 
 # include(${PROJECT_SOURCE_DIR}/cmake/StaticAnalyzers.cmake)
 
@@ -18,5 +18,6 @@ mssm_array
 mssm_sound
 mssm_rand
 canvas2d
+image_base
 )
 

@@ -2,6 +2,9 @@
 #include "paths.h"
 #include "sstream"
 #include <deque>
+#undef max
+#undef min
+#include <algorithm>
 
 
 
@@ -32,6 +35,8 @@
 
 using namespace std;
 using namespace mssm;
+#undef max
+#undef min
 
 int nvgCreateImageCache(NVGcontext* ctx, unsigned char*& cachedImg, const char* filename, int imageFlags)
 {
@@ -542,7 +547,7 @@ void NanovgWindow::endDrawing()
 //     }
 // }
 
-void NanovgWindow::image(Vec2d pos, const Image& img)
+void NanovgWindow::image(Vec2d pos, const mssm::Image& img)
 {
     keepImages.push_back(img.img);
 
@@ -557,7 +562,7 @@ void NanovgWindow::image(Vec2d pos, const Image& img)
     nvgRestore(vg);
 }
 
-void NanovgWindow::image(Vec2d pos, const Image& img, Vec2d src, int srcw, int srch)
+void NanovgWindow::image(Vec2d pos, const mssm::Image& img, Vec2d src, int srcw, int srch)
 {
     keepImages.push_back(img.img);
 
@@ -580,7 +585,7 @@ void NanovgWindow::image(Vec2d pos, const Image& img, Vec2d src, int srcw, int s
     nvgRestore(vg);
 }
 
-void NanovgWindow::image(Vec2d pos, double w, double h, const Image& img)
+void NanovgWindow::image(Vec2d pos, double w, double h, const mssm::Image& img)
 {
     keepImages.push_back(img.img);
 
@@ -601,7 +606,7 @@ void NanovgWindow::image(Vec2d pos, double w, double h, const Image& img)
     nvgRestore(vg);
 }
 
-void NanovgWindow::image(Vec2d pos, double w, double h, const Image& img, Vec2d src, int srcw, int srch)
+void NanovgWindow::image(Vec2d pos, double w, double h, const mssm::Image& img, Vec2d src, int srcw, int srch)
 {
     keepImages.push_back(img.img);
 
@@ -628,7 +633,7 @@ void NanovgWindow::image(Vec2d pos, double w, double h, const Image& img, Vec2d 
     nvgRestore(vg);
 }
 
-void NanovgWindow::imageC(Vec2d center, double angle, const Image &img)
+void NanovgWindow::imageC(Vec2d center, double angle, const mssm::Image& img)
 {
     keepImages.push_back(img.img);
 
@@ -649,7 +654,7 @@ void NanovgWindow::imageC(Vec2d center, double angle, const Image &img)
     nvgRestore(vg);
 }
 
-void NanovgWindow::imageC(Vec2d center, double angle, const Image &img, Vec2d src, int srcw, int srch)
+void NanovgWindow::imageC(Vec2d center, double angle, const mssm::Image& img, Vec2d src, int srcw, int srch)
 {
     keepImages.push_back(img.img);
 
@@ -676,7 +681,7 @@ void NanovgWindow::imageC(Vec2d center, double angle, const Image &img, Vec2d sr
     nvgRestore(vg);
 }
 
-void NanovgWindow::imageC(Vec2d center, double angle, double w, double h, const Image &img)
+void NanovgWindow::imageC(Vec2d center, double angle, double w, double h, const mssm::Image& img)
 {
     keepImages.push_back(img.img);
 
@@ -695,7 +700,7 @@ void NanovgWindow::imageC(Vec2d center, double angle, double w, double h, const 
     nvgRestore(vg);
 }
 
-void NanovgWindow::imageC(Vec2d center, double angle, double w, double h, const Image &img, Vec2d src, int srcw, int srch)
+void NanovgWindow::imageC(Vec2d center, double angle, double w, double h, const mssm::Image &img, Vec2d src, int srcw, int srch)
 {
     keepImages.push_back(img.img);
 

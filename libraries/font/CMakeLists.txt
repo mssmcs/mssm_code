@@ -1,5 +1,5 @@
 set(NAME "mssm_font")
-# DEPENDS_ON: color vulkan fontstash fontinfo
+# DEPENDS_ON: color fontstash fontinfo
 
 # include(${PROJECT_SOURCE_DIR}/cmake/StaticAnalyzers.cmake)
 

@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <concepts>
 #include <iostream>
+#include <cstdint>
 
 namespace mssm {
 

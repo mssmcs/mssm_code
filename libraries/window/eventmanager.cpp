@@ -1,4 +1,6 @@
 #include "eventmanager.h"
+#include <limits>
+#include <cmath>
 
 using namespace gjh;
 using namespace std;

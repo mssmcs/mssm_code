@@ -5,7 +5,6 @@
 using namespace mssm;
 using namespace std;
 
-GraphicsBackend<gjh::CoreWindow, mssm::Canvas2d> *loadGraphicsBackend(std::string title, int width, int height);
 
 
 
@@ -174,8 +173,8 @@ mssm::Sound::Sound(mssm::SoundHost& g, const string &filename)
     }
 }
 
-Graphics::Graphics(std::string title, int width, int height)
-    : GraphicsBase(title, width, height,loadGraphicsBackend),
+Graphics::Graphics(std::string title, int width, int height, std::function<GraphicsBackendBase *(std::string, int, int)> loadBackend)
+    : GraphicsBase(title, width, height,loadBackend),
     Canvas2dWrapper(backend->getCanvas())
 {
 }

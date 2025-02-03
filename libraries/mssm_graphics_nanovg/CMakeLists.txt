@@ -1,5 +1,5 @@
 set(NAME "mssm_graphics_nanovg")
-# DEPENDS_ON: mssm_graphics canvas2d
+# DEPENDS_ON: mssm_graphics canvas2d stbi
 
 add_library(${NAME} STATIC
 
@@ -32,6 +32,7 @@ set_target_properties(${NAME} PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(${NAME} PUBLIC 
 mssm_graphics
 canvas2d
+stbi
 )
 
 
