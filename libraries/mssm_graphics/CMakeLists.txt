@@ -4,7 +4,7 @@ set(NAME "mssm_graphics")
 # include(${PROJECT_SOURCE_DIR}/cmake/StaticAnalyzers.cmake)
 
 add_library(${NAME} STATIC
-graphics.h graphics.cpp
+    graphicsbase.h graphicsbase.cpp
 graphicsbackend.h
 )
 

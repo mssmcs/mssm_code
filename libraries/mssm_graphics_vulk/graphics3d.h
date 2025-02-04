@@ -2,7 +2,7 @@
 #define GRAPHICS3D_H
 
 #include "canvas3d.h"
-#include "graphics.h"
+#include "graphicsbase.h"
 #include "vulkbackendwindow.h"
 
 namespace mssm {

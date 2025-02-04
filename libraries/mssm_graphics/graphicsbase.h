@@ -18,9 +18,6 @@
 
 void splitRows(std::deque<std::string>& lines, const std::string& str, size_t keepLast);
 
-GraphicsBackendBase *loadGraphicsBackend(std::string title, int width, int height);
-
-
 namespace mssm {
 //class GraphicsBase;
 class SoundHost;
@@ -76,11 +73,11 @@ template <typename WINDOW, typename CANVAS>
 class GraphicsBase : public SoundHost, public mssm::ImageLoader, public gjh::EvtSourceWrapper
 {
 protected:
-    GraphicsBackendBase *backend{};
+    GraphicsBackendBase<WINDOW, CANVAS> *backend{};
     WINDOW *window{};
     CANVAS *canvas{};
 public:
-    GraphicsBase(std::string title, int width, int height, std::function<GraphicsBackendBase *(std::string title, int width, int height)> loadGraphicsBackend);
+    GraphicsBase(std::string title, int width, int height, std::function<GraphicsBackendBase<WINDOW, CANVAS> *(std::string title, int width, int height)> loadGraphicsBackend);
     virtual ~GraphicsBase() {}
 
     gjh::EventSource &evtSource() { return *eventSource; }
@@ -368,7 +365,7 @@ public:
 template <typename WINDOW, typename CANVAS>
 mssm::GraphicsBase<WINDOW, CANVAS>::GraphicsBase(std::string title,
                                                  int width, int height,
-                                                 std::function<GraphicsBackendBase*(std::string title, int width, int height)> loadGraphicsBackend)
+                                                 std::function<GraphicsBackendBase<WINDOW, CANVAS>*(std::string title, int width, int height)> loadGraphicsBackend)
     : gjh::EvtSourceWrapper{{}}
 {
     backend = loadGraphicsBackend(title, width, height);
@@ -433,14 +430,6 @@ bool mssm::GraphicsBase<WINDOW, CANVAS>::draw()
     return window->update(true);
 }
 
-
-class Graphics : public GraphicsBase<gjh::CoreWindow, Canvas2d>, public Canvas2dWrapper
-{
-public:
-    Graphics(std::string title, int width, int height,
-             std::function<GraphicsBackendBase *(std::string title, int width, int height)> loadBackend = loadGraphicsBackend);
-    virtual ~Graphics() {}
-};
 
 
 } // namespace mssm

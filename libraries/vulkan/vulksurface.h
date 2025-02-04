@@ -1,6 +1,7 @@
 #ifndef VULKSURFACE_H
 #define VULKSURFACE_H
 
+#define VK_USE_64_BIT_PTR_DEFINES 1
 #include "volk.h"
 
 class VulkSurface

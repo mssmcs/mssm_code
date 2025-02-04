@@ -1,10 +1,5 @@
 #include "vulkgraphicsbackend.h"
 
-GraphicsBackend<VulkBackendWindow, mssm::Canvas3d> *loadGraphicsBackend(std::string title, int width, int height)
-{
-    return new VulkanGraphicsBackend(title, width, height);
-}
-
 void VulkanGraphicsBackend::setCursor(gjh::CoreWindowCursor cursor)
 {
     window->setCursor(cursor);

@@ -1,6 +1,7 @@
 #ifndef VULKDEVICE_H
 #define VULKDEVICE_H
 
+#define VK_USE_64_BIT_PTR_DEFINES 1
 #include "volk.h"
 #include <optional>
 #include <vector>

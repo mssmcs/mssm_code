@@ -20,7 +20,7 @@ mssm_linmath
 mssm_paths
 poly_partition
 canvas3d
-
+mssm_font
 )
 
 # include(${CMAKE_SOURCE_DIR}/../libraries/cmake/glsl-shaders.cmake)

@@ -25,7 +25,7 @@ private:
     //     return pixels[y*w+x];
     // }
     friend class Image;
-    friend class Graphics;
+    //friend class mssm::GraphicsBase;
 };
 
 

@@ -1,11 +1,6 @@
 #include "nanovggraphicsbackend.h"
 
-GraphicsBackendBase *loadGraphicsBackend(std::string title,
-                                                                   int width,
-                                                                   int height)
-{
-    return new NanovgGraphicsBackend(title, width, height);
-}
+
 
 NanovgGraphicsBackend::NanovgGraphicsBackend(std::string title, int width, int height)
 {

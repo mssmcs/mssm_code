@@ -11,6 +11,8 @@ graphics/svgcanvas.cpp
 
 nanovggraphicsbackend.h nanovggraphicsbackend.cpp
 nanovggraphics.h nanovggraphics.cpp
+graphics.h
+graphics.cpp
 
 third_party/nanovg/nanovg.c
 third_party/nanovg/fontstash.h

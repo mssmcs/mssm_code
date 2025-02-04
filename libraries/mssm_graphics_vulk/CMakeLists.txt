@@ -7,6 +7,8 @@ add_library(${NAME} STATIC
 vulkbackendwindow.h vulkbackendwindow.cpp
 vulkgraphicsbackend.h vulkgraphicsbackend.cpp
 graphics3d.h graphics3d.cpp
+graphics.h
+graphics.cpp
 )
 
 target_include_directories(${NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} )

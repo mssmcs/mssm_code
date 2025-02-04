@@ -5,25 +5,26 @@
 #include "corewindow.h"
 #include "image.h"
 
+template <typename WINDOW, typename CANVAS>
 class GraphicsBackendBase : public mssm::ImageLoader {
 public:
     virtual ~GraphicsBackendBase() {}
     virtual gjh::EventSource* eventSource() =0;
-    virtual mssm::Canvas2d* getCanvas() =0;
-    virtual gjh::CoreWindow *getWindow() =0;
+    virtual CANVAS* getCanvas() =0;
+    virtual WINDOW* getWindow() =0;
     virtual void setCursor(gjh::CoreWindowCursor cursor) = 0;
 };
 
 template <typename WINDOW, typename CANVAS>
-class GraphicsBackend : public GraphicsBackendBase
+class GraphicsBackend : public GraphicsBackendBase<WINDOW, CANVAS>
 {
 protected:
     WINDOW *window;
     CANVAS *canvas{};
 public:
     gjh::EventSource* eventSource() { return window; }
-    mssm::Canvas2d* getCanvas() { return canvas; }
-    gjh::CoreWindow *getWindow() { return window; }
+    CANVAS* getCanvas() { return canvas; }
+    WINDOW* getWindow() { return window; }
     virtual ~GraphicsBackend() {}
 };
 

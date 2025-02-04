@@ -1,5 +1,5 @@
 
-#include "graphics.h"
+#include "graphicsbase.h"
 #include "paths.h"
 
 using namespace mssm;
@@ -171,12 +171,6 @@ mssm::Sound::Sound(mssm::SoundHost& g, const string &filename)
     {
         std::cerr << "Error loading sound " << filename << endl;
     }
-}
-
-Graphics::Graphics(std::string title, int width, int height, std::function<GraphicsBackendBase *(std::string, int, int)> loadBackend)
-    : GraphicsBase(title, width, height,loadBackend),
-    Canvas2dWrapper(backend->getCanvas())
-{
 }
 
 
