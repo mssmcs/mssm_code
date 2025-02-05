@@ -1,7 +1,7 @@
 #ifndef GLFWINDOW_H
 #define GLFWINDOW_H
 
-#include "corewindow.h"
+#include "windowbase.h"
 #include <map>
 
 struct GLFWwindow;

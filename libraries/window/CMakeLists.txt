@@ -21,8 +21,8 @@ set(GLFW_BUILD_WAYLAND OFF)
 add_library(${NAME} STATIC
 glfwindow.h
 glfwindow.cpp
-corewindow.h
-corewindow.cpp
+windowbase.h
+windowbase.cpp
 windowevents.h windowevents.cpp
 eventmanager.h eventmanager.cpp
 )

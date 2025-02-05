@@ -1,4 +1,4 @@
-#include "corewindow.h"
+#include "windowbase.h"
 #include <limits>
 
 using namespace std;

@@ -2,7 +2,7 @@
 #define GRAPHICSBACKEND_H
 
 #include "canvas2d.h"
-#include "corewindow.h"
+#include "windowbase.h"
 #include "image.h"
 
 template <typename WINDOW, typename CANVAS>

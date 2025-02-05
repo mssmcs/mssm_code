@@ -2,7 +2,7 @@
 #define VULKANWINDOW_H
 
 #include "image.h"
-#include "corewindow.h"
+#include "windowbase.h"
 #include "vulkabstractwindow.h"
 #include "vulkcanvasbase.h"
 #include "vulkinstance.h"

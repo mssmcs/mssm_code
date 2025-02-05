@@ -1,5 +1,5 @@
-#ifndef COREWINDOW_H
-#define COREWINDOW_H
+#ifndef WINDOWBASE_H
+#define WINDOWBASE_H
 
 #include <vector>
 #include <iostream>
@@ -78,4 +78,4 @@ public:
 };
 }
 
-#endif // COREWINDOW_H
+#endif // WINDOWBASE_H
