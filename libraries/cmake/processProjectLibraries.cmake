@@ -8,11 +8,13 @@ get_filename_component(LIBRARY_ABSOLUTE_PATH ${LIBRARY_RELATIVE_PATH} ABSOLUTE B
 
 include(${CMAKE_SOURCE_DIR}/../libraries/cmake/util.cmake)
 
+# message("BEFORE RESOLVING DEPENDENCIES: ${LIBRARIES}")
+
 # expand list of libraries to include all dependencies
 # (determined by DEPENDS_ON: in the CMakeLists.txt file of each library)
 resolve_library_dependencies("${LIBRARIES}" LIBRARIES)
 
-# message("Setting libraries: ${LIBRARIES}")
+# message("Setting libraries!: ${LIBRARIES}")
 
 # add each library to the project and add them as link libraries to the main executable
 foreach (LIBRARY ${LIBRARIES})

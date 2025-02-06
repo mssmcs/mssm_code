@@ -2,7 +2,7 @@
 
 # set(CPM_USE_NAMED_CACHE_DIRECTORIES TRUE)
 
-message(">>>>> Current Source Directory: ${CMAKE_CURRENT_SOURCE_DIR}")
+# message(">>>>> Current Source Directory: ${CMAKE_CURRENT_SOURCE_DIR}")
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_C_STANDARD 23)
@@ -42,6 +42,19 @@ project(${PROJECT_ID}
 )
 
 message("********* ${PROJECT_NAME} *********")
+
+# append os specific libraries to list of libraries
+
+if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
+    list (APPEND LIBRARIES "${WINDOWS_LIBRARIES}")
+elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
+    list (APPEND LIBRARIES "${LINUX_LIBRARIES}")
+elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
+    list (APPEND LIBRARIES "${MAC_LIBRARIES}")
+else()
+    set(OS_DEP_LIBRARIES "UNKOS_LIBRARIES")
+endif()
+
 
 set(FULL_PROJECT_VERSION ${PROJECT_VERSION})
 set(SHORT_PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")

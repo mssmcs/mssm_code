@@ -55,7 +55,7 @@ endfunction()
 
 function(get_library_dependencies cmake_filename output_variable)
 
-    message("Getting Library Dependencies: ${cmake_filename}")
+    # message("Getting Library Dependencies: ${cmake_filename}")
 
     if(NOT EXISTS "${cmake_filename}/CMakeLists.txt")
         message(FATAL_ERROR "Library not found!!: ${cmake_filename}")
@@ -64,7 +64,7 @@ function(get_library_dependencies cmake_filename output_variable)
 
     file(STRINGS "${cmake_filename}/CMakeLists.txt" THIS_FILE)
 
-    message("CMAKE_HOST_SYSTEM_NAME: ${CMAKE_HOST_SYSTEM_NAME}")
+    # message("CMAKE_HOST_SYSTEM_NAME: ${CMAKE_HOST_SYSTEM_NAME}")
 
     if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
         # Windows-specific libraries
@@ -80,7 +80,7 @@ function(get_library_dependencies cmake_filename output_variable)
     endif()
     
 
-    message("OS DEPENDENCIES: ${OS_DEP_LIBRARIES}")
+    # message("OS DEPENDENCIES: ${OS_DEP_LIBRARIES}")
 
     set(TMP_DEP_LIST "")
 
@@ -119,9 +119,20 @@ function(get_library_list cmake_filename output_variable)
         return()
     endif()
 
+    if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
+        # Windows-specific libraries
+        set(OS_LIBRARIES "WINDOWS_LIBRARIES")
+    elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
+        # Linux-specific libraries
+        set(OS_LIBRARIES "LINUX_LIBRARIES")
+    elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
+        # macOS-specific libraries
+        set(OS_LIBRARIES "MAC_LIBRARIES")
+    else()
+        set(OS_LIBRARIES "UNKOS_LIBRARIES")
+    endif()
 
     set(TMP_DEP_LIST "")
-
 
     # Parse the file line by line to find the LIBRARIES definition
     foreach(LINE IN LISTS THIS_FILE)
@@ -133,43 +144,20 @@ function(get_library_list cmake_filename output_variable)
             continue()
         endif()
 
-        # Match lines like: set(LIBRARIES vec rand)
-        if(LINE MATCHES "set\\(LIBRARIES ([^\\)]+)\\)")
+
+        if(LINE MATCHES "set\\((LIBRARIES|${OS_LIBRARIES}) ([^\\)]+)\\)")
             # Split the matched libraries into a list
+            string(REPLACE " " ";" DEPS_LIST "${CMAKE_MATCH_2}")
 
-            string(REPLACE " " ";" DEPS_LIST "${CMAKE_MATCH_1}")
+            if("${CMAKE_MATCH_1}" STREQUAL "LIBRARIES")
+                message("Concatenating: ${DEPS_LIST}")
+            else()
+                message("Concatenating OS Dependent: ${DEPS_LIST}")
+            endif()
 
-            message("Concatenating: ${DEPS_LIST}")
-            # string(CONCAT TMP_DEP_LIST ${TMP_DEP_LIST} ";" ${DEPS_LIST})
-            list(APPEND TMP_DEP_LIST ${DEPS_LIST})
-            # set(${output_variable} ${DEPS_LIST} PARENT_SCOPE)
-        endif()
-
-
-        if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
-            # Windows-specific libraries
-            set(OS_LIBRARIES "WINDOWS_LIBRARIES")
-        elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
-            # Linux-specific libraries
-            set(OS_LIBRARIES "LINUX_LIBRARIES")
-        elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
-            # macOS-specific libraries
-            set(OS_LIBRARIES "MAC_LIBRARIES")
-        else()
-            set(OS_LIBRARIES "UNKOS_LIBRARIES")
-        endif()
-
-        if(LINE MATCHES "set\\(${OS_LIBRARIES} ([^\\)]+)\\)")
-            # Split the matched libraries into a list
-
-            string(REPLACE " " ";" DEPS_LIST "${CMAKE_MATCH_1}")
-            # set(${output_variable} ${DEPS_LIST} PARENT_SCOPE)
-
-            message("Concatenating: ${DEPS_LIST}")
-            # string(CONCAT TMP_DEP_LIST ${TMP_DEP_LIST} ";" ${DEPS_LIST})
+            # Append to the list
             list(APPEND TMP_DEP_LIST ${DEPS_LIST})
         endif()
-
 
     endforeach()
 
@@ -261,32 +249,3 @@ function(check_supports_os CMAKE_FILE RESULT)
 endfunction()
 
 
-# set(SCANNED_LIBS "")
-# set(LIBS_TO_SCAN ${LIBRARIES})
-
-# while(LIBS_TO_SCAN)
-#     list(GET LIBS_TO_SCAN 0 LIBRARY)
-#     string(STRIP "${LIBRARY}" LIBRARY)
-#     list(REMOVE_AT LIBS_TO_SCAN 0)
-
-#     if (${LIBRARY} IN_LIST SCANNED_LIBS)
-#         message("Already Processed: ${LIBRARY}")
-#         continue()
-#     endif()
-
-#     list(APPEND SCANNED_LIBS ${LIBRARY})
-
-#     message("Popped item: ${LIBRARY}")
-#     get_library_dependencies(${LIBRARY_ABSOLUTE_PATH}/${LIBRARY} LIB_DEPENDENCIES)
-
-#     foreach (DEP ${LIB_DEPENDENCIES})
-#         string(STRIP "${DEP}" DEP)
-#         if (NOT ${DEP} IN_LIST SCANNED_LIBS)
-#             message("Adding to scan list: ${DEP}")
-#             list(APPEND LIBS_TO_SCAN ${DEP})
-#         else()
-#             message("Already scanned: ${DEP}")
-#         endif()
-#     endforeach()
-
-# endwhile()

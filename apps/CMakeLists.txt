@@ -26,7 +26,7 @@ include("${CMAKE_SOURCE_DIR}/../libraries/cmake/StaticAnalyzers.cmake")
 
 
 # Debugging: Display the current source directory
-message(">>>>> Current Source Directory: ${CMAKE_CURRENT_SOURCE_DIR}")
+# message(">>>>> Current Source Directory: ${CMAKE_CURRENT_SOURCE_DIR}")
 
 # Extract the project name from the current source directory
 get_filename_component(TOP_LEVEL_PROJ_NAME "${CMAKE_CURRENT_SOURCE_DIR}" NAME)
@@ -56,7 +56,7 @@ endif()
 # Find and add subdirectories
 file(GLOB SUBDIRECTORIES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} */)
 
-message("Subdirectories: ${SUBDIRECTORIES}")
+# message("Subdirectories: ${SUBDIRECTORIES}")
 
 message("CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
 
@@ -80,7 +80,7 @@ foreach(subdir ${SUBDIRECTORIES})
         # message("Looking for cmake file: ${cmake_file}")
 
         if(NOT EXISTS "${cmake_file}")
-            message("No CMakeLists.txt file found in: ${FULLSUBDIR}")
+            # message("No CMakeLists.txt file found in: ${FULLSUBDIR}")
             continue()
         endif()
 
