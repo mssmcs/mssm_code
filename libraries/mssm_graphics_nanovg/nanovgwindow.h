@@ -29,7 +29,7 @@ private:
 };
 
 
-class NanovgWindow : public gjh::CoreWindowGLFW, public mssm::ImageLoader, public mssm::Canvas2d
+class NanovgWindow : public mssm::CoreWindowGLFW, public mssm::ImageLoader, public mssm::Canvas2d
 {
 protected:
     struct Scissor {
@@ -58,8 +58,8 @@ protected:
     // Canvas2d interface
 public:
     bool isDrawable() override;
-    int width() override { return gjh::CoreWindowGLFW::width(); }
-    int height() override { return gjh::CoreWindowGLFW::height(); }
+    int width() override { return mssm::CoreWindowGLFW::width(); }
+    int height() override { return mssm::CoreWindowGLFW::height(); }
     void setBackground(mssm::Color c = mssm::WHITE) override;
     void line(Vec2d p1, Vec2d p2, mssm::Color c = mssm::WHITE) override;
     void ellipse(Vec2d center, double w, double h, mssm::Color c = mssm::WHITE, mssm::Color f = mssm::TRANS) override;

@@ -5,7 +5,7 @@
 #include <vector>
 
 
-namespace gjh {
+namespace mssm {
 
 /* Defines for GLFW Function keys, so we don't have to include all of glfw in graphics.h  */
 /* hope these don't change on us... */
@@ -276,27 +276,27 @@ public:
     virtual double elapsedSeconds() const = 0;
 };
 
-class EvtSourceWrapper : public gjh::EventSource
+class EvtSourceWrapper : public mssm::EventSource
 {
 protected:
-    gjh::EventSource* eventSource{};
+    mssm::EventSource* eventSource{};
 public:
-    EvtSourceWrapper(gjh::EventSource* es) : eventSource{es} {}
-    inline bool isKeyPressed(gjh::Key c) const override { return eventSource->isKeyPressed(c); }
-    inline bool onKeyPress(gjh::Key c) const override { return eventSource->onKeyPress(c); }
-    inline bool onKeyRelease(gjh::Key c) const override { return eventSource->onKeyRelease(c); }
-    inline bool isMousePressed(gjh::MouseButton button) const override { return eventSource->isMousePressed(button); }
-    inline bool onMousePress(gjh::MouseButton button) const override { return eventSource->onMousePress(button); }
-    inline bool onMouseRelease(gjh::MouseButton button) const override { return eventSource->onMouseRelease(button); }
-    inline gjh::Key getKeyPressed() const override  { return eventSource->getKeyPressed(); }
-    inline gjh::MouseButton getMousePressed() const override { return eventSource->getMousePressed(); }
+    EvtSourceWrapper(mssm::EventSource* es) : eventSource{es} {}
+    inline bool isKeyPressed(mssm::Key c) const override { return eventSource->isKeyPressed(c); }
+    inline bool onKeyPress(mssm::Key c) const override { return eventSource->onKeyPress(c); }
+    inline bool onKeyRelease(mssm::Key c) const override { return eventSource->onKeyRelease(c); }
+    inline bool isMousePressed(mssm::MouseButton button) const override { return eventSource->isMousePressed(button); }
+    inline bool onMousePress(mssm::MouseButton button) const override { return eventSource->onMousePress(button); }
+    inline bool onMouseRelease(mssm::MouseButton button) const override { return eventSource->onMouseRelease(button); }
+    inline mssm::Key getKeyPressed() const override  { return eventSource->getKeyPressed(); }
+    inline mssm::MouseButton getMousePressed() const override { return eventSource->getMousePressed(); }
     inline int getWheelDelta() const override  { return eventSource->getWheelDelta(); }
-    inline double maxDragDistance(gjh::MouseButton button) const override { return eventSource->maxDragDistance(button); }
-    inline int mouseDragStartX(gjh::MouseButton button) const override { return eventSource->mouseDragStartX(button); }
-    inline int mouseDragStartY(gjh::MouseButton button) const override { return eventSource->mouseDragStartY(button); }
+    inline double maxDragDistance(mssm::MouseButton button) const override { return eventSource->maxDragDistance(button); }
+    inline int mouseDragStartX(mssm::MouseButton button) const override { return eventSource->mouseDragStartX(button); }
+    inline int mouseDragStartY(mssm::MouseButton button) const override { return eventSource->mouseDragStartY(button); }
     inline int mousePosX() const override { return eventSource->mousePosX(); }
     inline int mousePosY() const override { return eventSource->mousePosY(); }
-    inline const std::vector<gjh::Event> &events() const override { return eventSource->events(); }
+    inline const std::vector<mssm::Event> &events() const override { return eventSource->events(); }
     inline double timeMicros() const override { return eventSource->timeMicros(); }
     inline double timeSeconds() const override { return eventSource->timeSeconds(); }
     inline double timeMs() const override { return eventSource->timeMs(); }
@@ -306,6 +306,6 @@ public:
 };
 
 
-} // namespace gjh
+} // namespace mssm
 
 #endif // WINDOWEVENTS_H

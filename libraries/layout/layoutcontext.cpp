@@ -131,7 +131,7 @@ void LayoutContext::sendEnter(const PropertyBag& parentProps, LayoutPtr element,
     std::cout << "  Entering: " << element->trail() << std::endl;
     MouseEvt evt;
     evt.action = MouseEvt::Action::enter;
-    evt.button = gjh::MouseButton::None;
+    evt.button = mssm::MouseButton::None;
     evt.pos = pos;
     MouseEventReason reason = MouseEventReason::within;
     element->onMouse(parentProps, reason, evt);
@@ -158,7 +158,7 @@ void LayoutContext::sendExit(const PropertyBag &parentProps, LayoutPtr element, 
 
     MouseEvt evt;
     evt.action = MouseEvt::Action::exit;
-    evt.button = gjh::MouseButton::None;
+    evt.button = mssm::MouseButton::None;
     evt.pos = pos;
     MouseEventReason reason = MouseEventReason::exit;
     element->onMouse(parentProps, reason, evt);

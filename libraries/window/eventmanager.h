@@ -7,7 +7,7 @@
 
 #include "windowevents.h"
 
-namespace gjh {
+namespace mssm {
 
 class EventManager : public WindowEventSink, public EventSource {
 private:

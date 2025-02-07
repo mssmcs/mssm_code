@@ -1,6 +1,6 @@
 #include "vulkgraphicsbackend.h"
 
-void VulkanGraphicsBackend::setCursor(gjh::CoreWindowCursor cursor)
+void VulkanGraphicsBackend::setCursor(mssm::CoreWindowCursor cursor)
 {
     window->setCursor(cursor);
 }

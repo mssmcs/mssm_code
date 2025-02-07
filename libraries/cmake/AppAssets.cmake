@@ -1,26 +1,26 @@
 include(${CMAKE_SOURCE_DIR}/../libraries/cmake/util.cmake)
 
 # Assets for all platforms
-# set(SHARED_STATIC_ASSETS ${PROJECT_SOURCE_DIR}/src/assets/fonts/Manrope.ttf)
+# set(SHARED_STATIC_ASSETS ${PROJECT_SOURCE_DIR}/assets/fonts/Manrope.ttf)
 
 # Platform specific static assets
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
   target_sources(${PROJECT_NAME} PUBLIC
     ${SHARED_STATIC_ASSETS}
-    ${PROJECT_SOURCE_DIR}/src/assets/icons/icon.ico
+    ${PROJECT_SOURCE_DIR}/assets/icons/icon.ico
     ${PROJECT_SOURCE_DIR}/packaging/Manifests/app.rc
     ${PROJECT_SOURCE_DIR}/packaging/Manifests/App.manifest)
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   set(MACOSX_STATIC_ASSETS
     ${SHARED_STATIC_ASSETS}
-    ${PROJECT_SOURCE_DIR}/src/assets/icons/icon.icns)
+    ${PROJECT_SOURCE_DIR}/assets/icons/icon.icns)
   target_sources(${PROJECT_NAME} PUBLIC ${MACOSX_STATIC_ASSETS} ${ASSETS})
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   target_sources(${PROJECT_NAME} PRIVATE ${SHARED_STATIC_ASSETS})
 endif ()
 
 # build list of assets
-set(ASSETS_SOURCE_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/src/assets")
+set(ASSETS_SOURCE_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/assets")
 file(GLOB_RECURSE ASSETS "${ASSETS_SOURCE_FOLDER}/*")
 filter_regex(EXCLUDE "\\.DS_Store" ASSETS ${ASSETS})
 
@@ -68,8 +68,8 @@ endforeach ()
 if ("vulkan" IN_LIST LIBRARIES)
     message("Vulkan library being used: setting up shader compilation...")
 
-    set(ASSETS_SOURCE_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/src/assets")
-    file(GLOB_RECURSE GLSL_SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/assets/vulkan/*.glsl")
+    set(ASSETS_SOURCE_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/assets")
+    file(GLOB_RECURSE GLSL_SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/assets/vulkan/*.glsl")
 
     include(${CMAKE_SOURCE_DIR}/../libraries/cmake/glsl-shaders.cmake)
 

@@ -32,11 +32,11 @@ public:
     friend class SoundHost;
 };
 
-using Key = gjh::Key;
-using MouseButton = gjh::MouseButton;
-using Event = gjh::Event;
-using EvtType = gjh::EvtType;
-using ModKey = gjh::ModKey;
+using Key = mssm::Key;
+using MouseButton = mssm::MouseButton;
+using Event = mssm::Event;
+using EvtType = mssm::EvtType;
+using ModKey = mssm::ModKey;
 
 // template <typename CANVAS>
 // class HasBackend {
@@ -49,7 +49,7 @@ using ModKey = gjh::ModKey;
 //     virtual ~HasBackend() {
 //         delete backend;
 //     }
-//     gjh::CoreWindow *getWindow() { return backend->getWindow(); }
+//     mssm::CoreWindow *getWindow() { return backend->getWindow(); }
 //     CANVAS *getCanvas() { return backend->getCanvas(); }
 // };
 
@@ -70,7 +70,7 @@ protected:
 
 
 template <typename WINDOW, typename CANVAS>
-class GraphicsBase : public SoundHost, public mssm::ImageLoader, public gjh::EvtSourceWrapper
+class GraphicsBase : public SoundHost, public mssm::ImageLoader, public mssm::EvtSourceWrapper
 {
 protected:
     GraphicsBackendBase<WINDOW, CANVAS> *backend{};
@@ -80,8 +80,8 @@ public:
     GraphicsBase(std::string title, int width, int height, std::function<GraphicsBackendBase<WINDOW, CANVAS> *(std::string title, int width, int height)> loadGraphicsBackend);
     virtual ~GraphicsBase() {}
 
-    gjh::EventSource &evtSource() { return *eventSource; }
-    gjh::CoreWindow *getWindow() { return window; }
+    mssm::EventSource &evtSource() { return *eventSource; }
+    mssm::CoreWindow *getWindow() { return window; }
 
     std::stringstream cout;
     std::stringstream cerr;
@@ -341,7 +341,7 @@ public:
 
 //    bool isDrawable() override { return canvas->isDrawable(); }
 
-  //  void setCursor(gjh::CoreWindowCursor cursor) { backend->setCursor(cursor); }
+  //  void setCursor(mssm::CoreWindowCursor cursor) { backend->setCursor(cursor); }
 
 
 
@@ -366,7 +366,7 @@ template <typename WINDOW, typename CANVAS>
 mssm::GraphicsBase<WINDOW, CANVAS>::GraphicsBase(std::string title,
                                                  int width, int height,
                                                  std::function<GraphicsBackendBase<WINDOW, CANVAS>*(std::string title, int width, int height)> loadGraphicsBackend)
-    : gjh::EvtSourceWrapper{{}}
+    : mssm::EvtSourceWrapper{{}}
 {
     backend = loadGraphicsBackend(title, width, height);
     canvas = backend->getCanvas();

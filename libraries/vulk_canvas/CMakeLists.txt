@@ -26,14 +26,14 @@ mssm_font
 # include(${CMAKE_SOURCE_DIR}/../libraries/cmake/glsl-shaders.cmake)
 
 
-# file(GLOB_RECURSE GLSL_SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/assets/vulkan/*.glsl")
+# file(GLOB_RECURSE GLSL_SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/assets/vulkan/*.glsl")
 
 
 # # message("Assets/${NEW_FILE} FILE ${FILE}")
 # # Make sure it shows up in the IDE Assets folder
 # source_group("Assets/${NEW_FILE_PATH}" FILES "${FILE}")
 
-# message("Searching in ${CMAKE_SOURCE_DIR}/src/assets/vulkan/*.glsl")
+# message("Searching in ${CMAKE_SOURCE_DIR}/assets/vulkan/*.glsl")
 # message("GLSL_SOURCE_FILES: ${GLSL_SOURCE_FILES}")
 
 

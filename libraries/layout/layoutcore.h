@@ -192,9 +192,9 @@ public:
     bool isAnyDragFocus() const { return context->isAnyDragFocus(); }
 
     bool canLeftClick() const { return !isAnyDragFocus(); }
-    void setCursor(gjh::CoreWindowCursor cursor) { context->setCursor(cursor); }
+    void setCursor(mssm::CoreWindowCursor cursor) { context->setCursor(cursor); }
 
-    gjh::CoreWindowCursor getCursor() const { return context->getCursor(); }
+    mssm::CoreWindowCursor getCursor() const { return context->getCursor(); }
 
     void pushClip(mssm::Canvas2d& g, const RectI& rect, bool replace);
     void popClip(mssm::Canvas2d& g);

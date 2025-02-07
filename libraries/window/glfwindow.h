@@ -7,7 +7,7 @@
 struct GLFWwindow;
 struct GLFWcursor;
 
-namespace gjh {
+namespace mssm {
 
 GLFWwindow* buildWindow(WindowEventSink* owner, int width, int height, std::string title, bool isOpenGL);
 

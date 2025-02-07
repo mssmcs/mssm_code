@@ -14,11 +14,11 @@
 # For development:
 # add_custom_command(TARGET ${NAME} POST_BUILD
 #   COMMAND ${CMAKE_COMMAND} -E copy_directory
-#   ${PROJECT_SOURCE_DIR}/src/assets
+#   ${PROJECT_SOURCE_DIR}/assets
 #   $<TARGET_FILE_DIR:${NAME}>/../share)
 
 # # For distribution:
-# install(DIRECTORY ${PROJECT_SOURCE_DIR}/src/assets/ DESTINATION ${CMAKE_INSTALL_DATADIR})
+# install(DIRECTORY ${PROJECT_SOURCE_DIR}/assets/ DESTINATION ${CMAKE_INSTALL_DATADIR})
 
 # Linux app icon setup
 configure_file(
@@ -27,6 +27,6 @@ configure_file(
   @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.desktop
   DESTINATION share/applications)
-install(FILES ${PROJECT_SOURCE_DIR}/src/assets/icons/BaseAppIcon.png
+install(FILES ${PROJECT_SOURCE_DIR}/assets/icons/BaseAppIcon.png
   DESTINATION share/pixmaps
   RENAME ${PROJECT_NAME}_icon.png)

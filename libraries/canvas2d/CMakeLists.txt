@@ -18,7 +18,7 @@ mssm_fontinfo
 mssm_linmath
 )
 
-# file(GLOB_RECURSE GLSL_SOURCE_FILES "${PROJECT_SOURCE_DIR}/src/assets/vulkan/*.glsl")
+# file(GLOB_RECURSE GLSL_SOURCE_FILES "${PROJECT_SOURCE_DIR}/assets/vulkan/*.glsl")
 
 
 # # message("Assets/${NEW_FILE} FILE ${FILE}")

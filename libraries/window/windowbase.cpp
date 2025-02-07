@@ -3,7 +3,7 @@
 
 using namespace std;
 
-using namespace gjh;
+using namespace mssm;
 
 CoreWindow::CoreWindow(string title, int width, int height)
     : title{title}

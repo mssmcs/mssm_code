@@ -6,7 +6,7 @@ LayoutManager::LayoutManager(LayoutContext *context, LayoutPtr layout)
 {
     layout->updateLayer(0, 0);
     layout->setOuterMargins(5);
- //   gjh::CoreWindow &g{*context->getWindow()};
+ //   mssm::CoreWindow &g{*context->getWindow()};
 
     lastMousePos = context->mousePos();
 }
@@ -17,7 +17,7 @@ LayoutManager::LayoutManager(LayoutContext *context, LayoutHelper::Builder build
 
 void LayoutManager::propagateEvents(const PropertyBag &parentProps)
 {
-    //gjh::CoreWindow &g{*context->getWindow()};
+    //mssm::CoreWindow &g{*context->getWindow()};
 
     MouseEvt evt;
     KeyEvt keyEvt;
@@ -40,7 +40,7 @@ void LayoutManager::propagateEvents(const PropertyBag &parentProps)
 
     for (auto &e : context->events()) {
         switch (e.evtType) {
-        case gjh::EvtType::MousePress:
+        case mssm::EvtType::MousePress:
             evt.action = MouseEvt::Action::press;
             evt.pos = {e.x, e.y};
             evt.mods = e.mods;
@@ -48,7 +48,7 @@ void LayoutManager::propagateEvents(const PropertyBag &parentProps)
             propagateMouse(parentProps, screenRect, evt);
             sent = true;
             break;
-        case gjh::EvtType::MouseRelease:
+        case mssm::EvtType::MouseRelease:
             evt.action = MouseEvt::Action::release;
             evt.pos = {e.x, e.y};
             evt.mods = e.mods;
@@ -56,48 +56,48 @@ void LayoutManager::propagateEvents(const PropertyBag &parentProps)
             propagateMouse(parentProps, screenRect, evt);
             sent = true;
             break;
-        case gjh::EvtType::MouseMove:
+        case mssm::EvtType::MouseMove:
             if (e.arg
                 & 0x01) { // TODO: hack:  arg = BITMASK OF BUTTONS!  1 = 0  2 = 1  4 = 2,  x and y = mouse pos
                 evt.action = MouseEvt::Action::drag;
                 evt.pos = {e.x, e.y};
                 evt.mods = e.mods;
-                evt.button = gjh::MouseButton::Left;
-                evt.dragDelta = evt.pos - context->mouseDragStart(gjh::MouseButton::Left);
-                evt.dragMax = context->maxDragDistance(gjh::MouseButton::Left);
+                evt.button = mssm::MouseButton::Left;
+                evt.dragDelta = evt.pos - context->mouseDragStart(mssm::MouseButton::Left);
+                evt.dragMax = context->maxDragDistance(mssm::MouseButton::Left);
                 propagateMouse(parentProps, screenRect, evt);
                 sent = true;
             }
             break;
-        case gjh::EvtType::MouseWheel:
+        case mssm::EvtType::MouseWheel:
             evt.action = MouseEvt::Action::scroll;
             evt.pos = {e.x, e.y};
             evt.mods = e.mods;
             evt.dragDelta = {0.0, e.arg};
-            evt.button = gjh::MouseButton::None;
+            evt.button = mssm::MouseButton::None;
             propagateMouse(parentProps, screenRect, evt);
             break;
-        case gjh::EvtType::KeyPress:
+        case mssm::EvtType::KeyPress:
             keyEvt.action = KeyEvt::Action::press;
             keyEvt.key = e.key();
             keyEvt.mods = e.mods;
             propagateKey(parentProps, screenRect, keyEvt);
             break;
-        case gjh::EvtType::KeyRepeat:
+        case mssm::EvtType::KeyRepeat:
             keyEvt.action = KeyEvt::Action::repeat;
             keyEvt.key = e.key();
             keyEvt.mods = e.mods;
             propagateKey(parentProps, screenRect, keyEvt);
             break;
-        case gjh::EvtType::KeyRelease:
+        case mssm::EvtType::KeyRelease:
             keyEvt.action = KeyEvt::Action::release;
             keyEvt.key = e.key();
             keyEvt.mods = e.mods;
             propagateKey(parentProps, screenRect, keyEvt);
             break;
-        case gjh::EvtType::MusicEvent:
+        case mssm::EvtType::MusicEvent:
             break;
-        case gjh::EvtType::WindowResize:
+        case mssm::EvtType::WindowResize:
             break;
         }
     }
@@ -105,12 +105,12 @@ void LayoutManager::propagateEvents(const PropertyBag &parentProps)
     if (!sent && moved) {
         evt.action = MouseEvt::Action::move;
         evt.pos = context->mousePos();
-        evt.button = gjh::MouseButton::Left;
+        evt.button = mssm::MouseButton::Left;
         propagateMouse(parentProps, screenRect, evt);
     }
 }
 
-void LayoutManager::draw(gjh::CoreWindow& window, mssm::Canvas2d &g)
+void LayoutManager::draw(mssm::CoreWindow& window, mssm::Canvas2d &g)
 {
 
     PropertyBag parentProps;
@@ -170,7 +170,7 @@ void LayoutManager::draw(gjh::CoreWindow& window, mssm::Canvas2d &g)
         window.setCursor(context->getCursor()); // set cursor to whatever was set by layout
 
         context->setCursor(
-            gjh::CoreWindowCursor::arrow); // reset layout cursor so that it auto defaults to arrow
+            mssm::CoreWindowCursor::arrow); // reset layout cursor so that it auto defaults to arrow
 
         if (layout->hasDragFocus()) {
             g.rect({0, 0}, g.width() - 1, g.height() - 1, mssm::RED);
@@ -219,7 +219,7 @@ LayoutBase::EvtProp LayoutManager::propagateMouse(const PropertyBag &parentProps
 
 LayoutBase::EvtProp LayoutManager::propagateKey(const PropertyBag &parentProps, const RectI &clip, KeyEvt &evt)
 {
-    if (evt.key == gjh::Key::Tab) {
+    if (evt.key == mssm::Key::Tab) {
         context->setDebug(true);
     }
 

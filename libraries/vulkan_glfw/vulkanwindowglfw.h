@@ -4,7 +4,7 @@
 #include "vulkabstractwindow.h"
 #include "glfwindow.h"
 
-class VulkanWindowGLFW : public gjh::CoreWindowGLFW, public VulkAbstractWindow
+class VulkanWindowGLFW : public mssm::CoreWindowGLFW, public VulkAbstractWindow
 {
 public:
     VulkanWindowGLFW(std::string title, int width, int height);

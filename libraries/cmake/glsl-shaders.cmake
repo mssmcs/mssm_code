@@ -66,7 +66,7 @@ function(target_glsl_shaders TARGET_NAME)
     target_glsl_shaders "${OPTIONS}" "${SINGLE_VALUE_KEYWORDS}"
     "${MULTI_VALUE_KEYWORDS}" ${ARGN})
 
-    set(ASSETS_SOURCE_FOLDER "${CMAKE_SOURCE_DIR}/src/assets")
+    set(ASSETS_SOURCE_FOLDER "${CMAKE_SOURCE_DIR}/assets")
 
     foreach(GLSL_FILE IN LISTS target_glsl_shaders_INTERFACE)
 

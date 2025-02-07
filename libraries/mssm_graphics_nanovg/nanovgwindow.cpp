@@ -184,7 +184,7 @@ void ImageInternalVG::updatePixels()
 }
 
 NanovgWindow::NanovgWindow(std::string title, int width, int height)
-    : gjh::CoreWindowGLFW(title, width, height, true)
+    : mssm::CoreWindowGLFW(title, width, height, true)
 {
 
 }
@@ -200,7 +200,7 @@ NanovgWindow::~NanovgWindow()
 
 void NanovgWindow::configure()
 {
-    gjh::CoreWindowGLFW::configure(); // call base class
+    mssm::CoreWindowGLFW::configure(); // call base class
 
 #ifdef INCLUDE_SOUND
     soundPlayer.init();

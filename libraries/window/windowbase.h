@@ -7,7 +7,7 @@
 
 #include "eventmanager.h"
 
-namespace gjh {
+namespace mssm {
 
 class CoreWindow : public EventManager
 {

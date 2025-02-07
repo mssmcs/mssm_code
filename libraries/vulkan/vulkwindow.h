@@ -11,7 +11,7 @@
 
 template <typename T>
 concept SupportsVulkanWindow =
-    std::is_base_of<gjh::CoreWindow, T>::value &&
+    std::is_base_of<mssm::CoreWindow, T>::value &&
     std::is_base_of<VulkAbstractWindow, T>::value;
 
 template <typename T>

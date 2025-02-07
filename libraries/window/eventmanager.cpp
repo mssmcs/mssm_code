@@ -2,7 +2,7 @@
 #include <limits>
 #include <cmath>
 
-using namespace gjh;
+using namespace mssm;
 using namespace std;
 
 EventManager::EventManager()

@@ -19,7 +19,7 @@ public:
     LayoutManager(LayoutContext *context, LayoutHelper::Builder builder);
 
     void propagateEvents(const PropertyBag &parentProps);
-    void draw(gjh::CoreWindow &window, mssm::Canvas2d &g);
+    void draw(mssm::CoreWindow &window, mssm::Canvas2d &g);
 
 
     LayoutBase::EvtProp propagateMouse(const PropertyBag &parentProps, const RectI& clip, MouseEvt& evt);

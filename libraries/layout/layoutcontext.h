@@ -27,9 +27,9 @@ public:
         scroll
     };
     Action action{};
-    gjh::MouseButton button{gjh::MouseButton::Left};
+    mssm::MouseButton button{mssm::MouseButton::Left};
     Vec2d pos;
-    gjh::ModKey  mods;
+    mssm::ModKey  mods;
     Vec2d dragDelta;
     double dragMax;
     bool insideElement{false};
@@ -43,13 +43,13 @@ public:
         release
     };
     Action action{};
-    gjh::Key key{gjh::Key::None};
-    gjh::ModKey  mods;
+    mssm::Key key{mssm::Key::None};
+    mssm::ModKey  mods;
     Vec2d pos;
     bool insideElement{false};
-    bool hasCtrl() const { return static_cast<int>(mods) & static_cast<int>(gjh::ModKey::Ctrl);  }
-    bool hasAlt() const { return static_cast<int>(mods) & static_cast<int>(gjh::ModKey::Alt);   }
-    bool hasShift() const { return static_cast<int>(mods) & static_cast<int>(gjh::ModKey::Shift); }
+    bool hasCtrl() const { return static_cast<int>(mods) & static_cast<int>(mssm::ModKey::Ctrl);  }
+    bool hasAlt() const { return static_cast<int>(mods) & static_cast<int>(mssm::ModKey::Alt);   }
+    bool hasShift() const { return static_cast<int>(mods) & static_cast<int>(mssm::ModKey::Shift); }
 };
 
 enum class MouseEventReason {
@@ -82,7 +82,7 @@ public:
     void updateWindowRect(const RectI& windowRect);
     const RectI& getWindowRect() const { return windowRect; }
 
- //   virtual gjh::CoreWindow* getWindow() = 0;
+ //   virtual mssm::CoreWindow* getWindow() = 0;
     // focus handling
     void setKeyboardFocus(LayoutPtr focusElement);
     void setDragFocus(LayoutPtr focusElement);
@@ -99,13 +99,13 @@ public:
     virtual double textWidth(const FontInfo &sizeAndFace, const std::string& str) = 0;
     virtual std::vector<double> getCharacterXOffsets(const FontInfo& sizeAndFace, double startX, const std::string& text) = 0;
 
-    virtual std::vector<gjh::Event> events() = 0;
-    virtual Vec2d mouseDragStart(gjh::MouseButton button) const = 0;
-    virtual double maxDragDistance(gjh::MouseButton button) const = 0;
+    virtual std::vector<mssm::Event> events() = 0;
+    virtual Vec2d mouseDragStart(mssm::MouseButton button) const = 0;
+    virtual double maxDragDistance(mssm::MouseButton button) const = 0;
 
     // cursor
-    virtual void setCursor(gjh::CoreWindowCursor cursor) = 0;
-    virtual gjh::CoreWindowCursor getCursor() const = 0;
+    virtual void setCursor(mssm::CoreWindowCursor cursor) = 0;
+    virtual mssm::CoreWindowCursor getCursor() const = 0;
 
     virtual Vec2d mousePos() const = 0;
 

@@ -3,7 +3,6 @@
 #include "vec3d.h"
 
 using namespace mssm;
-using namespace gjh;
 
 LayoutLabel::LayoutLabel(Private privateTag, LayoutContext *context, std::string text, const FontInfo &sizeAndFace)
     : LayoutWithContent{context}, text{text}, sizeAndFace{sizeAndFace}

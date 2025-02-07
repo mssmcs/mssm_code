@@ -75,7 +75,7 @@ void VulkBackendWindowQt::endDrawing()
     VulkanGraphicsWindow<VulkanWindowQT, VulkCanvas>::endDrawing();
 }
 
-void VulkBackendWindowQt::setCursor(gjh::CoreWindowCursor cursor)
+void VulkBackendWindowQt::setCursor(mssm::CoreWindowCursor cursor)
 {
     VulkanGraphicsWindow<VulkanWindowQT, VulkCanvas>::setCursor(cursor);
 }

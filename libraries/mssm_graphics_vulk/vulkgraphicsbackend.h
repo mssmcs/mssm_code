@@ -11,7 +11,7 @@ public:
 
     // GraphicsBackend interface
 public:
-    void setCursor(gjh::CoreWindowCursor cursor) override;
+    void setCursor(mssm::CoreWindowCursor cursor) override;
     std::shared_ptr<mssm::ImageInternal> loadImg(std::string filename, bool cachePixels) override;
     std::shared_ptr<mssm::ImageInternal> createImg(int width, int height, mssm::Color c, bool cachePixels) override;
     std::shared_ptr<mssm::ImageInternal> initImg(int width, int height, mssm::Color* pixels, bool cachePixels) override;

@@ -403,13 +403,13 @@ void LayoutSplitter::draw(const PropertyBag& parentProps, mssm::Canvas2d& g)
 {
     if (hovering) {
         if (isHorizontal) {
-            context->setCursor(gjh::CoreWindowCursor::hresize);
+            context->setCursor(mssm::CoreWindowCursor::hresize);
             double x = getSplitPos();
             double y1 = pos.y + margins.top;
             double y2 = pos.y + height - margins.bottom;
             g.line({x, y1}, {x, y2}, hasDragFocus() ? mssm::YELLOW : mssm::WHITE);
         } else {
-            context->setCursor(gjh::CoreWindowCursor::vresize);
+            context->setCursor(mssm::CoreWindowCursor::vresize);
             double y = getSplitPos();
             double x1 = pos.x + margins.left;
             double x2 = pos.x + width - margins.right;

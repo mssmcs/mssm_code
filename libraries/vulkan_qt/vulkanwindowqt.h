@@ -32,7 +32,7 @@ public:
 protected:
     void beginDrawing(bool wasResized) override;
     void endDrawing() override;
-    void setCursor(gjh::CoreWindowCursor cursor) override;
+    void setCursor(mssm::CoreWindowCursor cursor) override;
 };
 
 

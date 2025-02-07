@@ -18,8 +18,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
 include("${CMAKE_SOURCE_DIR}/../libraries/cmake/get_cpm.cmake")
-# include("${CMAKE_SOURCE_DIR}/../libraries/cmake/StandardProjectSettings.cmake")
-
 
 include("${CMAKE_SOURCE_DIR}/../libraries/cmake/StaticAnalyzers.cmake")
 
@@ -84,6 +82,12 @@ foreach(subdir ${SUBDIRECTORIES})
             continue()
         endif()
 
+        check_supports_os("${cmake_file}" SUPPORTS_OS)
+        if (NOT SUPPORTS_OS)
+            message("OS not supported, skipping project: ${subdir}")
+            continue()
+        endif()
+
         if (NOT QT_FOUND) 
            check_uses_qt("${cmake_file}" USES_QT)
            if (USES_QT)
@@ -95,7 +99,9 @@ foreach(subdir ${SUBDIRECTORIES})
         message(STATUS "Getting referenced libraries: ${subdir}")            
         get_library_list("${FULLSUBDIR}" LIBRARY_LIST)
         message("Library list: ${LIBRARY_LIST}")
+
         list(APPEND ALL_LIBRARIES ${LIBRARY_LIST})
+
         list(APPEND PROJECT_FOLDERS ${subdir})
     else()
         # message("Not a directory: ${FULLSUBDIR}")

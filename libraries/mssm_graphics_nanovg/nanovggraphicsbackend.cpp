@@ -9,7 +9,7 @@ NanovgGraphicsBackend::NanovgGraphicsBackend(std::string title, int width, int h
     canvas = window;
 }
 
-void NanovgGraphicsBackend::setCursor(gjh::CoreWindowCursor cursor)
+void NanovgGraphicsBackend::setCursor(mssm::CoreWindowCursor cursor)
 {
     window->setCursor(cursor);
 }

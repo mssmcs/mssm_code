@@ -6,7 +6,7 @@
 #include <QPainter>
 
 CoreWindowQt::CoreWindowQt(std::function<void (CoreWindowQt *)> drawCallback)
-    : gjh::CoreWindow("CoreWindowQt", 800, 600), drawCallback{drawCallback}
+    : mssm::CoreWindow("CoreWindowQt", 800, 600), drawCallback{drawCallback}
 {
     this->setSurfaceType(QSurface::VulkanSurface);
 }
@@ -36,119 +36,119 @@ void CoreWindowQt::endDrawing()
 
 }
 
-gjh::MouseButton toGjhMouseButton(Qt::MouseButton qtButton)
+mssm::MouseButton toMssmMouseButton(Qt::MouseButton qtButton)
 {
     switch (qtButton) {
-    case Qt::LeftButton: return gjh::MouseButton::Left;
-    case Qt::RightButton: return gjh::MouseButton::Right;
-    case Qt::MiddleButton: return gjh::MouseButton::Middle;
-    default: return gjh::MouseButton::None;
+    case Qt::LeftButton: return mssm::MouseButton::Left;
+    case Qt::RightButton: return mssm::MouseButton::Right;
+    case Qt::MiddleButton: return mssm::MouseButton::Middle;
+    default: return mssm::MouseButton::None;
     }
 }
 
-gjh::ModKey toGjhModKey(Qt::KeyboardModifiers qtMods)
+mssm::ModKey toMssmModKey(Qt::KeyboardModifiers qtMods)
 {
     int mods = 0;
     if (qtMods & Qt::ShiftModifier) {
-        mods |= static_cast<int>(gjh::ModKey::Shift);
+        mods |= static_cast<int>(mssm::ModKey::Shift);
     }
     if (qtMods & Qt::ControlModifier) {
-        mods |= static_cast<int>(gjh::ModKey::Ctrl);
+        mods |= static_cast<int>(mssm::ModKey::Ctrl);
     }
     if (qtMods & Qt::AltModifier) {
-        mods |= static_cast<int>(gjh::ModKey::Alt);
+        mods |= static_cast<int>(mssm::ModKey::Alt);
     }
-    return static_cast<gjh::ModKey>(mods);
+    return static_cast<mssm::ModKey>(mods);
 }
 
-gjh::Key toGjhKey(Qt::Key qtKey)
+mssm::Key toMssmKey(Qt::Key qtKey)
 {
     switch (qtKey) {
-    case Qt::Key_Escape: return gjh::Key::ESC;
-    case Qt::Key_Tab: return gjh::Key::Tab;
-    case Qt::Key_Backspace: return gjh::Key::Backspace;
-    case Qt::Key_Return: return gjh::Key::ENTER;
-    case Qt::Key_Enter: return gjh::Key::ENTER;
-    case Qt::Key_Insert: return gjh::Key::Insert;
-    case Qt::Key_Delete: return gjh::Key::Delete;
-    case Qt::Key_Left: return gjh::Key::Left;
-    case Qt::Key_Up: return gjh::Key::Up;
-    case Qt::Key_Right: return gjh::Key::Right;
-    case Qt::Key_Down: return gjh::Key::Down;
-    case Qt::Key_PageUp: return gjh::Key::PageUp;
-    case Qt::Key_PageDown: return gjh::Key::PageDown;
-    case Qt::Key_Shift: return gjh::Key::LeftShift;
-    case Qt::Key_Control: return gjh::Key::LeftCtrl;
-    case Qt::Key_Alt: return gjh::Key::LeftAlt;
-    case Qt::Key_A: return gjh::Key('A');
-    case Qt::Key_B: return gjh::Key('B');
-    case Qt::Key_C: return gjh::Key('C');
-    case Qt::Key_D: return gjh::Key('D');
-    case Qt::Key_E: return gjh::Key('E');
-    case Qt::Key_F: return gjh::Key('F');
-    case Qt::Key_G: return gjh::Key('G');
-    case Qt::Key_H: return gjh::Key('H');
-    case Qt::Key_I: return gjh::Key('I');
-    case Qt::Key_J: return gjh::Key('J');
-    case Qt::Key_K: return gjh::Key('K');
-    case Qt::Key_L: return gjh::Key('L');
-    case Qt::Key_M: return gjh::Key('M');
-    case Qt::Key_N: return gjh::Key('N');
-    case Qt::Key_O: return gjh::Key('O');
-    case Qt::Key_P: return gjh::Key('P');
-    case Qt::Key_Q: return gjh::Key('Q');
-    case Qt::Key_R: return gjh::Key('R');
-    case Qt::Key_S: return gjh::Key('S');
-    case Qt::Key_T: return gjh::Key('T');
-    case Qt::Key_U: return gjh::Key('U');
-    case Qt::Key_V: return gjh::Key('V');
-    case Qt::Key_W: return gjh::Key('W');
-    case Qt::Key_X: return gjh::Key('X');
-    case Qt::Key_Y: return gjh::Key('Y');
-    case Qt::Key_Z: return gjh::Key('Z');
-    case Qt::Key_0: return gjh::Key('0');
-    case Qt::Key_1: return gjh::Key('1');
-    case Qt::Key_2: return gjh::Key('2');
-    case Qt::Key_3: return gjh::Key('3');
-    case Qt::Key_4: return gjh::Key('4');
-    case Qt::Key_5: return gjh::Key('5');
-    case Qt::Key_6: return gjh::Key('6');
-    case Qt::Key_7: return gjh::Key('7');
-    case Qt::Key_8: return gjh::Key('8');
-    case Qt::Key_9: return gjh::Key('9');
-    case Qt::Key_Greater: return gjh::Key('>');
-    case Qt::Key_Less: return gjh::Key('<');
-    case Qt::Key_Comma: return gjh::Key(',');
-    case Qt::Key_Period: return gjh::Key('.');
-    case Qt::Key_Slash: return gjh::Key('/');
-    case Qt::Key_Backslash: return gjh::Key('\\');
-    case Qt::Key_Minus: return gjh::Key('-');
-    case Qt::Key_Plus: return gjh::Key('+');
-    case Qt::Key_Asterisk: return gjh::Key('*');
-    case Qt::Key_AsciiCircum: return gjh::Key('^');
-    case Qt::Key_Percent: return gjh::Key('%');
-    case Qt::Key_Ampersand: return gjh::Key('&');
-    case Qt::Key_Bar: return gjh::Key('|');
-    case Qt::Key_Exclam: return gjh::Key('!');
-    case Qt::Key_At: return gjh::Key('@');
-    case Qt::Key_NumberSign: return gjh::Key('#');
-    case Qt::Key_Dollar: return gjh::Key('$');
-    case Qt::Key_ParenLeft: return gjh::Key('(');
-    case Qt::Key_ParenRight: return gjh::Key(')');
-    case Qt::Key_Equal: return gjh::Key('=');
-    case Qt::Key_Colon: return gjh::Key(':');
-    case Qt::Key_Semicolon: return gjh::Key(';');
-    case Qt::Key_QuoteDbl: return gjh::Key('"');
-    case Qt::Key_QuoteLeft: return gjh::Key('`');
-    case Qt::Key_BraceLeft: return gjh::Key('{');
-    case Qt::Key_BraceRight: return gjh::Key('}');
-    case Qt::Key_BracketLeft: return gjh::Key('[');
-    case Qt::Key_BracketRight: return gjh::Key(']');
-    case Qt::Key_Apostrophe: return gjh::Key('\'');
-    case Qt::Key_Underscore: return gjh::Key('_');
-    case Qt::Key_hyphen: return gjh::Key('-');
-    case Qt::Key_Space: return gjh::Key::Space;
-    default: return gjh::Key::None;
+    case Qt::Key_Escape: return mssm::Key::ESC;
+    case Qt::Key_Tab: return mssm::Key::Tab;
+    case Qt::Key_Backspace: return mssm::Key::Backspace;
+    case Qt::Key_Return: return mssm::Key::ENTER;
+    case Qt::Key_Enter: return mssm::Key::ENTER;
+    case Qt::Key_Insert: return mssm::Key::Insert;
+    case Qt::Key_Delete: return mssm::Key::Delete;
+    case Qt::Key_Left: return mssm::Key::Left;
+    case Qt::Key_Up: return mssm::Key::Up;
+    case Qt::Key_Right: return mssm::Key::Right;
+    case Qt::Key_Down: return mssm::Key::Down;
+    case Qt::Key_PageUp: return mssm::Key::PageUp;
+    case Qt::Key_PageDown: return mssm::Key::PageDown;
+    case Qt::Key_Shift: return mssm::Key::LeftShift;
+    case Qt::Key_Control: return mssm::Key::LeftCtrl;
+    case Qt::Key_Alt: return mssm::Key::LeftAlt;
+    case Qt::Key_A: return mssm::Key('A');
+    case Qt::Key_B: return mssm::Key('B');
+    case Qt::Key_C: return mssm::Key('C');
+    case Qt::Key_D: return mssm::Key('D');
+    case Qt::Key_E: return mssm::Key('E');
+    case Qt::Key_F: return mssm::Key('F');
+    case Qt::Key_G: return mssm::Key('G');
+    case Qt::Key_H: return mssm::Key('H');
+    case Qt::Key_I: return mssm::Key('I');
+    case Qt::Key_J: return mssm::Key('J');
+    case Qt::Key_K: return mssm::Key('K');
+    case Qt::Key_L: return mssm::Key('L');
+    case Qt::Key_M: return mssm::Key('M');
+    case Qt::Key_N: return mssm::Key('N');
+    case Qt::Key_O: return mssm::Key('O');
+    case Qt::Key_P: return mssm::Key('P');
+    case Qt::Key_Q: return mssm::Key('Q');
+    case Qt::Key_R: return mssm::Key('R');
+    case Qt::Key_S: return mssm::Key('S');
+    case Qt::Key_T: return mssm::Key('T');
+    case Qt::Key_U: return mssm::Key('U');
+    case Qt::Key_V: return mssm::Key('V');
+    case Qt::Key_W: return mssm::Key('W');
+    case Qt::Key_X: return mssm::Key('X');
+    case Qt::Key_Y: return mssm::Key('Y');
+    case Qt::Key_Z: return mssm::Key('Z');
+    case Qt::Key_0: return mssm::Key('0');
+    case Qt::Key_1: return mssm::Key('1');
+    case Qt::Key_2: return mssm::Key('2');
+    case Qt::Key_3: return mssm::Key('3');
+    case Qt::Key_4: return mssm::Key('4');
+    case Qt::Key_5: return mssm::Key('5');
+    case Qt::Key_6: return mssm::Key('6');
+    case Qt::Key_7: return mssm::Key('7');
+    case Qt::Key_8: return mssm::Key('8');
+    case Qt::Key_9: return mssm::Key('9');
+    case Qt::Key_Greater: return mssm::Key('>');
+    case Qt::Key_Less: return mssm::Key('<');
+    case Qt::Key_Comma: return mssm::Key(',');
+    case Qt::Key_Period: return mssm::Key('.');
+    case Qt::Key_Slash: return mssm::Key('/');
+    case Qt::Key_Backslash: return mssm::Key('\\');
+    case Qt::Key_Minus: return mssm::Key('-');
+    case Qt::Key_Plus: return mssm::Key('+');
+    case Qt::Key_Asterisk: return mssm::Key('*');
+    case Qt::Key_AsciiCircum: return mssm::Key('^');
+    case Qt::Key_Percent: return mssm::Key('%');
+    case Qt::Key_Ampersand: return mssm::Key('&');
+    case Qt::Key_Bar: return mssm::Key('|');
+    case Qt::Key_Exclam: return mssm::Key('!');
+    case Qt::Key_At: return mssm::Key('@');
+    case Qt::Key_NumberSign: return mssm::Key('#');
+    case Qt::Key_Dollar: return mssm::Key('$');
+    case Qt::Key_ParenLeft: return mssm::Key('(');
+    case Qt::Key_ParenRight: return mssm::Key(')');
+    case Qt::Key_Equal: return mssm::Key('=');
+    case Qt::Key_Colon: return mssm::Key(':');
+    case Qt::Key_Semicolon: return mssm::Key(';');
+    case Qt::Key_QuoteDbl: return mssm::Key('"');
+    case Qt::Key_QuoteLeft: return mssm::Key('`');
+    case Qt::Key_BraceLeft: return mssm::Key('{');
+    case Qt::Key_BraceRight: return mssm::Key('}');
+    case Qt::Key_BracketLeft: return mssm::Key('[');
+    case Qt::Key_BracketRight: return mssm::Key(']');
+    case Qt::Key_Apostrophe: return mssm::Key('\'');
+    case Qt::Key_Underscore: return mssm::Key('_');
+    case Qt::Key_hyphen: return mssm::Key('-');
+    case Qt::Key_Space: return mssm::Key::Space;
+    default: return mssm::Key::None;
     }
 }
 
@@ -193,44 +193,44 @@ bool CoreWindowQt::event(QEvent *event)
         {
             QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
             auto combo = keyEvent->keyCombination();
-            if (toGjhKey(combo.key()) == gjh::Key::None) {
+            if (toMssmKey(combo.key()) == mssm::Key::None) {
                 return false;
             }
             auto pos = QCursor::pos();
-            this->postEvent(pos.x(), pos.y(), gjh::EvtType::KeyPress, toGjhModKey(keyEvent->modifiers()), toGjhKey(combo.key()));
+            this->postEvent(pos.x(), pos.y(), mssm::EvtType::KeyPress, toMssmModKey(keyEvent->modifiers()), toMssmKey(combo.key()));
         }
         return true;
     case QEvent::KeyRelease:
         {
             QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
             auto combo = keyEvent->keyCombination();
-            if (toGjhKey(combo.key()) == gjh::Key::None) {
+            if (toMssmKey(combo.key()) == mssm::Key::None) {
                 return false;
             }
             auto pos = QCursor::pos();
-            this->postEvent(pos.x(), pos.y(), gjh::EvtType::KeyRelease, toGjhModKey(keyEvent->modifiers()), toGjhKey(combo.key()));
+            this->postEvent(pos.x(), pos.y(), mssm::EvtType::KeyRelease, toMssmModKey(keyEvent->modifiers()), toMssmKey(combo.key()));
         }
         return true;
     case QEvent::MouseButtonPress:
         {
             QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
             auto pos = mouseEvent->pos();
-            auto button = toGjhMouseButton(mouseEvent->button());
-            if (button == gjh::MouseButton::None) {
+            auto button = toMssmMouseButton(mouseEvent->button());
+            if (button == mssm::MouseButton::None) {
                 return false;
             }
-            this->postEvent(pos.x(), pos.y(), gjh::EvtType::MousePress, toGjhModKey(mouseEvent->modifiers()), button);
+            this->postEvent(pos.x(), pos.y(), mssm::EvtType::MousePress, toMssmModKey(mouseEvent->modifiers()), button);
         }
         return true;
     case QEvent::MouseButtonRelease:
         {
             QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
             auto pos = mouseEvent->pos();
-            auto button = toGjhMouseButton(mouseEvent->button());
-            if (button == gjh::MouseButton::None) {
+            auto button = toMssmMouseButton(mouseEvent->button());
+            if (button == mssm::MouseButton::None) {
                 return false;
             }
-            this->postEvent(pos.x(), pos.y(), gjh::EvtType::MouseRelease, toGjhModKey(mouseEvent->modifiers()), button);
+            this->postEvent(pos.x(), pos.y(), mssm::EvtType::MouseRelease, toMssmModKey(mouseEvent->modifiers()), button);
         }
         return true;
     case QEvent::MouseMove:
@@ -242,28 +242,28 @@ bool CoreWindowQt::event(QEvent *event)
                 return false;
             }
             auto pos = mouseEvent->pos();
-            this->postEvent(pos.x(), pos.y(), gjh::EvtType::MouseMove, toGjhModKey(mouseEvent->modifiers()), 0);
+            this->postEvent(pos.x(), pos.y(), mssm::EvtType::MouseMove, toMssmModKey(mouseEvent->modifiers()), 0);
         }
         return true;
     case QEvent::Wheel:
         {
             QWheelEvent *wheelEvent = static_cast<QWheelEvent*>(event);
             auto pos = wheelEvent->angleDelta();
-            this->postEvent(pos.x(), pos.y(), gjh::EvtType::MouseWheel, toGjhModKey(wheelEvent->modifiers()), pos.y());
+            this->postEvent(pos.x(), pos.y(), mssm::EvtType::MouseWheel, toMssmModKey(wheelEvent->modifiers()), pos.y());
         }
         return true;
     }
     return QWindow::event(event);
 }
 
-void CoreWindowQt::setCursor(gjh::CoreWindowCursor cursor)
+void CoreWindowQt::setCursor(mssm::CoreWindowCursor cursor)
 {
     throw std::logic_error("not implemented");
 }
 
 
 CoreWindowQtWidget::CoreWindowQtWidget(std::function<void (CoreWindowQtWidget *)> drawCallback)
-    : gjh::CoreWindow("CoreWindowQtWidget", 800, 600), drawCallback{drawCallback}
+    : mssm::CoreWindow("CoreWindowQtWidget", 800, 600), drawCallback{drawCallback}
 {
     //this->setSurfaceType(QSurface::VulkanSurface);
 }
@@ -308,7 +308,7 @@ bool CoreWindowQtWidget::event(QEvent *event)
         // if (detached) {
         //     return true;
         // }
-        // if (gjh::CoreWindow::update(false)) {
+        // if (mssm::CoreWindow::update(false)) {
         //     drawCallback(this);
         //     QWidget::update(); // render continuously
         // }
@@ -334,44 +334,44 @@ bool CoreWindowQtWidget::event(QEvent *event)
     {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
         auto combo = keyEvent->keyCombination();
-        if (toGjhKey(combo.key()) == gjh::Key::None) {
+        if (toMssmKey(combo.key()) == mssm::Key::None) {
             return false;
         }
         auto pos = QCursor::pos();
-        this->postEvent(pos.x(), pos.y(), gjh::EvtType::KeyPress, toGjhModKey(keyEvent->modifiers()), toGjhKey(combo.key()));
+        this->postEvent(pos.x(), pos.y(), mssm::EvtType::KeyPress, toMssmModKey(keyEvent->modifiers()), toMssmKey(combo.key()));
     }
     break;
     case QEvent::KeyRelease:
     {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
         auto combo = keyEvent->keyCombination();
-        if (toGjhKey(combo.key()) == gjh::Key::None) {
+        if (toMssmKey(combo.key()) == mssm::Key::None) {
             return false;
         }
         auto pos = QCursor::pos();
-        this->postEvent(pos.x(), pos.y(), gjh::EvtType::KeyRelease, toGjhModKey(keyEvent->modifiers()), toGjhKey(combo.key()));
+        this->postEvent(pos.x(), pos.y(), mssm::EvtType::KeyRelease, toMssmModKey(keyEvent->modifiers()), toMssmKey(combo.key()));
     }
     break;
     case QEvent::MouseButtonPress:
     {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
         auto pos = mouseEvent->pos();
-        auto button = toGjhMouseButton(mouseEvent->button());
-        if (button == gjh::MouseButton::None) {
+        auto button = toMssmMouseButton(mouseEvent->button());
+        if (button == mssm::MouseButton::None) {
             return false;
         }
-        this->postEvent(pos.x(), pos.y(), gjh::EvtType::MousePress, toGjhModKey(mouseEvent->modifiers()), button);
+        this->postEvent(pos.x(), pos.y(), mssm::EvtType::MousePress, toMssmModKey(mouseEvent->modifiers()), button);
     }
     break;
     case QEvent::MouseButtonRelease:
     {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
         auto pos = mouseEvent->pos();
-        auto button = toGjhMouseButton(mouseEvent->button());
-        if (button == gjh::MouseButton::None) {
+        auto button = toMssmMouseButton(mouseEvent->button());
+        if (button == mssm::MouseButton::None) {
             return false;
         }
-        this->postEvent(pos.x(), pos.y(), gjh::EvtType::MouseRelease, toGjhModKey(mouseEvent->modifiers()), button);
+        this->postEvent(pos.x(), pos.y(), mssm::EvtType::MouseRelease, toMssmModKey(mouseEvent->modifiers()), button);
     }
     break;
     case QEvent::MouseMove:
@@ -383,14 +383,14 @@ bool CoreWindowQtWidget::event(QEvent *event)
                 return false;
             }
             auto pos = mouseEvent->pos();
-            this->postEvent(pos.x(), pos.y(), gjh::EvtType::MouseMove, toGjhModKey(mouseEvent->modifiers()), 0);
+            this->postEvent(pos.x(), pos.y(), mssm::EvtType::MouseMove, toMssmModKey(mouseEvent->modifiers()), 0);
         }
     break;
     case QEvent::Wheel:
     {
         QWheelEvent *wheelEvent = static_cast<QWheelEvent*>(event);
         auto pos = wheelEvent->angleDelta();
-        this->postEvent(pos.x(), pos.y(), gjh::EvtType::MouseWheel, toGjhModKey(wheelEvent->modifiers()), pos.y());
+        this->postEvent(pos.x(), pos.y(), mssm::EvtType::MouseWheel, toMssmModKey(wheelEvent->modifiers()), pos.y());
     }
     break;
     }
@@ -419,7 +419,7 @@ void CoreWindowQtWidget::paintEvent(QPaintEvent *event)
         return;
     }
 
-    if (gjh::CoreWindow::update(true)) {
+    if (mssm::CoreWindow::update(true)) {
         //drawCallback(this);
         std::cout << "Callback: ";
        // QWidget::update(); // render continuously

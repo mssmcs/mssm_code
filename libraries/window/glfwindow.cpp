@@ -15,7 +15,7 @@
 #endif
 
 using namespace std;
-using namespace gjh;
+using namespace mssm;
 
 void errorcb(int error, const char* desc)
 {
@@ -25,7 +25,7 @@ void errorcb(int error, const char* desc)
 
 
 // thanks to: https://stackoverflow.com/users/514130/shmo
-namespace gjh {
+namespace mssm {
 
 
 // get required vulkan extensions for use with glfw
@@ -471,10 +471,10 @@ void CoreWindowGLFW::pollEvents()
     glfwPollEvents();
 }
 
-} // namespace gjh
+} // namespace mssm
 
 
-void gjh::CoreWindowGLFW::setCursor(CoreWindowCursor cursor)
+void mssm::CoreWindowGLFW::setCursor(CoreWindowCursor cursor)
 {
     if (cursor == activeCursor) {
         return;
@@ -482,22 +482,22 @@ void gjh::CoreWindowGLFW::setCursor(CoreWindowCursor cursor)
     auto c = cursors[cursor];
     if (c == nullptr) {
         switch (cursor) {
-        case gjh::CoreWindowCursor::arrow:
+        case mssm::CoreWindowCursor::arrow:
             c = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
             break;
-        case gjh::CoreWindowCursor::iBeam:
+        case mssm::CoreWindowCursor::iBeam:
             c = glfwCreateStandardCursor(GLFW_IBEAM_CURSOR);
             break;
-        case gjh::CoreWindowCursor::crosshair:
+        case mssm::CoreWindowCursor::crosshair:
             c = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
             break;
-        case gjh::CoreWindowCursor::hand:
+        case mssm::CoreWindowCursor::hand:
             c = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
             break;
-        case gjh::CoreWindowCursor::hresize:
+        case mssm::CoreWindowCursor::hresize:
             c = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
             break;
-        case gjh::CoreWindowCursor::vresize:
+        case mssm::CoreWindowCursor::vresize:
             c = glfwCreateStandardCursor(GLFW_VRESIZE_CURSOR);
             break;
         }

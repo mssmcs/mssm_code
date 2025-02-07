@@ -7,7 +7,7 @@
 
 #include "corewindow.h"
 
-class CoreWindowQt : public QVulkanWindow, public gjh::CoreWindow
+class CoreWindowQt : public QVulkanWindow, public mssm::CoreWindow
 {
 protected:
     bool closeRequested = false;
@@ -25,10 +25,10 @@ protected:
     void endDrawing() override;
 
     bool event(QEvent *event) override;
-    void setCursor(gjh::CoreWindowCursor cursor) override;
+    void setCursor(mssm::CoreWindowCursor cursor) override;
 };
 
-class CoreWindowQtWidget : public QWidget, public gjh::CoreWindow
+class CoreWindowQtWidget : public QWidget, public mssm::CoreWindow
 {
     Q_OBJECT
 
