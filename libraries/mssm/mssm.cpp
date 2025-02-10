@@ -1,5 +1,5 @@
 #include <thread>
-#include "fmt/core.h"
+
 
 #include "mssm.h"
 
@@ -140,7 +140,7 @@ int main()
     }
     catch (const std::exception& ex) {
         println();
-        println("Exception thrown: {}", ex.what());
+        fmt::println("Exception thrown: {}", ex.what());
         println();
         cout.flush();
         delay(10);

@@ -4,19 +4,24 @@
 #include <iostream>
 #include <sstream>
 
+
 #include "array.h"
 #include "rand.h"
 #include "paths.h"
 
+#ifdef HASLIB_FMT
+#include "fmt/core.h"
+using fmt::print;
+using fmt::println;
+#endif
+
 using namespace std;
-using namespace fmt;
-// using fmt::print;
-// using fmt::println;
+
 
 template <typename T>
 void print(T value)
 {
-    print("{}", value);
+    fmt::print("{}", value);
 }
 
 template <typename T>
@@ -25,7 +30,7 @@ void println(T value)
     println("{}", value);
 }
 
-inline void println() { println(""); }
+inline void println() { fmt::println(""); }
 
 char readChar();
 int readInt();

@@ -1,5 +1,6 @@
 set(NAME "mssm_utils")
-# DEPENDS_ON: array rand paths vec fmt
+# DEPENDS_ON: array rand paths vec
+# WINDOWS_DEPENDS_ON: fmt
 
 # include(${PROJECT_SOURCE_DIR}/cmake/StaticAnalyzers.cmake)
 
