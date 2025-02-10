@@ -5,6 +5,10 @@ set(CMAKE_C_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # set(CMAKE_C_STANDARD_REQUIRED ON)
 
+# add subdirectories that should be excluded from the build
+set(EXCLUDE_SUBDIRS
+
+)
 
 
 # Not your situation, but in case you have a different linker
@@ -63,6 +67,12 @@ set(PROJECT_FOLDERS "")
 
 # first scan subdirectories (assumed to be projects) for their dependencies
 foreach(subdir ${SUBDIRECTORIES})
+
+    if ("${subdir}" IN_LIST EXCLUDE_SUBDIRS)
+        message("skipping project (because it appears in EXCLUDE_SUBDIRS): ${subdir}")
+        continue()
+    endif()
+
     set(FULLSUBDIR "${CMAKE_CURRENT_SOURCE_DIR}/${subdir}")
     if(IS_DIRECTORY ${FULLSUBDIR})
         # Extract the name of the directory
@@ -95,10 +105,14 @@ foreach(subdir ${SUBDIRECTORIES})
                 continue()
             endif()
         endif()
+
+
         
         message(STATUS "Getting referenced libraries: ${subdir}")            
         get_library_list("${FULLSUBDIR}" LIBRARY_LIST)
         message("Library list: ${LIBRARY_LIST}")
+
+
 
         list(APPEND ALL_LIBRARIES ${LIBRARY_LIST})
 
