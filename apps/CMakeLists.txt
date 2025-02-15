@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # add subdirectories that should be excluded from the build
 set(EXCLUDE_SUBDIRS
-
+mlspring25-logistic_regression-ml_app
 )
 
 

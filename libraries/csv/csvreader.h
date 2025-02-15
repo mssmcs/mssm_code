@@ -19,6 +19,15 @@ public:
 
 class CsvReader
 {
+    enum class State
+    {
+        before,
+        inField,
+        inQuote,
+        onQuote,
+        after,
+        skipping
+    };
 private:
     std::ifstream _reader;
     bool _endOfLine;
@@ -28,7 +37,7 @@ private:
 
     static constexpr int bufferSize = 4096;
 
-    int  state;
+    State state;
     char buffer[bufferSize];
     int  pos;
     int  length;
@@ -39,9 +48,9 @@ public:
 
     bool SyntaxError() { return _syntaxError; }
 
-    std::vector<std::vector<std::string>> read();
+    std::vector<std::vector<std::string>> read(bool skipFirstRow);
 
-    void process(std::function<void(std::vector<std::string>&&)> func);
+    void process(std::function<void(std::vector<std::string>&&)> func, bool skipFirstRow);
 
     bool readLine(std::vector<std::string>& oneRow);
 };
