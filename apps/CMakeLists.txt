@@ -130,6 +130,10 @@ get_filename_component(LIBRARY_ABSOLUTE_PATH ${LIBRARY_RELATIVE_PATH} ABSOLUTE B
 
 message("Library absolute path: ${LIBRARY_ABSOLUTE_PATH}")
 
+get_filename_component(APP_TEMPLATE_ABSOLUTE_PATH ../app_template ABSOLUTE BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
+message("Application Template path: ${APP_TEMPLATE_ABSOLUTE_PATH}")
+
 resolve_library_dependencies("${ALL_LIBRARIES}" ALL_LIBRARIES)
 
 
