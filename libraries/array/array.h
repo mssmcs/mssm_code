@@ -769,6 +769,9 @@ public:
     Array(std::initializer_list<BoolWrapper> items) : ArrayBase<bool, BoolWrapper>{items} {}
 };
 
+} // namespace mssm
+
+
 template <typename T>
 struct fmt::formatter<mssm::Array<T>> : fmt::formatter<T> {
     template <typename FormatContext>
@@ -789,6 +792,5 @@ struct fmt::formatter<mssm::Array<T>> : fmt::formatter<T> {
     }
 };
 
-} // namespace mssm
 
 #endif // MSSM_ARRAY_H
