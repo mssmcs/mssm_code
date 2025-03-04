@@ -10,7 +10,7 @@ set(PROJECT_VERSION 0.0.1.0)
 set(PROJECT_COMPANY_NAME "My Company")
 set(PROJECT_COMPANY_NAMESPACE "com.mycompany")  # Reverse domain name notation
 
-set(LIBRARIES ) # <<<<= list of libraries to link against. This should be a list of 
+set(LIBRARIES ) # <<<<= list of libraries to link against. This should be a list of
 # folder names from the libraries folder two levels above this file
 #  for example: set(LIBRARIES eigen linmath)
 
