@@ -13,6 +13,10 @@
 
 using vec2 = float[2];
 
+constexpr double degreesToRadians(double degrees) {
+    return degrees * 3.14159265358979323846 / 180.0;
+}
+
 template <typename T>
 class Vec2base
 {
@@ -21,6 +25,12 @@ public:
     T y;
 
     constexpr Vec2base() : x{0}, y{0} {}
+
+    static constexpr Vec2base zero() { return {0, 0}; }
+    static constexpr Vec2base one() { return {1, 1}; }
+    static constexpr Vec2base unitX() { return {1, 0}; }
+    static constexpr Vec2base unitY() { return {0, 1}; }
+    static constexpr Vec2base max() { return {std::numeric_limits<T>::max(), std::numeric_limits<T>::max()}; }
 
     template<typename V>
     explicit constexpr Vec2base(const V& o) : x{static_cast<T>(o.x)}, y{static_cast<T>(o.y)} {}
@@ -38,11 +48,19 @@ public:
     constexpr T magnitude()  const { return std::hypot(x,y); }
     constexpr T magSquared() const { return x*x+y*y; }
 
+    constexpr Vec2base rot90() const { return { -y, x}; }    //CCW
+    constexpr Vec2base rot180() const { return { -x, -y}; }  //CCW
+    constexpr Vec2base rot270() const { return { y, -x}; }   //CCW
+
     constexpr void scale(T s) { x *= s; y *= s; }
     constexpr void rotate(double radians) { *this = { x * cos(radians) - y * sin(radians), x * sin(radians) + y * cos(radians) };}
+
+    constexpr void rotateDeg(double degrees) { double rad = degreesToRadians(degrees); *this = { x * cos(rad) - y * sin(rad), x * sin(rad) + y * cos(rad) };}
     constexpr void translate(const Vec2base& offset) { x += offset.x; y += offset.y; }
 
     constexpr Vec2base rotated(double radians) const { Vec2base res = *this; res.rotate(radians); return res; }
+    constexpr Vec2base rotatedDeg(double degrees) const { Vec2base res = *this; res.rotateDeg(degrees); return res; }
+
     constexpr Vec2base scaled(T s) const { Vec2base res = *this; res.scale(s); return res; }
     constexpr Vec2base translated(Vec2base offset) const { Vec2base res = *this; res.translate(offset); return res; }
 
@@ -50,6 +68,7 @@ public:
     constexpr bool exactlyEquals(const Vec2base& other) const { return x == other.x && y == other.y; }
 
     constexpr Vec2base unit() const { auto m = magnitude(); return { x/m, y/m }; }
+    constexpr Vec2base unit(double& vmag) const { vmag = magnitude(); return { x/vmag, y/vmag }; }
 
     constexpr Vec2base operator-() const { return {-x, -y}; }
     std::string toIntString() const;

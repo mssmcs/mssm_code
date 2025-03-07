@@ -61,6 +61,7 @@ public:
     static constexpr Color WHITE(uint8_t alpha = 0xFF) { return {255u,255u,255u,alpha}; }
     static constexpr Color GREY(uint8_t alpha = 0xFF) { return {128u,128u,128u,alpha}; }
     static constexpr Color BLACK(uint8_t alpha = 0xFF) { return {0u,0u,0u,alpha}; }
+    static constexpr Color BROWN(uint8_t alpha = 0xFF) { return {165u,42u,42u,alpha}; }
     static constexpr Color LTGREY(uint8_t alpha = 0xFF) { return {211u,211u,211u,alpha}; }
     static constexpr Color PINK(uint8_t alpha = 0xFF) { return {0xFFu,0xC0u,0xCBu,alpha}; }
     static constexpr Color RED(uint8_t alpha = 0xFF) { return {255u, 0u, 0u,alpha}; }
@@ -75,6 +76,8 @@ public:
     static constexpr Color PURPLE(uint8_t alpha = 0xFF) { return {128u, 0u, 255u,alpha}; }
     static constexpr Color MAGENTA(uint8_t alpha = 0xFF) { return {255u, 0u, 255u,alpha}; }
     static constexpr Color NEON_ROSE(uint8_t alpha = 0xFF) { return {255u, 0u, 128u,alpha}; }
+    static constexpr Color LTGREEN(uint8_t alpha = 0xFF) { return {200u,255u,200u,alpha}; }
+    static constexpr Color LTBLUE(uint8_t alpha = 0xFF) { return {200u,200u,255u,alpha}; }
 
     friend std::ostream& operator<<(std::ostream& os, const Color& color) {
         // Format the output as RGBA (or you can use another format like RGB if desired)
@@ -84,6 +87,10 @@ public:
            << static_cast<int>(color.a) << ")";
         return os;
     }
+
+    static Color fromHexRGB(std::string hexstring);
+    std::string toHexRGB() const;
+
 };
 
 constexpr Color TRANSPARENT = Color::TRANSPARENT();
@@ -91,9 +98,12 @@ constexpr Color TRANS = Color::TRANSPARENT();
 
 constexpr Color WHITE = Color::WHITE();
 constexpr Color GREY = Color::GREY();
+constexpr Color BROWN = Color::BROWN();
 constexpr Color BLACK = Color::BLACK();
 constexpr Color LTGREY = Color::LTGREY();
 constexpr Color PINK = Color::PINK();
+constexpr Color LTGREEN = Color::LTGREEN();
+constexpr Color LTBLUE = Color::LTBLUE();
 
 constexpr Color RED = Color::RED();
 constexpr Color ORANGE = Color::ORANGE();

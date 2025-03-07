@@ -7,8 +7,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # add subdirectories that should be excluded from the build
 set(EXCLUDE_SUBDIRS
-mlspring25-logistic_regression-ml_app
+    Quickhouse3
+
 )
+# mlspring25-logistic_regression-ml_app
 
 
 # Not your situation, but in case you have a different linker

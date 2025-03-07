@@ -133,6 +133,11 @@ public:
                                                  mssm::Color *pixels,
                                                  bool cachePixels) override;
     void saveImg(std::shared_ptr<mssm::ImageInternal> img, std::string filename) override;
+
+    void pushGroup(std::string layerName) override {}
+    void popGroup() override {}
+    void polygonPattern(const std::vector<Vec2d> &points, mssm::Color c = mssm::WHITE, mssm::Color f = mssm::TRANSPARENT) override;
+    void polygonPattern(std::initializer_list<Vec2d> points, mssm::Color c = mssm::WHITE, mssm::Color f = mssm::TRANSPARENT) override;
 };
 
 #endif // NANOVGWINDOW_H

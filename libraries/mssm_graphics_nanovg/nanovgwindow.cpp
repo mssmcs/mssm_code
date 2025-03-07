@@ -141,6 +141,16 @@ void NanovgWindow::saveImg(std::shared_ptr<mssm::ImageInternal> img, std::string
     stbi_write_png(filename.c_str(), img->width(), img->height(), 4, img->getPixels(), 4*img->width());
 }
 
+void NanovgWindow::polygonPattern(const std::vector<Vec2d> &points, mssm::Color c, mssm::Color f)
+{
+    throw std::logic_error("Not implemented");
+}
+
+void NanovgWindow::polygonPattern(std::initializer_list<Vec2d> points, mssm::Color c, mssm::Color f)
+{
+    throw std::logic_error("Not implemented");
+}
+
 bool NanovgWindow::isDrawable()
 {
     return true;

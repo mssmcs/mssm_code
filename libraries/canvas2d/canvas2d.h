@@ -13,6 +13,15 @@
 namespace mssm {
 
 class Image;
+class Canvas2d;
+
+class GraphicsGroup {
+private:
+    Canvas2d& g;
+public:
+    GraphicsGroup(Canvas2d& g, std::string layerName);
+    ~GraphicsGroup();
+};
 
 template <is2dVector VDest, typename SELF>
 class CanvasOverloads {
@@ -117,6 +126,12 @@ public:
     virtual void resetClip() = 0;
     virtual void setViewport(int x, int y, int w, int h) = 0;
     virtual void resetViewport() = 0;
+
+    virtual void pushGroup(std::string groupName) = 0;
+    virtual void popGroup() = 0;
+    virtual void polygonPattern(const std::vector<Vec2d> &points, mssm::Color c = WHITE, mssm::Color f = mssm::TRANSPARENT) = 0;
+    virtual void polygonPattern(std::initializer_list<Vec2d> points, mssm::Color c = WHITE, mssm::Color f = mssm::TRANSPARENT) = 0;
+
 };
 
 class Canvas2dWrapper : public Canvas2d {
@@ -186,6 +201,10 @@ public:
     void   polyline(const Array<Vec2d>& points, mssm::Color color) { canvas->polyline(points, color); }
     void   points(const Array<Vec2d>& points, mssm::Color c) { canvas->points(points, c); }
 #endif // SUPPORT_MSSM_ARRAY
+    void pushGroup(std::string groupName) override { canvas->pushGroup(groupName); }
+    void popGroup() override { canvas->popGroup(); }
+    void polygonPattern(const std::vector<Vec2d> &points, mssm::Color c = WHITE, mssm::Color f = mssm::TRANSPARENT) override { canvas->polygon(points, c, f); }
+    void polygonPattern(std::initializer_list<Vec2d> points, mssm::Color c = WHITE, mssm::Color f = mssm::TRANSPARENT) override { canvas->polygon(points, c, f); }
 };
 
 }

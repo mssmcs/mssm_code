@@ -108,6 +108,8 @@ public:
     static constexpr KeyConst RightAlt{fwdDefGLFW_KEY_RIGHT_ALT};
     static constexpr KeyConst ESC{fwdDefGLFW_KEY_ESCAPE};
     static constexpr KeyConst ENTER{fwdDefGLFW_KEY_ENTER};
+    static constexpr KeyConst Home{fwdDefGLFW_KEY_HOME};
+    static constexpr KeyConst End{fwdDefGLFW_KEY_END};
     static constexpr KeyConst PageUp{fwdDefGLFW_KEY_PAGE_UP};
     static constexpr KeyConst PageDown{fwdDefGLFW_KEY_PAGE_DOWN};
     static constexpr KeyConst Space{' '};
@@ -184,6 +186,10 @@ enum class ModKey
     CtrlAltShift = Ctrl | Alt | Shift
 };
 
+constexpr inline bool hasModifier(ModKey mods, ModKey mod)
+{
+    return (static_cast<int>(mods) & static_cast<int>(mod)) == static_cast<int>(mod);
+}
 
 class Event
 {
