@@ -334,9 +334,13 @@ protected:
         dc->cmdBindPipeline(pl3dTri, pipelineDS);
 		return TriWriter<Vertex3dUV>(dc, *vBuff3dUV, triCount);
 	}
+
+    // Canvas2d interface
+public:
+    void pushGroup(std::string groupName) override;
+    void popGroup() override;
+    void polygonPattern(const std::vector<Vec2d> &points, mssm::Color c, mssm::Color f) override;
+    void polygonPattern(std::initializer_list<Vec2d> points, mssm::Color c, mssm::Color f) override;
 };
-
-
-
 
 #endif // VULKCANVAS_H

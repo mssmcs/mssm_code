@@ -905,3 +905,22 @@ void VulkCanvas::points(std::initializer_list<Vec2d> points, Color c)
 // }
 
 
+
+
+void VulkCanvas::pushGroup(std::string groupName)
+{
+}
+
+void VulkCanvas::popGroup()
+{
+}
+
+void VulkCanvas::polygonPattern(const std::vector<Vec2d> &points, mssm::Color c, mssm::Color f)
+{
+    throw std::runtime_error("VulkCanvas::polygonPattern() not implemented");
+}
+
+void VulkCanvas::polygonPattern(std::initializer_list<Vec2d> points, mssm::Color c, mssm::Color f)
+{
+    throw std::runtime_error("VulkCanvas::polygonPattern() not implemented");
+}
