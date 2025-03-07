@@ -13,6 +13,8 @@
 #include <iterator>
 #include "fmt/core.h"
 
+namespace mssm {
+
 #ifdef DISABLE_ARRAY_SAFETY_CHECKS
 constexpr bool enable_array_safety_checks = false;
 #else
@@ -767,10 +769,13 @@ public:
     Array(std::initializer_list<BoolWrapper> items) : ArrayBase<bool, BoolWrapper>{items} {}
 };
 
+} // namespace mssm
+
+
 template <typename T>
-struct fmt::formatter<Array<T>> : fmt::formatter<T> {
+struct fmt::formatter<mssm::Array<T>> : fmt::formatter<T> {
     template <typename FormatContext>
-    auto format(Array<T> c, FormatContext& ctx) const {
+    auto format(mssm::Array<T> c, FormatContext& ctx) const {
         auto out = ctx.out();
         auto format_element = [&](const T& value) {
             ctx.advance_to(out);
@@ -786,5 +791,6 @@ struct fmt::formatter<Array<T>> : fmt::formatter<T> {
         return fmt::format_to(out, "}}");
     }
 };
+
 
 #endif // MSSM_ARRAY_H
