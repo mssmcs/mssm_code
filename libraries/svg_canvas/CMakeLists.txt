@@ -1,5 +1,6 @@
-# set(NAME "mssm_svg")
-# # DEPENDS_ON: color vec
+set(NAME "svg_canvas")
+
+# DEPENDS_ON: canvas2d image
 
 # set(COMMIT_HASH "ea6a6aca009422bba0dbad4c80df6e6ba0c82183")
 
@@ -20,14 +21,19 @@
 #     $<INSTALL_INTERFACE:${nanosvg_SOURCE_DIR}/src>
 # )
 
-# # include(${PROJECT_SOURCE_DIR}/cmake/StaticAnalyzers.cmake)
+# include(${PROJECT_SOURCE_DIR}/cmake/StaticAnalyzers.cmake)
 
-# add_library(${NAME} STATIC
-# nanosvg_impl.cpp
-# svg.h svg.cpp
-# )
+add_library(${NAME} STATIC
+svg.hpp
+svgcanvas.h
+svgcanvas.cpp
+)
 
-# target_link_libraries(${NAME} PUBLIC nanosvg1 mssm_vec mssm_color)
-# set_target_properties(${NAME} PROPERTIES LINKER_LANGUAGE CXX)
+target_link_libraries(${NAME} PUBLIC
+canvas2d
+image_base
+)
 
-# target_include_directories(${NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+set_target_properties(${NAME} PROPERTIES LINKER_LANGUAGE CXX)
+
+target_include_directories(${NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

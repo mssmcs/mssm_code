@@ -42,6 +42,13 @@ public:
     template <typename VEC3>
     constexpr VEC3 toRealVec3() const { return VEC3(r/255.0f, g/255.0f, b/255.0f); }
 
+    constexpr double rD() const { return r / 255.0; }
+    constexpr double gD() const { return g / 255.0; }
+    constexpr double bD() const { return b / 255.0; }
+    constexpr double aD() const { return a / 255.0; }
+
+    constexpr double opacity() const { return aD(); }
+
     constexpr bool operator== (const Color& c) const { return r == c.r && g == c.g && b == c.b && a == c.a; }
     static constexpr Color fromHSV(double h, double s, double v);
     static constexpr Color fromUIntRGBA(unsigned int c) { return Color(static_cast<uint8_t>(c >> 24), static_cast<uint8_t>(c >> 16), static_cast<uint8_t>(c >> 8), static_cast<uint8_t>(c)); }

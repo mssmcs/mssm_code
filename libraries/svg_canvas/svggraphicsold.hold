@@ -1,0 +1,92 @@
+#ifndef SVGGRAPHICS_H
+#define SVGGRAPHICS_H
+
+#include "canvas2d.h"
+#include "svg.hpp"
+
+class SVGGraphics : public mssm::Canvas2d
+{
+    SVG::SVG root;
+    std::vector<SVG::Group*> groupStack;
+    std::string filename;
+public:
+    SVGGraphics(std::string filename);
+    ~SVGGraphics();
+private:
+    SVG::Group* g() { return groupStack.back(); }
+    // SGraphics interface
+    void setStroke(SVG::Element* e, mssm::Color c);
+    void setFill(SVG::Element* e, mssm::Color c);
+    Vec2d fix(Vec2d v) { return {v.x, -v.y}; }
+    std::vector<Vec2d> fix(std::vector<Vec2d> pts);
+public:
+   // void background(mssm::Color c) override;
+    void line(Vec2d p1, Vec2d p2, mssm::Color c) override;
+    void ellipse(Vec2d corner, double w, double h, mssm::Color c, mssm::Color f) override;
+    void arc(Vec2d corner, double w, double h, double a, double alen, mssm::Color c) override;
+    void chord(Vec2d corner, double w, double h, double a, double alen, mssm::Color c, mssm::Color f) override;
+    void pie(Vec2d corner, double w, double h, double a, double alen, mssm::Color c, mssm::Color f) override;
+    void rect(Vec2d corner, double w, double h, mssm::Color c, mssm::Color f) override;
+    void polygon(const std::vector<Vec2d>& pts, mssm::Color border, mssm::Color fill) override;
+    void polygonPattern(const std::vector<Vec2d>& pts, mssm::Color border, mssm::Color fill) override;
+    void polyline(const std::vector<Vec2d>& pts, mssm::Color color) override;
+    void point(Vec2d pos, mssm::Color c) override;
+    void points(const std::vector<Vec2d>& pts, mssm::Color c) override;
+    // void drawArrow(Vec2d from, Vec2d to, ArrowType toArrow, mssm::Color stroke, ArrowType fromArrow, mssm::Color fill) override;
+
+    void getExtents(Vec2d& upperLeft, Vec2d& lowerRight);
+    // SGraphics interface
+public:
+    void pushGroup(std::string layerName) override;
+    void popGroup() override;
+
+    // Canvas2d interface
+public:
+    bool isDrawable() override;
+    int width() override;
+    int height() override;
+    void setBackground(mssm::Color c) override;
+    void polygon(std::initializer_list<Vec2d> points, mssm::Color border, mssm::Color fill) override;
+    void polyline(std::initializer_list<Vec2d> points, mssm::Color color) override;
+    void points(std::initializer_list<Vec2d> points, mssm::Color c) override;
+    void text(Vec2d pos,
+              const FontInfo &sizeAndFace,
+              const std::string &str,
+              mssm::Color textcolor,
+              HAlign hAlign,
+              VAlign vAlign) override;
+    void textExtents(const FontInfo &sizeAndFace,
+                     const std::string &str,
+                     TextExtents &extents) override;
+    double textWidth(const FontInfo &sizeAndFace, const std::string &str) override;
+    std::vector<double> getCharacterXOffsets(const FontInfo &sizeAndFace,
+                                             double startX,
+                                             const std::string &text) override;
+    void image(Vec2d pos, const mssm::Image &img) override;
+    void image(Vec2d pos, const mssm::Image &img, Vec2d src, int srcw, int srch) override;
+    void image(Vec2d pos, double w, double h, const mssm::Image &img) override;
+    void image(Vec2d pos, double w, double h, const mssm::Image &img, Vec2d src, int srcw, int srch)
+        override;
+    void imageC(Vec2d center, double angle, const mssm::Image &img) override;
+    void imageC(
+        Vec2d center, double angle, const mssm::Image &img, Vec2d src, int srcw, int srch) override;
+    void imageC(Vec2d center, double angle, double w, double h, const mssm::Image &img) override;
+    void imageC(Vec2d center,
+                double angle,
+                double w,
+                double h,
+                const mssm::Image &img,
+                Vec2d src,
+                int srcw,
+                int srch) override;
+    bool isClipped(Vec2d pos) const override;
+    void pushClip(int x, int y, int w, int h, bool replace) override;
+    void popClip() override;
+    void setClip(int x, int y, int w, int h) override;
+    void resetClip() override;
+    void setViewport(int x, int y, int w, int h) override;
+    void resetViewport() override;
+    void polygonPattern(std::initializer_list<Vec2d> points, mssm::Color c, mssm::Color f) override;
+};
+
+#endif // SVGGRAPHICS_H

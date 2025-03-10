@@ -99,6 +99,13 @@ public:
     void setCameraParams(Vec3d eye, Vec3d target, Vec3d up, double near, double far) override { canvas->setCameraParams(eye, target, up, near, far); }
     void setLightParams(Vec3d pos, Color color) override { canvas->setLightParams(pos, color); }
     TriWriter<Vertex3dUV> getTriangleWriter(uint32_t triCount) override { return canvas->getTriangleWriter(triCount); }
+
+    // Canvas2d interface
+public:
+    void pushGroup(std::string groupName) override { canvas->pushGroup(groupName); }
+    void popGroup() override { canvas->popGroup(); }
+    void polygonPattern(const std::vector<Vec2d> &points, Color c, Color f) override { canvas->polygonPattern(points, c, f); }
+    void polygonPattern(std::initializer_list<Vec2d> points, Color c, Color f) override { canvas->polygonPattern(points, c, f); }
 };
 
 }

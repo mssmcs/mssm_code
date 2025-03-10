@@ -16,7 +16,7 @@ using fmt::println;
 #endif
 
 using namespace std;
-
+using mssm::Array;
 
 template <typename T>
 void print(T value)

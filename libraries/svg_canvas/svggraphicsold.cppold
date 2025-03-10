@@ -1,0 +1,333 @@
+#include "svggraphics.h"
+
+
+SVGGraphics::SVGGraphics(std::string filename)
+    : filename{filename}
+{
+//    SVG::SVG root;
+
+//        // Basic CSS support
+//        root.style("circle").set_attr("fill", "#000000")
+//            .set_attr("stroke", "#000000");
+//        root.style("rect#my_rectangle").set_attr("fill", "red");
+
+//        // Method 1 of adding elements - add_child<>()
+//        auto shapes = root.add_child<SVG::Group>();
+//        auto rect = shapes->add_child<SVG::Rect>("my_rectangle");
+
+//        // Method 2 of adding elements - operator<<
+//        *shapes << SVG::Circle(-100, -100, 100) << SVG::Circle(100, 100, 100);
+
+//        // Reference elements by id, tag, class name, etc...
+//        root.get_element_by_id("my_rectangle")
+//            ->set_attr("x", 20).set_attr("y", 20)
+//            .set_attr("width", 40).set_attr("height", 40);
+
+//        std::cout << "There are " << root.get_children<SVG::Circle>().size() <<
+//            " circles." << std::endl;
+
+    root.set_attr("stroke", "#000000");
+    root.set_attr("stroke-width", "0.1");
+    root.set_attr("stroke-dasharray", "none");
+    root.set_attr("stroke-opacity","1");
+    root.set_attr("xmlns:inkscape","http://www.inkscape.org/namespaces/inkscape");
+    groupStack.push_back(root.add_child<SVG::Group>());
+}
+
+SVGGraphics::~SVGGraphics()
+{
+    // Automatically scale width and height to fit elements
+    root.autoscale();
+
+    // Output our drawing
+    std::ofstream outfile(filename);
+    outfile << std::string(root);
+}
+
+void SVGGraphics::setStroke(SVG::Element *e, mssm::Color c)
+{
+    if (c.a == 0) {
+        e->set_attr("stroke","none");
+    }
+    else {
+        e->set_attr("stroke", c.toHexRGB());
+        if (c.a == 255) {
+            e->set_attr("stroke-opacity", 1);
+        }
+        else {
+            e->set_attr("stroke-opacity", c.opacity());
+        }
+    }
+}
+
+void SVGGraphics::setFill(SVG::Element *e, mssm::Color f)
+{
+    if (f.a == 0) {
+        e->set_attr("fill","none");
+    }
+    else {
+        e->set_attr("fill", f.toHexRGB());
+        if (f.a == 255) {
+            e->set_attr("fill-opacity", 1);
+        }
+        else {
+            e->set_attr("fill-opacity", f.opacity());
+        }
+    }
+}
+
+std::vector<Vec2d> SVGGraphics::fix(std::vector<Vec2d> pts)
+{
+    for (auto& p : pts) {
+        p.y = -p.y;
+    }
+    return pts;
+}
+
+
+// void SVGGraphics::background(mssm::Color c)
+// {
+// }
+
+void SVGGraphics::line(Vec2d p1, Vec2d p2, mssm::Color c)
+{
+    auto path = g()->add_child<SVG::Path>();
+    path->start(fix(p1));
+    path->line_to(fix(p2));
+    setStroke(path, c);
+};
+
+// void SVGGraphics::ellipse(Vec2d corner, double w, double h, mssm::Color c, mssm::Color f)
+// {
+//     if (w == h) {
+//         Vec2d center = corner - Vec2d{w/2, h/2};
+//         auto circ = g()->add_child<SVG::Circle>(center.x, -(center.y+h), w/2);
+//         setStroke(circ, c);
+//         setFill(circ, f);
+//     }
+//     else {
+//         Vec2d center = corner - Vec2d{w/2, h/2};
+//         auto ell = g()->add_child<SVG::Ellipse>(center.x, -(center.y+h), w/2, h/2);
+//         setStroke(ell, c);
+//         setFill(ell, f);
+//     }
+// }
+
+void SVGGraphics::ellipse(Vec2d center, double w, double h, mssm::Color c, mssm::Color f)
+{
+    if (w == h) {
+        auto circ = g()->add_child<SVG::Circle>(center.x, -(center.y+h), w/2);
+        setStroke(circ, c);
+        setFill(circ, f);
+    }
+    else {
+        auto ell = g()->add_child<SVG::Ellipse>(center.x, -(center.y+h), w/2, h/2);
+        setStroke(ell, c);
+        setFill(ell, f);
+    }
+}
+
+void SVGGraphics::arc(Vec2d corner, double w, double h, double a, double alen, mssm::Color c)
+{
+}
+
+void SVGGraphics::chord(Vec2d corner, double w, double h, double a, double alen, mssm::Color c, mssm::Color f)
+{
+}
+
+void SVGGraphics::pie(Vec2d corner, double w, double h, double a, double alen, mssm::Color c, mssm::Color f)
+{
+}
+
+void SVGGraphics::rect(Vec2d corner, double w, double h, mssm::Color c, mssm::Color f)
+{
+    auto r = g()->add_child<SVG::Rect>(corner.x, -(corner.y+h), w, h, 0);
+    setStroke(r, c);
+    setFill(r, f);
+}
+
+void SVGGraphics::polygon(const std::vector<Vec2d>& pts, mssm::Color border, mssm::Color fill)
+{
+    auto p = g()->add_child<SVG::Polygon>(fix(pts));
+    setStroke(p, border);
+    setFill(p, fill);
+}
+
+// void SVGGraphics::polygon(Vec2d p1, Vec2d p2, Vec2d p3, mssm::Color border, mssm::Color fill)
+// {
+//     auto p = g()->add_child<SVG::Polygon>(std::vector<Vec2d>{fix(p1),fix(p2),fix(p3)});
+//     setStroke(p, border);
+//     setFill(p, fill);
+// }
+
+// void SVGGraphics::polygon(Vec2d p1, Vec2d p2, Vec2d p3, Vec2d p4, mssm::Color border, mssm::Color fill)
+// {
+//     auto p = g()->add_child<SVG::Polygon>(std::vector<Vec2d>{fix(p1),fix(p2),fix(p3),fix(p4)});
+//     setStroke(p, border);
+//     setFill(p, fill);
+// }
+
+void SVGGraphics::polygonPattern(const std::vector<Vec2d>& pts, mssm::Color border, mssm::Color fill)
+{
+    auto p = g()->add_child<SVG::Polygon>(fix(pts));
+    setStroke(p, border);
+    setFill(p, fill);
+}
+
+void SVGGraphics::polyline(const std::vector<Vec2d>& pts, mssm::Color color)
+{
+    if (pts.size() < 2) {
+        return;
+    }
+    auto path = g()->add_child<SVG::Path>();
+    path->start(fix(pts[0]));
+    for (int i = 1; i < pts.size(); i++) {
+        path->line_to(fix(pts[i]));
+    }
+    setStroke(path, color);
+    path->set_attr("fill","none");
+}
+
+
+
+// Vec2d SVGGraphics::textSize(double size, std::string str)
+// {
+//     Vec2d sz{size/2*str.length(), size};
+//     return sz;
+// }
+
+// Vec2d SVGGraphics::textSize(double size, std::string str, double &baseline)
+// {
+//     Vec2d sz{size/2*str.length(), size};
+//     return sz;
+// }
+
+void SVGGraphics::point(Vec2d pos, mssm::Color c)
+{
+}
+
+void SVGGraphics::points(const std::vector<Vec2d>& pts, mssm::Color c)
+{
+}
+
+// Vec2d drawArrowHead(SGraphics& g, Vec2d shaft, Vec2d point, double len, double wid, ArrowType arrow, mssm::Color stroke, mssm::Color fill);
+
+// void SVGGraphics::drawArrow(Vec2d from, Vec2d to, ArrowType toArrow, mssm::Color stroke, ArrowType fromArrow, mssm::Color fill)
+// {
+//     double len = 20;
+//     double wid = 20;
+//     Vec2d newFrom = drawArrowHead(*this, to, from, len, wid, fromArrow, stroke, fill);
+//     Vec2d newTo = drawArrowHead(*this, from, to, len, wid, toArrow, stroke, fill);
+
+//     line(newFrom, newTo, stroke);
+// }
+
+void SVGGraphics::getExtents(Vec2d &upperLeft, Vec2d &lowerRight)
+{
+    auto bb = root.get_bbox();
+
+    upperLeft.x = bb.x1;
+    upperLeft.y = bb.y1;
+    lowerRight.x = bb.x2;
+    lowerRight.y = bb.y2;
+}
+
+
+void SVGGraphics::pushGroup(std::string layerName)
+{
+    groupStack.push_back(root.add_child<SVG::Group>());
+    if (!layerName.empty()) {
+        g()->set_attr("inkscape:label", layerName);
+        g()->set_attr("inkscape:groupmode", "layer");
+        g()->set_attr("id", layerName);
+    }
+}
+
+void SVGGraphics::popGroup()
+{
+    groupStack.pop_back();
+}
+
+bool SVGGraphics::isDrawable() {}
+
+int SVGGraphics::width() {}
+
+int SVGGraphics::height() {}
+
+void SVGGraphics::setBackground(mssm::Color c) {}
+
+void SVGGraphics::polygon(std::initializer_list<Vec2d> points, mssm::Color border, mssm::Color fill)
+{}
+
+void SVGGraphics::polyline(std::initializer_list<Vec2d> points, mssm::Color color) {}
+
+void SVGGraphics::points(std::initializer_list<Vec2d> points, mssm::Color c) {}
+
+void SVGGraphics::text(Vec2d pos,
+                       const FontInfo &sizeAndFace,
+                       const std::string &str,
+                       mssm::Color textcolor,
+                       HAlign hAlign,
+                       VAlign vAlign)
+{
+    auto txt = g()->add_child<SVG::Text>(fix(pos), str);
+    txt->set_attr("font-size",sizeAndFace.getSize());
+    txt->set_attr()
+}
+
+void SVGGraphics::textExtents(const FontInfo &sizeAndFace,
+                              const std::string &str,
+                              TextExtents &extents)
+{}
+
+double SVGGraphics::textWidth(const FontInfo &sizeAndFace, const std::string &str) {}
+
+std::vector<double> SVGGraphics::getCharacterXOffsets(const FontInfo &sizeAndFace,
+                                                      double startX,
+                                                      const std::string &text)
+{}
+
+void SVGGraphics::image(Vec2d pos, const mssm::Image &img) {}
+
+void SVGGraphics::image(Vec2d pos, const mssm::Image &img, Vec2d src, int srcw, int srch) {}
+
+void SVGGraphics::image(Vec2d pos, double w, double h, const mssm::Image &img) {}
+
+void SVGGraphics::image(
+    Vec2d pos, double w, double h, const mssm::Image &img, Vec2d src, int srcw, int srch)
+{}
+
+void SVGGraphics::imageC(Vec2d center, double angle, const mssm::Image &img) {}
+
+void SVGGraphics::imageC(
+    Vec2d center, double angle, const mssm::Image &img, Vec2d src, int srcw, int srch)
+{}
+
+void SVGGraphics::imageC(Vec2d center, double angle, double w, double h, const mssm::Image &img) {}
+
+void SVGGraphics::imageC(Vec2d center,
+                         double angle,
+                         double w,
+                         double h,
+                         const mssm::Image &img,
+                         Vec2d src,
+                         int srcw,
+                         int srch)
+{}
+
+bool SVGGraphics::isClipped(Vec2d pos) const {}
+
+void SVGGraphics::pushClip(int x, int y, int w, int h, bool replace) {}
+
+void SVGGraphics::popClip() {}
+
+void SVGGraphics::setClip(int x, int y, int w, int h) {}
+
+void SVGGraphics::resetClip() {}
+
+void SVGGraphics::setViewport(int x, int y, int w, int h) {}
+
+void SVGGraphics::resetViewport() {}
+
+void SVGGraphics::polygonPattern(std::initializer_list<Vec2d> points, mssm::Color c, mssm::Color f)
+{}

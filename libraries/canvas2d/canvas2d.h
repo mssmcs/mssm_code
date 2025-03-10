@@ -207,6 +207,16 @@ public:
     void polygonPattern(std::initializer_list<Vec2d> points, mssm::Color c = WHITE, mssm::Color f = mssm::TRANSPARENT) override { canvas->polygon(points, c, f); }
 };
 
+inline GraphicsGroup::GraphicsGroup(Canvas2d &g, std::string layerName) : g{g}
+{
+    g.pushGroup(layerName);
+}
+
+inline GraphicsGroup::~GraphicsGroup()
+{
+    g.popGroup();
+}
+
 }
 
 #endif // CANVAS2D_H
