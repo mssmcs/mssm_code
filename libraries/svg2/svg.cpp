@@ -223,16 +223,16 @@ void Svg::load(const std::string& filename)
             tinyxml2::XMLElement* ccWork = rdfRDF->FirstChildElement("cc:Work");
             if (ccWork) {
                 // Read attributes and child elements of cc:Work
-                const char* about = ccWork->Attribute("rdf:about");
+                //const char* about = ccWork->Attribute("rdf:about");
                 tinyxml2::XMLElement* dcFormat = ccWork->FirstChildElement("dc:format");
                 if (dcFormat) {
-                    const char* format = dcFormat->GetText();
+                    //const char* format = dcFormat->GetText();
                 }
                 tinyxml2::XMLElement* dcType = ccWork->FirstChildElement("dc:type");
                 if (dcType) {
-                    const char* resource = dcType->Attribute("rdf:resource");
+                    //const char* resource = dcType->Attribute("rdf:resource");
                 }
-                tinyxml2::XMLElement* dcTitle = ccWork->FirstChildElement("dc:title");
+                //tinyxml2::XMLElement* dcTitle = ccWork->FirstChildElement("dc:title");
                 // Handle dc:title if necessary
             }
         }

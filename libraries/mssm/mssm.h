@@ -21,7 +21,7 @@ using mssm::Array;
 template <typename T>
 void print(T value)
 {
-    fmt::print("{}", value);
+    std::print("{}", value);
 }
 
 template <typename T>
@@ -30,7 +30,7 @@ void println(T value)
     println("{}", value);
 }
 
-inline void println() { fmt::println(""); }
+inline void println() { std::println(""); }
 
 char readChar();
 int readInt();

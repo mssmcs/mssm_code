@@ -140,7 +140,7 @@ int main()
     }
     catch (const std::exception& ex) {
         println();
-        fmt::println("Exception thrown: {}", ex.what());
+        std::println("Exception thrown: {}", ex.what());
         println();
         cout.flush();
         delay(10);

@@ -1,3 +1,4 @@
+// Validation code to test all the examples from the Arrays and Loops documentation
 #ifndef MSSM_ARRAY_H
 #define MSSM_ARRAY_H
 
@@ -11,7 +12,8 @@
 #include <algorithm>
 #include <vector>
 #include <iterator>
-#include "fmt/core.h"
+#include <print>  // C++23 print/println support
+#include <sstream>
 
 namespace mssm {
 
@@ -36,12 +38,7 @@ public:
     Array_iter(ARR ptr, int idx) : ptr{ptr}, idx{idx} { }
     void checkSameContainer(const Array_iter& other) const;
 
-    //Array_iter& operator+=(difference_type rhs);
-    //Array_iter& operator-=(difference_type rhs);
-
     reference operator*() const { return (*ptr)[idx]; }
-    //pointer operator->() const;
-    //reference operator[](difference_type rhs) const;
 
     difference_type operator-(const Array_iter& rhs) const;
     Array_iter operator+(difference_type rhs) const;
@@ -80,111 +77,6 @@ class ArrayBase {
 private:
     std::vector<Q> elements;
 public:
-
-
-    // class iterator {
-    // public:
-    //     using difference_type = int;
-    //     using value_type = T;
-    //     using pointer = T*;
-    //     using reference = T&;
-    //     using iterator_category = std::random_access_iterator_tag;
-    // private:
-    //     ArrayBase* ptr;
-    //     int idx;
-    // public:
-    //     iterator(ArrayBase* ptr, int idx) : ptr{ptr}, idx{idx} { }
-    //     void checkSameContainer(const iterator& other) const;
-
-    //     iterator& operator+=(difference_type rhs);
-    //     iterator& operator-=(difference_type rhs);
-
-    //     reference operator*() const { return (*ptr)[idx]; }
-    //     pointer operator->() const;
-    //     reference operator[](difference_type rhs) const;
-
-    //     difference_type operator-(const iterator& rhs) const;
-    //     iterator operator+(difference_type rhs) const;
-    //     iterator operator-(difference_type rhs) const;
-
-    //     bool operator==(const iterator& rhs) const {
-    //         if constexpr (enable_array_safety_checks) { checkSameContainer(rhs); }
-    //         return idx == rhs.idx; }
-    //     bool operator!=(const iterator& rhs) const {
-    //         if constexpr (enable_array_safety_checks) { checkSameContainer(rhs); }
-    //         return idx != rhs.idx; }
-    //     bool operator>(const iterator& rhs) const  {
-    //         if constexpr (enable_array_safety_checks) { checkSameContainer(rhs); }
-    //         return idx > rhs.idx; }
-    //     bool operator<(const iterator& rhs) const  {
-    //         if constexpr (enable_array_safety_checks) { checkSameContainer(rhs); }
-    //         return idx < rhs.idx; }
-    //     bool operator>=(const iterator& rhs) const {
-    //         if constexpr (enable_array_safety_checks) { checkSameContainer(rhs); }
-    //         return idx >= rhs.idx; }
-    //     bool operator<=(const iterator& rhs) const {
-    //         if constexpr (enable_array_safety_checks) { checkSameContainer(rhs); }
-    //         return idx <= rhs.idx; }
-
-    // public:
-
-    //     iterator& operator++();
-    //     iterator operator++(int);
-    //     iterator& operator--();
-    //     iterator operator--(int);
-    // };
-
-    // class citerator {
-    // public:
-    //     using difference_type = int;
-    //     using value_type = T;
-    //     using pointer = const T*;
-    //     using reference = const T&;
-    //     using citerator_category = std::random_access_iterator_tag;
-    // private:
-    //     const ArrayBase* ptr;
-    //     int idx;
-    // public:
-    //     citerator(const ArrayBase* ptr, int idx) : ptr{ptr}, idx{idx} { }
-    //     void checkSameContainer(const citerator& other) const;
-
-    //     citerator& operator+=(difference_type rhs);
-    //     citerator& operator-=(difference_type rhs);
-
-    //     reference operator*() const { return (*ptr)[idx]; }
-    //     pointer operator->() const;
-    //     reference operator[](difference_type rhs) const;
-
-    //     difference_type operator-(const citerator& rhs) const;
-    //     citerator operator+(difference_type rhs) const;
-    //     citerator operator-(difference_type rhs) const;
-
-    //     bool operator==(const citerator& rhs) const {
-    //         if constexpr (enable_array_safety_checks) { checkSameContainer(rhs); }
-    //            return idx == rhs.idx; }
-    //     bool operator!=(const citerator& rhs) const {
-    //         if constexpr (enable_array_safety_checks) { checkSameContainer(rhs); }
-    //         return idx != rhs.idx; }
-    //     bool operator>(const citerator& rhs) const  {
-    //         if constexpr (enable_array_safety_checks) { checkSameContainer(rhs); }
-    //         return idx > rhs.idx; }
-    //     bool operator<(const citerator& rhs) const  {
-    //         if constexpr (enable_array_safety_checks) { checkSameContainer(rhs); }
-    //         return idx < rhs.idx; }
-    //     bool operator>=(const citerator& rhs) const {
-    //         if constexpr (enable_array_safety_checks) { checkSameContainer(rhs); }
-    //         return idx >= rhs.idx; }
-    //     bool operator<=(const citerator& rhs) const {
-    //         if constexpr (enable_array_safety_checks) { checkSameContainer(rhs); }
-    //         return idx <= rhs.idx; }
-
-    // public:
-
-    //     citerator& operator++();
-    //     citerator operator++(int);
-    //     citerator& operator--();
-    //     citerator operator--(int);
-    // };
 
 public:
     ArrayBase();
@@ -343,244 +235,6 @@ Array_iter<ARR, EL> operator-(typename Array_iter<ARR, EL>::difference_type lhs,
     return ret;
 }
 
-
-
-// template<typename T, typename Q>
-// void ArrayBase<T, Q>::iterator::checkSameContainer(const iterator& other) const
-// {
-//     if (other.ptr != ptr) {
-//         throw std::logic_error("Can't mix iterators from different ArrayBase<T,Q> containers!");
-//     }
-// }
-
-// template<typename T, typename Q>
-// typename ArrayBase<T,Q>::iterator ArrayBase<T,Q>::iterator::operator++(int)
-// {
-//     ArrayBase<T,Q>::iterator tmp = *this;
-//     idx++;
-//     if constexpr (enable_array_safety_checks) {
-//         if (!ptr->isIndexInRangeIncludingEnd(idx)) { ptr->throwIndexError(idx); }
-//     }
-//     return tmp;
-// }
-
-// template<typename T, typename Q>
-// typename ArrayBase<T,Q>::iterator &ArrayBase<T,Q>::iterator::operator++()
-// {
-//     idx++;
-//     if constexpr (enable_array_safety_checks) {
-//         if (!ptr->isIndexInRangeIncludingEnd(idx)) {
-//             ptr->throwIndexError(idx);
-//         }
-//     }
-//     return *this;
-// }
-
-// template<typename T, typename Q>
-// typename ArrayBase<T,Q>::iterator ArrayBase<T,Q>::iterator::operator--(int)
-// {
-//     ArrayBase<T,Q>::iterator tmp = *this;
-//     idx--;
-//     if constexpr (enable_array_safety_checks) {
-//         if (!ptr->isIndexInRangeIncludingEnd(idx)) {
-//             ptr->throwIndexError(idx);
-//         }
-//     }
-//     return tmp;
-// }
-
-// template<typename T, typename Q>
-// typename ArrayBase<T,Q>::iterator &ArrayBase<T,Q>::iterator::operator--()
-// {
-//     idx--;
-//     if constexpr (enable_array_safety_checks) {
-//         if (!ptr->isIndexInRangeIncludingEnd(idx)) {
-//             ptr->throwIndexError(idx);
-//         }
-//     }
-//     return *this;
-// }
-
-// template<typename T, typename Q>
-// typename ArrayBase<T,Q>::iterator::difference_type ArrayBase<T,Q>::iterator::operator-(const iterator& rhs) const
-// {
-//     if constexpr (enable_array_safety_checks) {
-//         checkSameContainer(rhs);
-//     }
-//     return idx - rhs.idx;
-// }
-
-// template<typename T, typename Q>
-// typename ArrayBase<T,Q>::iterator ArrayBase<T,Q>::iterator::operator+(difference_type rhs) const
-// {
-//     ArrayBase<T,Q>::iterator ret = *this;
-//     ret.idx += rhs;
-//     if constexpr (enable_array_safety_checks) {
-//         if (!ret.ptr->isIndexInRangeIncludingEnd(ret.idx)) {
-//             ret.ptr->throwIndexError(ret.idx);
-//         }
-//     }
-//     return ret;
-// }
-
-// template<typename T, typename Q>
-// typename ArrayBase<T,Q>::iterator ArrayBase<T,Q>::iterator::operator-(difference_type rhs) const
-// {
-//     ArrayBase<T,Q>::iterator ret = *this;
-//     ret.idx -= rhs;
-//     if constexpr (enable_array_safety_checks) {
-//         if (!ret.ptr->isIndexInRangeIncludingEnd(ret.idx)) {
-//             ret.ptr->throwIndexError(ret.idx);
-//         }
-//     }
-//     return ret;
-// }
-
-// template<typename T, typename Q>
-// typename ArrayBase<T,Q>::iterator operator+(typename ArrayBase<T,Q>::iterator::difference_type lhs, const typename ArrayBase<T,Q>::iterator& rhs)
-// {
-//     typename ArrayBase<T,Q>::iterator ret = rhs;
-//     ret.idx += lhs;
-//     if constexpr (enable_array_safety_checks) {
-//         if (!ret.ptr->isIndexInRangeIncludingEnd(ret.idx)) {
-//             ret.ptr->throwIndexError(ret.idx);
-//         }
-//     }
-//     return ret;
-// }
-
-// template<typename T, typename Q>
-// typename ArrayBase<T,Q>::iterator operator-(typename ArrayBase<T,Q>::iterator::difference_type lhs, const typename ArrayBase<T,Q>::iterator& rhs)
-// {
-//     typename ArrayBase<T,Q>::iterator ret = rhs;
-//     ret.idx -= lhs;
-//     if constexpr (enable_array_safety_checks) {
-//         if (!ret.ptr->isIndexInRangeIncludingEnd(ret.idx)) {
-//             ret.ptr->throwIndexError(ret.idx);
-//         }
-//     }
-//     return ret;
-// }
-
-
-
-// template<typename T, typename Q>
-// void ArrayBase<T, Q>::citerator::checkSameContainer(const citerator& other) const
-// {
-//     if (other.ptr != ptr) {
-//         throw std::logic_error("Can't mix iterators from different ArrayBase<T,Q> containers!");
-//     }
-// }
-
-// template<typename T, typename Q>
-// typename ArrayBase<T,Q>::citerator ArrayBase<T,Q>::citerator::operator++(int)
-// {
-//     ArrayBase<T,Q>::citerator tmp = *this;
-//     idx++;
-//     if constexpr (enable_array_safety_checks) {
-//         if (!ptr->isIndexInRangeIncludingEnd(idx)) { ptr->throwIndexError(idx); }
-//     }
-//     return tmp;
-// }
-
-// template<typename T, typename Q>
-// typename ArrayBase<T,Q>::citerator &ArrayBase<T,Q>::citerator::operator++()
-// {
-//     idx++;
-//     if constexpr (enable_array_safety_checks) {
-//         if (!ptr->isIndexInRangeIncludingEnd(idx)) {
-//             ptr->throwIndexError(idx);
-//         }
-//     }
-//     return *this;
-// }
-
-// template<typename T, typename Q>
-// typename ArrayBase<T,Q>::citerator ArrayBase<T,Q>::citerator::operator--(int)
-// {
-//     ArrayBase<T,Q>::citerator tmp = *this;
-//     idx--;
-//     if constexpr (enable_array_safety_checks) {
-//         if (!ptr->isIndexInRangeIncludingEnd(idx)) {
-//             ptr->throwIndexError(idx);
-//         }
-//     }
-//     return tmp;
-// }
-
-// template<typename T, typename Q>
-// typename ArrayBase<T,Q>::citerator &ArrayBase<T,Q>::citerator::operator--()
-// {
-//     idx--;
-//     if constexpr (enable_array_safety_checks) {
-//         if (!ptr->isIndexInRangeIncludingEnd(idx)) {
-//             ptr->throwIndexError(idx);
-//         }
-//     }
-//     return *this;
-// }
-
-// template<typename T, typename Q>
-// typename ArrayBase<T,Q>::citerator::difference_type ArrayBase<T,Q>::citerator::operator-(const citerator& rhs) const
-// {
-//     if constexpr (enable_array_safety_checks) {
-//         checkSameContainer(rhs);
-//     }
-//     return idx - rhs.idx;
-// }
-
-// template<typename T, typename Q>
-// typename ArrayBase<T,Q>::citerator ArrayBase<T,Q>::citerator::operator+(difference_type rhs) const
-// {
-//     ArrayBase<T,Q>::citerator ret = *this;
-//     ret.idx += rhs;
-//     if constexpr (enable_array_safety_checks) {
-//         if (!ret.ptr->isIndexInRangeIncludingEnd(ret.idx)) {
-//             ret.ptr->throwIndexError(ret.idx);
-//         }
-//     }
-//     return ret;
-// }
-
-// template<typename T, typename Q>
-// typename ArrayBase<T,Q>::citerator ArrayBase<T,Q>::citerator::operator-(difference_type rhs) const
-// {
-//     ArrayBase<T,Q>::citerator ret = *this;
-//     ret.idx -= rhs;
-//     if constexpr (enable_array_safety_checks) {
-//         if (!ret.ptr->isIndexInRangeIncludingEnd(ret.idx)) {
-//             ret.ptr->throwIndexError(ret.idx);
-//         }
-//     }
-//     return ret;
-// }
-
-// template<typename T, typename Q>
-// typename ArrayBase<T,Q>::citerator operator+(typename ArrayBase<T,Q>::citerator::difference_type lhs, const typename ArrayBase<T,Q>::citerator& rhs)
-// {
-//     typename ArrayBase<T,Q>::citerator ret = rhs;
-//     ret.idx += lhs;
-//     if constexpr (enable_array_safety_checks) {
-//         if (!ret.ptr->isIndexInRangeIncludingEnd(ret.idx)) {
-//             ret.ptr->throwIndexError(ret.idx);
-//         }
-//     }
-//     return ret;
-// }
-
-// template<typename T, typename Q>
-// typename ArrayBase<T,Q>::citerator operator-(typename ArrayBase<T,Q>::citerator::difference_type lhs, const typename ArrayBase<T,Q>::citerator& rhs)
-// {
-//     typename ArrayBase<T,Q>::citerator ret = rhs;
-//     ret.idx -= lhs;
-//     if constexpr (enable_array_safety_checks) {
-//         if (!ret.ptr->isIndexInRangeIncludingEnd(ret.idx)) {
-//             ret.ptr->throwIndexError(ret.idx);
-//         }
-//     }
-//     return ret;
-// }
-
 template<typename T, typename Q>
 ArrayBase<T,Q>::ArrayBase()
 {
@@ -660,8 +314,6 @@ void ArrayBase<T,Q>::clear()
 {
     elements.clear();
 }
-
-
 
 template<typename T, typename Q>
 void ArrayBase<T,Q>::sort()
@@ -769,26 +421,27 @@ public:
     Array(std::initializer_list<BoolWrapper> items) : ArrayBase<bool, BoolWrapper>{items} {}
 };
 
+
 } // namespace mssm
 
 
+// C++23 print customization point
 template <typename T>
-struct fmt::formatter<mssm::Array<T>> : fmt::formatter<T> {
+struct std::formatter<mssm::Array<T>> : std::formatter<std::string> {
     template <typename FormatContext>
-    auto format(mssm::Array<T> c, FormatContext& ctx) const {
-        auto out = ctx.out();
-        auto format_element = [&](const T& value) {
-            ctx.advance_to(out);
-            out = formatter<T>::format(value, ctx);
-        };
-        out = fmt::format_to(out, "{{");
-        for (int i = 0; i < c.size(); i++) {
+    auto format(const mssm::Array<T>& arr, FormatContext& ctx) const {
+        std::string result = "{";
+        for (int i = 0; i < arr.size(); i++) {
             if (i > 0) {
-                out = fmt::format_to(out, ", ");
+                result += ", ";
             }
-            format_element(c[i]);
+            // Convert each element to string
+            std::stringstream ss;
+            ss << arr[i];
+            result += ss.str();
         }
-        return fmt::format_to(out, "}}");
+        result += "}";
+        return std::formatter<std::string>::format(result, ctx);
     }
 };
 
