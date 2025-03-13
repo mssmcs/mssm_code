@@ -8,8 +8,7 @@
 
 #include <string>
 
-#include "fmt/format.h"
-#include "fmt/color.h"
+#include "print_compat.h"
 
 #include "vecUtil.h"
 
@@ -174,13 +173,37 @@ std::string Vec4base<T>::toString() const
     return "(" + std::to_string(x) + ", " + std::to_string(y)+ ", " + std::to_string(z) + "," + std::to_string(w) +")";
 }
 
+
+// Generate string representation of Vec2base for formatting
 template <typename T>
-struct fmt::formatter<Vec4base<T>> {
-    constexpr auto parse(auto& ctx) { return ctx.begin(); }
-    auto format(const Vec4d& v, auto& ctx) const {
-        return fmt::format_to(ctx.out(), "{{{}, {}, {}, {}}}", v.x, v.y, v.z, v.w);
+std::string vec4_to_string(const Vec4base<T>& v) {
+    return "{" + std::to_string(v.x) + ", " + std::to_string(v.y)+ ", " + std::to_string(v.z) + ", " + std::to_string(v.w) + "}";
+}
+
+// Use the appropriate formatter based on whether C++23 print is available
+#if MSSM_HAS_CPP23_PRINT
+// C++23 formatter
+template <typename T>
+struct std::formatter<Vec4base<T>> : std::formatter<std::string> {
+    template <typename FormatContext>
+    auto format(const Vec4base<T>& v, FormatContext& ctx) const {
+        return std::formatter<std::string>::format(vec4_to_string(v), ctx);
     }
 };
+#else
+// fmt formatter
+template <typename T>
+struct fmt::formatter<Vec4base<T>> {
+    constexpr auto parse(fmt::format_parse_context& ctx) -> decltype(ctx.begin()) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const Vec4base<T>& v, FormatContext& ctx) const {
+        return fmt::format_to(ctx.out(), "{}", vec4_to_string(v));
+    }
+};
+#endif
 
 
 #endif // VEC4D_H

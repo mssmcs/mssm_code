@@ -133,15 +133,15 @@ int main()
 {
     try {
         int result = safemain();
-        println();
+        println("");
         cout.flush();
         delay(10);
         return result;
     }
     catch (const std::exception& ex) {
-        println();
+        println("");
         std::println("Exception thrown: {}", ex.what());
-        println();
+        println("");
         cout.flush();
         delay(10);
         return -1;

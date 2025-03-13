@@ -1,18 +1,14 @@
-// Validation code to test all the examples from the Arrays and Loops documentation
 #ifndef MSSM_ARRAY_H
 #define MSSM_ARRAY_H
 
-// although ArrayBase is basically a vector<>, I'm calling it Array to minimize confusion with
-// the physics/graphics concept of a vector, which we use when doing graphics programming
-// I'm also adding a few methods like sort, insertAtIndex to simplify things and avoid the need
-// to introduce iterators to first semester students
-// another difference from vector is that size() returns a signed int, to avoid some other painful "gotchas"
+// Include the print_compat.h header instead of directly including <print>
+#include "print_compat.h"
 
+// Rest of includes
 #include <iostream>
 #include <algorithm>
 #include <vector>
 #include <iterator>
-#include <print>  // C++23 print/println support
 #include <sstream>
 
 namespace mssm {
@@ -117,7 +113,7 @@ private:
     friend Array_iter<ArrayBase*, T>;
 };
 
-
+// Include Array implementation details...
 template<typename ARR, typename EL>
 void Array_iter<ARR, EL>::checkSameContainer(const Array_iter<ARR, EL>& other) const
 {
@@ -421,29 +417,48 @@ public:
     Array(std::initializer_list<BoolWrapper> items) : ArrayBase<bool, BoolWrapper>{items} {}
 };
 
-
 } // namespace mssm
 
+// Generate string representation of Array for formatting
+template <typename T>
+std::string array_to_string(const mssm::Array<T>& arr) {
+    std::string result = "{";
+    for (int i = 0; i < arr.size(); i++) {
+        if (i > 0) {
+            result += ", ";
+        }
+        // Convert each element to string
+        std::stringstream ss;
+        ss << arr[i];
+        result += ss.str();
+    }
+    result += "}";
+    return result;
+}
 
-// C++23 print customization point
+// Use the appropriate formatter based on whether C++23 print is available
+#if MSSM_HAS_CPP23_PRINT
+// C++23 formatter
 template <typename T>
 struct std::formatter<mssm::Array<T>> : std::formatter<std::string> {
     template <typename FormatContext>
     auto format(const mssm::Array<T>& arr, FormatContext& ctx) const {
-        std::string result = "{";
-        for (int i = 0; i < arr.size(); i++) {
-            if (i > 0) {
-                result += ", ";
-            }
-            // Convert each element to string
-            std::stringstream ss;
-            ss << arr[i];
-            result += ss.str();
-        }
-        result += "}";
-        return std::formatter<std::string>::format(result, ctx);
+        return std::formatter<std::string>::format(array_to_string(arr), ctx);
     }
 };
+#else
+// fmt formatter
+template <typename T>
+struct fmt::formatter<mssm::Array<T>> {
+    constexpr auto parse(fmt::format_parse_context& ctx) -> decltype(ctx.begin()) {
+        return ctx.begin();
+    }
 
+    template <typename FormatContext>
+    auto format(const mssm::Array<T>& arr, FormatContext& ctx) const {
+        return fmt::format_to(ctx.out(), "{}", array_to_string(arr));
+    }
+};
+#endif
 
 #endif // MSSM_ARRAY_H

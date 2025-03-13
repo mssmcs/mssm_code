@@ -11,6 +11,6 @@ vec3d.h
 vec4d.h
 )
 
-target_link_libraries(${NAME} INTERFACE fmt)
+target_link_libraries(${NAME} INTERFACE print_compat)
 set_target_properties(${NAME} PROPERTIES LINKER_LANGUAGE CXX)
 target_include_directories(${NAME} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})

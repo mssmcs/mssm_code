@@ -9,7 +9,7 @@ mssm.h
 mssm.cpp
 )
 
-target_link_libraries(${NAME} PUBLIC mssm_array mssm_rand mssm_paths mssm_vec fmt)
+target_link_libraries(${NAME} PUBLIC mssm_array mssm_rand mssm_paths mssm_vec print_compat)
 set_target_properties(${NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
 target_include_directories(${NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

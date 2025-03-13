@@ -27,7 +27,7 @@ icondrawer.h icondrawer.cpp
 
 target_link_libraries(${NAME} PUBLIC  mssm_paths mssm_window mssm_vec canvas2d mssm_fontinfo svg2)
 
-# target_link_libraries(${NAME} PUBLIC mssm_array mssm_rand mssm_paths mssm_vec fmt)
+# target_link_libraries(${NAME} PUBLIC mssm_array mssm_rand mssm_paths mssm_vec print_compat)
 
 set_target_properties(${NAME} PROPERTIES LINKER_LANGUAGE CXX)
 

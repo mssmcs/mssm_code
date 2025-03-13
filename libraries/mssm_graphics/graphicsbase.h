@@ -87,23 +87,89 @@ public:
     std::stringstream cerr;
     std::deque<std::string> cerrLines;
 
-    template<typename... _Args>
-    inline void print(fmt::format_string<_Args...> __fmt, _Args &&...__args)
+// Helper function to format a string with either std or fmt
+#if MSSM_HAS_CPP23_PRINT
+    template<typename... Args>
+    inline std::string format_helper(std::format_string<Args...> fmt_str, Args&&... args) {
+        return std::vformat(fmt_str.get(), std::make_format_args(args...));
+    }
+#else
+    template<typename... Args>
+    inline std::string format_helper(fmt::format_string<Args...> fmt_str, Args&&... args) {
+        return fmt::vformat(fmt_str.get(), fmt::make_format_args(args...));
+    }
+#endif
+
+    // Common print methods using the helper
+    template<typename... Args>
+    inline void print(
+#if MSSM_HAS_CPP23_PRINT
+        std::format_string<Args...> fmt,
+#else
+        fmt::format_string<Args...> fmt,
+#endif
+        Args&&... args)
     {
-        this->cout << fmt::vformat(__fmt.get(), fmt::make_format_args(__args...));
+        this->cout << format_helper(fmt, std::forward<Args>(args)...);
     }
 
-    template<typename... _Args>
-    inline void println(fmt::format_string<_Args...> __fmt, _Args &&...__args)
+    template<typename... Args>
+    inline void println(
+#if MSSM_HAS_CPP23_PRINT
+        std::format_string<Args...> fmt,
+#else
+        fmt::format_string<Args...> fmt,
+#endif
+        Args&&... args)
     {
-        this->cout << fmt::vformat(__fmt.get(), fmt::make_format_args(__args...)) << std::endl;
+        this->cout << format_helper(fmt, std::forward<Args>(args)...) << std::endl;
     }
 
-    template<typename... _Args>
-    inline void printError(fmt::format_string<_Args...> __fmt, _Args &&...__args)
+    template<typename... Args>
+    inline void printError(
+#if MSSM_HAS_CPP23_PRINT
+        std::format_string<Args...> fmt,
+#else
+        fmt::format_string<Args...> fmt,
+#endif
+        Args&&... args)
     {
-        this->cerr << fmt::vformat(__fmt.get(), fmt::make_format_args(__args...)) << std::endl;
+        std::string formatted = format_helper(fmt, std::forward<Args>(args)...);
+        this->cerr << formatted << std::endl;
+        cerrLines.push_back(formatted);
     }
+
+    // Empty format string overload for println
+    inline void println()
+    {
+        this->cout << std::endl;
+    }
+
+//     // Single argument, no format string overloads
+//     template<typename T>
+//     inline void print(const T& value)
+//     {
+//         this->cout << value;
+//     }
+
+//     template<typename T>
+//     inline void println(const T& value)
+//     {
+//         this->cout << value << std::endl;
+//     }
+
+//     template<typename T>
+//     inline void printError(const T& value)
+//     {
+//         this->cerr << value << std::endl;
+//         std::string str_value;
+// #if MSSM_HAS_CPP23_PRINT
+//         str_value = std::format("{}", value);
+// #else
+//         str_value = fmt::format("{}", value);
+// #endif
+//         cerrLines.push_back(str_value);
+//     }
 
   //  std::chrono::milliseconds::rep time();
 
