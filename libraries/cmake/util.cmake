@@ -237,7 +237,8 @@ function(check_supports_os CMAKE_FILE RESULT)
     # Read the file content
     file(READ "${CMAKE_FILE}" CMAKE_CONTENT)
 
-    # Check for Qt-related keywords
+    message("checking ${CMAKE_FILE} for SUPPORTS_OS_${CMAKE_HOST_SYSTEM_NAME}")
+ 
     string(REGEX MATCH "SUPPORTS_OS_${CMAKE_HOST_SYSTEM_NAME}" MATCHED "${CMAKE_CONTENT}")
 
     # Set the result
