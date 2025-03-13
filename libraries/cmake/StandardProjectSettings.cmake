@@ -40,7 +40,7 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "Intel")
 #
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-string(APPEND CMAKE_CXX_FLAGS " /Zc:preprocessor /std:c++latest")
+string(APPEND CMAKE_CXX_FLAGS " /Zc:preprocessor /std:c++latest /EHsc")
 # add_compile_options(Zc:preprocessor Zc:__cplusplus std:clatest std:c++latest)
 #  string(APPEND CMAKE_CXX_FLAGS " /WX /W4 /wd4505 /permissive- /analyze:external- /external:anglebrackets /external:W0 /wd4251 /Zc:preprocessor /Zc:__cplusplus /Zc:char8_t Yes /Zc:rvalueCast")
 #  add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
