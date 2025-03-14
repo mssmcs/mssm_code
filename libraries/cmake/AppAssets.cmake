@@ -166,6 +166,13 @@ if ("vulkan" IN_LIST LIBRARIES)
     endforeach ()
 endif()
 
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+    )
+endif()
+
 # # SEE THIS! https://discourse.cmake.org/t/how-to-add-resources-to-macos-bundle/9323
 # if(APPLE)
 #     # Bundling macOS application
