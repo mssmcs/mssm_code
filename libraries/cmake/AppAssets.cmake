@@ -40,13 +40,26 @@ else()
     set(ASSETS_ICONS_SOURCE_FOLDER "${CMAKE_SOURCE_DIR}/../assets/icons")
 endif()
 
-
 if(EXISTS "${PROJECT_SOURCE_DIR}/packaging")
     # look for project level packaging info
     set(PROJECT_PACKAGING_SOURCE_FOLDER "${PROJECT_SOURCE_DIR}/packaging")
 else()
     # revert to mssm_code packaging info
     set(PROJECT_PACKAGING_SOURCE_FOLDER "${CMAKE_SOURCE_DIR}/../packaging")
+endif()
+
+# Set the target asset directory based on platform
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    # Set the executable location
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+    )
+
+    # Update the asset directories for Linux
+    set(TARGET_ASSET_DIR "${CMAKE_BINARY_DIR}/bin/assets")
+else()
+    # For non-Linux platforms, use the default target directory
+    set(TARGET_ASSET_DIR "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets")
 endif()
 
 # Platform specific static assets
@@ -100,15 +113,15 @@ if(EXISTS "${ASSETS_SOURCE_FOLDER}")
         if(NOT APPLE)
             # Escape the paths to handle special characters
             escape_cmake_path("${FILE}" ESCAPED_FILE)
-            escape_cmake_path("$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets/${NEW_FILE}" ESCAPED_DEST)
+            escape_cmake_path("${TARGET_ASSET_DIR}/${NEW_FILE_PATH}" ESCAPED_DEST_PATH)
+            escape_cmake_path("${TARGET_ASSET_DIR}/${NEW_FILE}" ESCAPED_DEST_FILE)
 
             add_custom_command(
                 TARGET ${PROJECT_NAME} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets"
-                COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${ESCAPED_FILE}" "${ESCAPED_DEST}"
+                COMMAND ${CMAKE_COMMAND} -E make_directory "${TARGET_ASSET_DIR}/${NEW_FILE_PATH}"
+                COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${ESCAPED_FILE}" "${ESCAPED_DEST_FILE}"
             )
         endif()
-
 
         # message("Assets/${NEW_FILE} FILE ${FILE}")
         # Make sure it shows up in the IDE Assets folder
@@ -150,12 +163,13 @@ if ("vulkan" IN_LIST LIBRARIES)
         if(NOT APPLE)
             # Escape the paths to handle special characters
             escape_cmake_path("${FILE}" ESCAPED_FILE)
-            escape_cmake_path("$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets/${NEW_FILE}" ESCAPED_DEST)
+            escape_cmake_path("${TARGET_ASSET_DIR}/${NEW_FILE_PATH}" ESCAPED_DEST_PATH)
+            escape_cmake_path("${TARGET_ASSET_DIR}/${NEW_FILE}" ESCAPED_DEST_FILE)
 
             add_custom_command(
                 TARGET ${PROJECT_NAME} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets"
-                COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${ESCAPED_FILE}" "${ESCAPED_DEST}"
+                COMMAND ${CMAKE_COMMAND} -E make_directory "${TARGET_ASSET_DIR}/${NEW_FILE_PATH}"
+                COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${ESCAPED_FILE}" "${ESCAPED_DEST_FILE}"
             )
         endif()
 
@@ -164,13 +178,6 @@ if ("vulkan" IN_LIST LIBRARIES)
         source_group("Assets/${NEW_FILE_PATH}" FILES "${FILE}")
 
     endforeach ()
-endif()
-
-
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-    )
 endif()
 
 # # SEE THIS! https://discourse.cmake.org/t/how-to-add-resources-to-macos-bundle/9323
