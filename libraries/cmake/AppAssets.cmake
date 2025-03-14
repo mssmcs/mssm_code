@@ -50,13 +50,13 @@ endif()
 
 # Set the target asset directory based on platform
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    # Set the executable location
+    # Create a project-specific folder for both the executable and assets
     set_target_properties(${PROJECT_NAME} PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${PROJECT_NAME}"
     )
 
-    # Update the asset directories for Linux
-    set(TARGET_ASSET_DIR "${CMAKE_BINARY_DIR}/bin/assets")
+    # Set assets to be in a subfolder of the project folder
+    set(TARGET_ASSET_DIR "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/assets")
 else()
     # For non-Linux platforms, use the default target directory
     set(TARGET_ASSET_DIR "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets")
