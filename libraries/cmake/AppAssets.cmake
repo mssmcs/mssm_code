@@ -1,5 +1,12 @@
 include(${CMAKE_SOURCE_DIR}/../libraries/cmake/util.cmake)
 
+function(escape_cmake_path path result)
+    # Escape parentheses with backslashes
+    string(REGEX REPLACE "\\(" "\\\\(" escaped_path "${path}")
+    string(REGEX REPLACE "\\)" "\\\\)" escaped_path "${escaped_path}")
+    set(${result} "${escaped_path}" PARENT_SCOPE)
+endfunction()
+
 # Assets for all platforms
 # set(STATIC_ASSETS ${PROJECT_SOURCE_DIR}/assets/fonts/Manrope.ttf)
 
@@ -91,13 +98,17 @@ if(EXISTS "${ASSETS_SOURCE_FOLDER}")
         # message("NEWFILE PATH: ${NEW_FILE_PATH}")
 
         if(NOT APPLE)
+            # Escape the paths to handle special characters
+            escape_cmake_path("${FILE}" ESCAPED_FILE)
+            escape_cmake_path("$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets/${NEW_FILE}" ESCAPED_DEST)
+
             add_custom_command(
                 TARGET ${PROJECT_NAME} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets"
-                COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${FILE}" "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets/${NEW_FILE}"
+                COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${ESCAPED_FILE}" "${ESCAPED_DEST}"
             )
-
         endif()
+
 
         # message("Assets/${NEW_FILE} FILE ${FILE}")
         # Make sure it shows up in the IDE Assets folder
@@ -137,10 +148,14 @@ if ("vulkan" IN_LIST LIBRARIES)
     #    message("Setting property")
 
         if(NOT APPLE)
+            # Escape the paths to handle special characters
+            escape_cmake_path("${FILE}" ESCAPED_FILE)
+            escape_cmake_path("$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets/${NEW_FILE}" ESCAPED_DEST)
+
             add_custom_command(
                 TARGET ${PROJECT_NAME} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets"
-                COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${FILE}" "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets/${NEW_FILE}"
+                COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${ESCAPED_FILE}" "${ESCAPED_DEST}"
             )
         endif()
 
