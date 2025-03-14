@@ -48,22 +48,27 @@ else()
     set(PROJECT_PACKAGING_SOURCE_FOLDER "${CMAKE_SOURCE_DIR}/../packaging")
 endif()
 
-# Set the target asset directory based on platform
+# Set up the directory structure based on platform
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    # Create a project-specific folder inside bin for both the executable and assets
+    # Create a project-specific folder inside bin for Linux
     set_target_properties(${PROJECT_NAME} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}"
     )
 
-    # Set assets to be in a subfolder of the project folder
+    # Set assets directory for Linux
     set(TARGET_ASSET_DIR "${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}/assets")
+elseif(WIN32)
+    # For Windows, create a project-specific folder structure similar to Linux
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${PROJECT_NAME}"
+    )
+
+    # Set assets to be in a subfolder of the project folder
+    set(TARGET_ASSET_DIR "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/assets")
 else()
-    # For non-Linux platforms, use the default target directory
+    # For other platforms (like macOS)
     set(TARGET_ASSET_DIR "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets")
 endif()
-
-# Make the TARGET_ASSET_DIR available to other CMake scripts
-set(TARGET_ASSET_DIR ${TARGET_ASSET_DIR} CACHE INTERNAL "Target directory for assets")
 
 # Platform specific static assets
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
@@ -114,16 +119,33 @@ if(EXISTS "${ASSETS_SOURCE_FOLDER}")
         # message("NEWFILE PATH: ${NEW_FILE_PATH}")
 
         if(NOT APPLE)
-            # Escape the paths to handle special characters
-            escape_cmake_path("${FILE}" ESCAPED_FILE)
-            escape_cmake_path("${TARGET_ASSET_DIR}/${NEW_FILE_PATH}" ESCAPED_DEST_PATH)
-            escape_cmake_path("${TARGET_ASSET_DIR}/${NEW_FILE}" ESCAPED_DEST_FILE)
+            if(WIN32)
+                # Create a unique and valid identifier for each file (no special chars)
+                string(MAKE_C_IDENTIFIER "${NEW_FILE}" SAFE_FILE_ID)
 
-            add_custom_command(
-                TARGET ${PROJECT_NAME} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E make_directory "${TARGET_ASSET_DIR}/${NEW_FILE_PATH}"
-                COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${ESCAPED_FILE}" "${ESCAPED_DEST_FILE}"
-            )
+                # Create the directory for the file
+                add_custom_command(
+                    TARGET ${PROJECT_NAME} PRE_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E make_directory "${TARGET_ASSET_DIR}/${NEW_FILE_PATH}"
+                )
+
+                # Copy the file - use direct file path to avoid batch script escaping issues
+                add_custom_command(
+                    TARGET ${PROJECT_NAME} POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${FILE}" "${TARGET_ASSET_DIR}/${NEW_FILE}"
+                )
+            else()
+                # For Linux and other non-Windows/non-Apple platforms
+                escape_cmake_path("${FILE}" ESCAPED_FILE)
+                escape_cmake_path("${TARGET_ASSET_DIR}/${NEW_FILE_PATH}" ESCAPED_DEST_PATH)
+                escape_cmake_path("${TARGET_ASSET_DIR}/${NEW_FILE}" ESCAPED_DEST_FILE)
+
+                add_custom_command(
+                    TARGET ${PROJECT_NAME} POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E make_directory "${TARGET_ASSET_DIR}/${NEW_FILE_PATH}"
+                    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${ESCAPED_FILE}" "${ESCAPED_DEST_FILE}"
+                )
+            endif()
         endif()
 
         # message("Assets/${NEW_FILE} FILE ${FILE}")
@@ -164,16 +186,33 @@ if ("vulkan" IN_LIST LIBRARIES)
     #    message("Setting property")
 
         if(NOT APPLE)
-            # Escape the paths to handle special characters
-            escape_cmake_path("${FILE}" ESCAPED_FILE)
-            escape_cmake_path("${TARGET_ASSET_DIR}/${NEW_FILE_PATH}" ESCAPED_DEST_PATH)
-            escape_cmake_path("${TARGET_ASSET_DIR}/${NEW_FILE}" ESCAPED_DEST_FILE)
+            if(WIN32)
+                # Create a unique and valid identifier for each file (no special chars)
+                string(MAKE_C_IDENTIFIER "${NEW_FILE}" SAFE_FILE_ID)
 
-            add_custom_command(
-                TARGET ${PROJECT_NAME} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E make_directory "${TARGET_ASSET_DIR}/${NEW_FILE_PATH}"
-                COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${ESCAPED_FILE}" "${ESCAPED_DEST_FILE}"
-            )
+                # Create the directory for the file
+                add_custom_command(
+                    TARGET ${PROJECT_NAME} PRE_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E make_directory "${TARGET_ASSET_DIR}/${NEW_FILE_PATH}"
+                )
+
+                # Copy the file - use direct file path to avoid batch script escaping issues
+                add_custom_command(
+                    TARGET ${PROJECT_NAME} POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${FILE}" "${TARGET_ASSET_DIR}/${NEW_FILE}"
+                )
+            else()
+                # For Linux and other non-Windows/non-Apple platforms
+                escape_cmake_path("${FILE}" ESCAPED_FILE)
+                escape_cmake_path("${TARGET_ASSET_DIR}/${NEW_FILE_PATH}" ESCAPED_DEST_PATH)
+                escape_cmake_path("${TARGET_ASSET_DIR}/${NEW_FILE}" ESCAPED_DEST_FILE)
+
+                add_custom_command(
+                    TARGET ${PROJECT_NAME} POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E make_directory "${TARGET_ASSET_DIR}/${NEW_FILE_PATH}"
+                    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${ESCAPED_FILE}" "${ESCAPED_DEST_FILE}"
+                )
+            endif()
         endif()
 
         # message("Assets/${NEW_FILE} FILE ${FILE}")
@@ -182,5 +221,3 @@ if ("vulkan" IN_LIST LIBRARIES)
 
     endforeach ()
 endif()
-
-# Commented out remainder of the file remains unchanged from the original
