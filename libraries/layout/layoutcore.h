@@ -125,7 +125,7 @@ public:
     int getDepth() const { return depth; }
     bool isOverlayRoot() const { return layer > 0 && depth == 0; }
     virtual void draw(const PropertyBag& parentProps, mssm::Canvas2d& g) = 0;
-    RectI thisRect() const { return *this; }
+    constexpr RectI thisRect() const { return *this; }
     RectRegion region(Vec2d pos, int innerBorder, int outerBorder) const { return RectI::region(pos.x, pos.y, innerBorder, outerBorder); }
     virtual SizeBound2d getBound(const PropertyBag& parentProps) = 0;
     virtual void resize(const PropertyBag& parentProps, const RectI& rect) = 0;

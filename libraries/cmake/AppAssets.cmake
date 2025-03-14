@@ -116,7 +116,7 @@ if(EXISTS "${ASSETS_SOURCE_FOLDER}")
 
         install(FILES ${FILE} DESTINATION ${CMAKE_INSTALL_BINDIR}/assets/${NEW_FILE_PATH})
 
-        # message("NEWFILE PATH: ${NEW_FILE_PATH}")
+        message("NEWFILE PATH: ${NEW_FILE_PATH}")
 
         if(NOT APPLE)
             if(WIN32)
@@ -148,7 +148,7 @@ if(EXISTS "${ASSETS_SOURCE_FOLDER}")
             endif()
         endif()
 
-        # message("Assets/${NEW_FILE} FILE ${FILE}")
+        message("Assets/${NEW_FILE} FILE ${FILE}")
         # Make sure it shows up in the IDE Assets folder
         source_group("Assets/${NEW_FILE_PATH}" FILES "${FILE}")
 

@@ -4,6 +4,7 @@
 #include "vulkbuffer.h"
 #include "vulkcommandbuffers.h"
 #include "vulkimageview.h"
+#include <cstring>
 
 size_t FormatByteSize(VkFormat fmt);
 void copyBuffer(VulkCommandPool& commandPool, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);

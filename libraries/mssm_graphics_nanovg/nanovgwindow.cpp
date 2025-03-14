@@ -10,6 +10,14 @@
 
 #include "fontstash.h"
 
+
+#define GLEW_STATIC  // Matches your build flag
+#define NANOVG_GLEW  // Tell NanoVG to use GLEW
+// #include <GL/glew.h>
+// #define NANOVG_GL3_IMPLEMENTATION
+// #include "nanovg_gl.h"
+
+
 #ifdef NANOVG_GLEW
 #	include <GL/glew.h>
 #endif

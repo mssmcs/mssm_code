@@ -113,6 +113,7 @@ enum NVGimageFlagsGL {
 #include <math.h>
 #include "nanovg.h"
 
+
 enum GLNVGuniformLoc {
 	GLNVG_LOC_VIEWSIZE,
 	GLNVG_LOC_TEX,
