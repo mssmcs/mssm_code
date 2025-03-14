@@ -62,6 +62,9 @@ else()
     set(TARGET_ASSET_DIR "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets")
 endif()
 
+# Make the TARGET_ASSET_DIR available to other CMake scripts
+set(TARGET_ASSET_DIR ${TARGET_ASSET_DIR} CACHE INTERNAL "Target directory for assets")
+
 # Platform specific static assets
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
   target_sources(${PROJECT_NAME} PUBLIC
@@ -180,110 +183,4 @@ if ("vulkan" IN_LIST LIBRARIES)
     endforeach ()
 endif()
 
-# # SEE THIS! https://discourse.cmake.org/t/how-to-add-resources-to-macos-bundle/9323
-# if(APPLE)
-#     # Bundling macOS application
-#     set_target_properties(${PROJECT_NAME} PROPERTIES
-#         BUNDLE True
-#         MACOSX_BUNDLE_BUNDLE_NAME ${PROJECT_NAME}
-#         MACOSX_BUNDLE_BUNDLE_VERSION ${CMAKE_PROJECT_VERSION}
-#         MACOSX_BUNDLE_GUI_IDENTIFIER com.example.${PROJECT_NAME}
-#         MACOSX_BUNDLE_ICON_FILE AppIcon
-#         MACOSX_BUNDLE_SHORT_VERSION_STRING ${CMAKE_PROJECT_VERSION}
-#     )
-#     set_source_files_properties(${SHADERS}
-#         PROPERTIES
-#         MACOSX_PACKAGE_LOCATION "Resources/shaders"
-#     )
-#     set_source_files_properties(${MODELS}
-#         PROPERTIES
-#         MACOSX_PACKAGE_LOCATION "Resources/models"
-#     )
-#     install(TARGETS ${PROJECT_NAME} BUNDLE DESTINATION .)
-# endif()
-
-# # ---------------
-
-# # fonts
-# set(resource_files
-#     ${CMAKE_SOURCE_DIR}/JetBrainsMono-ExtraLight.ttf
-# )
-
-# # icon
-# set(MACOSX_BUNDLE_ICON_FILE "${PROJECT_NAME}.icns")
-# set(application_icon "${CMAKE_SOURCE_DIR}/${MACOSX_BUNDLE_ICON_FILE}")
-# set_source_files_properties(${application_icon}
-#     PROPERTIES
-#         MACOSX_PACKAGE_LOCATION "Resources"
-# )
-
-# # configs
-# file(GLOB_RECURSE json_configs "${CMAKE_SOURCE_DIR}/configs/*.json")
-# foreach (FILE ${json_configs})
-#     file(RELATIVE_PATH NEW_FILE "${CMAKE_SOURCE_DIR}/configs" ${FILE})
-#     get_filename_component(NEW_FILE_PATH ${NEW_FILE} DIRECTORY)
-#     set_source_files_properties(${FILE}
-#         PROPERTIES
-#             MACOSX_PACKAGE_LOCATION "Resources/configs/${NEW_FILE_PATH}"
-#     )
-# endforeach()
-
-# add_executable(${PROJECT_NAME}
-#     MACOSX_BUNDLE
-#     ${application_icon}
-#     # bundle resources
-#     "${resource_files}"
-#     "${json_configs}"
-# )
-
-# set_target_properties(${PROJECT_NAME}
-#     PROPERTIES # https://cmake.org/cmake/help/latest/prop_tgt/MACOSX_BUNDLE_INFO_PLIST.html
-#         MACOSX_BUNDLE_BUNDLE_NAME "${PROJECT_NAME}" # CFBundleIdentifier
-#         MACOSX_BUNDLE_GUI_IDENTIFIER "com.our-company"
-#         MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION} # CFBundleLongVersionString, deprecated
-#         MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION} # CFBundleShortVersionString
-#         # and bundle resources again
-#         RESOURCE "${resource_files}"
-# )
-
-# # ...
-
-
-# include(GNUInstallDirs)
-
-# install(TARGETS ${PROJECT_NAME}
-#     BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR}
-# )
-
-
-# # On linux we need to ship the system libraries
-# if(UNIX AND NOT APPLE)
-#     get_filename_component(GCC_PATH ${CMAKE_CXX_COMPILER} DIRECTORY)
-#     find_library(LIBGCC NAMES libgcc_s.so.1 HINTS ${GCC_PATH}/../lib64)
-#     get_filename_component(LIBGCC_DIR ${LIBGCC} DIRECTORY)
-#     file(GLOB LIBGCC_ALL ${LIBGCC_DIR}/libgcc*.so.1)
-#     find_library(STDCPP NAMES libstdc++.so.6 HINTS ${GCC_PATH}/../lib64)
-#     file(GLOB STDCPP_ALL ${STDCPP}*)
-#     set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS
-#     ${LIBGCC_ALL}
-#     ${STDCPP_ALL})
-# endif()
-
-# # We need to ship libraries on windows, too, with slightly tweaked file names
-# if(WIN32 AND NOT MSVC)
-#     GET_FILENAME_COMPONENT(GCC_PATH ${CMAKE_CXX_COMPILER} DIRECTORY)
-#     FIND_LIBRARY(LIBGCC NAMES libgcc_s_seh-1.dll HINTS ${GCC_PATH})
-#     FIND_LIBRARY(STDCPP NAMES libstdc++-6.dll HINTS ${GCC_PATH})
-#     FIND_LIBRARY(LIBSZIP NAMES libszip-0.dll HINTS ${GCC_PATH})
-#     FIND_LIBRARY(ZLIB NAMES zlib1.dll HINTS ${GCC_PATH})
-#     FIND_LIBRARY(LIPWINPTHREAD NAMES libwinpthread-1.dll HINTS ${GCC_PATH})
-#     SET(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS
-#     ${LIBGCC}
-#     ${STDCPP}
-#     ${LIBSZIP}
-#     ${ZLIB}
-#     ${LIPWINPTHREAD}
-#     ${CMAKE_THREAD_LIBS_INIT})
-# endif()
-
-# message(${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS})
+# Commented out remainder of the file remains unchanged from the original

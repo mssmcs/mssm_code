@@ -76,8 +76,8 @@ function(target_glsl_shaders TARGET_NAME)
       OUTPUT ${GLSL_FILE}.spv
       COMMAND ${GLSLANGVALIDATOR_EXE} ${target_glsl_shaders_COMPILE_OPTIONS} -V
               "${GLSL_FILE}" -o "${GLSL_FILE}.spv"
-              # COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets"
-              COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${GLSL_FILE}.spv" "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets/${NEW_FILE}"
+              COMMAND ${CMAKE_COMMAND} -E make_directory "${TARGET_ASSET_DIR}/${NEW_FILE_PATH}"
+              COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${GLSL_FILE}.spv" "${TARGET_ASSET_DIR}/${NEW_FILE}"
        MAIN_DEPENDENCY ${GLSL_FILE})
 
     target_sources(${TARGET_NAME} INTERFACE ${GLSL_FILE}.spv)
@@ -86,13 +86,14 @@ function(target_glsl_shaders TARGET_NAME)
   foreach(GLSL_FILE IN LISTS target_glsl_shaders_PUBLIC)
 
       file(RELATIVE_PATH NEW_FILE "${ASSETS_SOURCE_FOLDER}" "${GLSL_FILE}.spv")
+      get_filename_component(NEW_FILE_PATH ${NEW_FILE} DIRECTORY)
 
       add_custom_command(
       OUTPUT ${GLSL_FILE}.spv
       COMMAND ${GLSLANGVALIDATOR_EXE} ${target_glsl_shaders_COMPILE_OPTIONS} -V
               "${GLSL_FILE}" -o "${GLSL_FILE}.spv"
-              # COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets"
-              COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${GLSL_FILE}.spv" "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets/${NEW_FILE}"
+              COMMAND ${CMAKE_COMMAND} -E make_directory "${TARGET_ASSET_DIR}/${NEW_FILE_PATH}"
+              COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${GLSL_FILE}.spv" "${TARGET_ASSET_DIR}/${NEW_FILE}"
       MAIN_DEPENDENCY ${GLSL_FILE})
 
     target_sources(${TARGET_NAME} PUBLIC ${GLSL_FILE}.spv)
@@ -101,13 +102,14 @@ function(target_glsl_shaders TARGET_NAME)
   foreach(GLSL_FILE IN LISTS target_glsl_shaders_PRIVATE)
 
       file(RELATIVE_PATH NEW_FILE "${ASSETS_SOURCE_FOLDER}" "${GLSL_FILE}.spv")
+      get_filename_component(NEW_FILE_PATH ${NEW_FILE} DIRECTORY)
 
       add_custom_command(
       OUTPUT ${GLSL_FILE}.spv
       COMMAND ${GLSLANGVALIDATOR_EXE} ${target_glsl_shaders_COMPILE_OPTIONS} -V
               "${GLSL_FILE}" -o "${GLSL_FILE}.spv"
-              # COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets"
-              COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${GLSL_FILE}.spv" "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets/${NEW_FILE}"
+              COMMAND ${CMAKE_COMMAND} -E make_directory "${TARGET_ASSET_DIR}/${NEW_FILE_PATH}"
+              COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${GLSL_FILE}.spv" "${TARGET_ASSET_DIR}/${NEW_FILE}"
         MAIN_DEPENDENCY ${GLSL_FILE})
 
     target_sources(${TARGET_NAME} PRIVATE ${GLSL_FILE}.spv)
