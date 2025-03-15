@@ -42,17 +42,6 @@ void println(fmt::format_string<Args...> fmt_str, Args&&... args) {
 inline void println() {
     fmt::print("\n");
 }
-
-// Special case for single argument with no format string
-template<typename T>
-void print(const T& value) {
-    fmt::print("{}", value);
-}
-
-template<typename T>
-void println(const T& value) {
-    fmt::print("{}\n", value);
-}
 }
 #endif
 

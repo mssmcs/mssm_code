@@ -282,8 +282,10 @@ void NanovgWindow::configure()
 //     glfwMakeContextCurrent(window);
 #ifdef NANOVG_GLEW
     glewExperimental = GL_TRUE;
-    if(glewInit() != GLEW_OK) {
+    GLenum err = glewInit();
+    if (err != GLEW_OK) {
         printf("Could not init glew.\n");
+        std::cerr << "GLEW Initialization failed: " << glewGetErrorString(err) << std::endl;
         return;
     }
     // GLEW generates GL error because it calls glGetString(GL_EXTENSIONS), we'll consume it here.
