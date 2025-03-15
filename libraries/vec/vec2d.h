@@ -11,7 +11,7 @@
 
 #include "vecUtil.h"
 
-using vec2 = float[2];
+//using vec2 = float[2];
 
 constexpr double degreesToRadians(double degrees) {
     return degrees * 3.14159265358979323846 / 180.0;
