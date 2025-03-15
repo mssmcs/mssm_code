@@ -35,10 +35,85 @@ public:
 };
 
 Vec2d textPos(const RectI& rect, HAlign hAlign, VAlign vAlign);
-void grow(RectI& rect, const Padding& pad);
-void shrink(RectI& rect, const Padding& pad);
-[[nodiscard]] RectI grown(const RectI& rect, const Padding& pad);
-[[nodiscard]] RectI shrunk(const RectI& rect, const Padding& pad);
+
+
+/**
+ * @brief Grow a rectangle by adding padding on all sides.
+ *
+ * @tparam V Vector type used in the rectangle
+ * @param rect Rectangle to modify
+ * @param pad Padding to add on all sides
+ */
+template<is2dVector V>
+void grow(RectBase<V> &rect, const Padding &pad)
+{
+    rect.pos.x -= pad.left;
+    rect.pos.y -= pad.top;
+    rect.width += pad.left + pad.right;
+    rect.height += pad.top + pad.bottom;
+}
+
+/**
+ * @brief Shrink a rectangle by adding padding on all sides.
+ *
+ * @tparam V Vector type used in the rectangle
+ * @param rect Rectangle to modify
+ * @param pad Padding to remove from all sides
+ */
+template<is2dVector V>
+void shrink(RectBase<V> &rect, const Padding &pad)
+{
+    rect.pos.x += pad.left;
+    rect.pos.y += pad.top;
+    rect.width -= pad.left + pad.right;
+    rect.height -= pad.top + pad.bottom;
+    if (rect.width < 0) {
+        rect.pos.x += rect.width / 2;
+        rect.width = 0;
+    }
+    if (rect.height < 0) {
+        rect.pos.y += rect.height / 2;
+        rect.height = 0;
+    }
+}
+
+/**
+ * @brief Create a grown rectangle by adding padding on all sides.
+ *
+ * @tparam V Vector type used in the rectangle
+ * @param rect Original rectangle
+ * @param pad Padding to add on all sides
+ * @return A new grown rectangle
+ */
+template<is2dVector V>
+[[nodiscard]] RectBase<V> grown(const RectBase<V> &rect, const Padding &pad)
+{
+    RectBase<V> ret = rect;
+    grow(ret, pad);
+    return ret;
+}
+
+/**
+ * @brief Create a shrunk rectangle by removing padding from all sides.
+ *
+ * @tparam V Vector type used in the rectangle
+ * @param rect Original rectangle
+ * @param pad Padding to remove from all sides
+ * @return A new shrunk rectangle
+ */
+template<is2dVector V>
+[[nodiscard]] RectBase<V> shrunk(const RectBase<V> &rect, const Padding &pad)
+{
+    RectBase<V> ret = rect;
+    shrink(ret, pad);
+    return ret;
+}
+
+
+// void grow(RectI& rect, const Padding& pad);
+// void shrink(RectI& rect, const Padding& pad);
+// [[nodiscard]] RectI grown(const RectI& rect, const Padding& pad);
+// [[nodiscard]] RectI shrunk(const RectI& rect, const Padding& pad);
 
 void grow(SizeBound2d& bound, const Padding& pad);
 void grow(SizeBound2d& bound, const Margins& margins, int hBetweenCount, int vBetweenCount);

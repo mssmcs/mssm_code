@@ -3,14 +3,14 @@
 
 using namespace mssm;
 
-GraphicsBackend<VulkBackendWindow, mssm::Canvas3d> *loadGraphicsBackend3d(std::string title, int width, int height)
+GraphicsBackend<VulkBackendWindow, mssm::Canvas3d> *loadGraphicsBackend2d(std::string title, int width, int height)
 {
     return new VulkanGraphicsBackend(title, width, height);
 }
 
 
 Graphics::Graphics(std::string title, int width, int height)
-    : GraphicsBase(title, width, height,loadGraphicsBackend3d),
+    : GraphicsBase(title, width, height,loadGraphicsBackend2d),
     Canvas2dWrapper(backend->getCanvas())
 {
 }
