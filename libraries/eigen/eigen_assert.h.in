@@ -1,0 +1,16 @@
+#ifndef EIGEN_ASSERT_H
+#define EIGEN_ASSERT_H
+
+#include <stdexcept>
+#include <sstream>
+#include <string>
+
+// Define eigen_assert before including any Eigen headers
+#define eigen_assert(x) \
+  if (!(x)) { \
+    std::ostringstream msg; \
+    msg << "Eigen assertion failed: " << #x << " at " << __FILE__ << ":" << __LINE__; \
+    throw std::runtime_error(msg.str()); \
+  }
+
+#endif // EIGEN_ASSERT_H
