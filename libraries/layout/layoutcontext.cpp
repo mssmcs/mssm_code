@@ -8,6 +8,21 @@
 #undef assertm
 #define assertm(exp, msg) assert((void(msg), exp))
 
+std::string MouseEvt::actionName() const {
+    switch (action) {
+    case Action::none: return "none";
+    case Action::enter: return "enter";
+    case Action::exit: return "exit";
+    case Action::move: return "move";
+    case Action::drag: return "drag";
+    case Action::press: return "press";
+    case Action::release: return "release";
+    case Action::scroll: return "scroll";
+    default: return "unknown";
+    }
+}
+
+
 void LayoutContext::pushOverlay(LayoutPtr overlay)
 {
     overlay->updateLayer(overlays.size()+1, 0);

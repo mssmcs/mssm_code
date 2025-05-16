@@ -314,6 +314,9 @@ LayoutBase::EvtProp LayoutBase::propagateMouse(const PropertyBag& parentProps, E
 
 
     if (reason != MouseEventReason::hoverOnly) {
+        if (evt.action == MouseEvt::Action::scroll) {
+            std::cout << "Scrolling: " << getTypeStr() << std::endl;
+        }
         prop = onMouse(parentProps, reason, evt);
     }
 

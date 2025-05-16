@@ -167,7 +167,13 @@ bool NanovgWindow::isDrawable()
 
 void NanovgWindow::setBackground(mssm::Color c)
 {
-    throw std::logic_error("Not implemented");
+    // Store the background color as a member variable
+    backgroundColor = c;
+
+    // Apply the background color during rendering
+    // This will be used in beginDrawing where glClearColor is set
+    glClearColor(c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, c.a / 255.0f);
+
 }
 
 ImageInternalVG::ImageInternalVG(NVGcontext* vg, int idx, int width, int height, Color *cached)
@@ -486,7 +492,11 @@ void NanovgWindow::beginDrawing(bool wasResized)
 
     // Update and render
     glViewport(0, 0, fbWidth, fbHeight);
-    glClearColor(0,0,0,0);
+
+    // Update this line in beginDrawing:
+    glClearColor(backgroundColor.r / 255.0f, backgroundColor.g / 255.0f,
+                 backgroundColor.b / 255.0f, backgroundColor.a / 255.0f);
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     clipRects.clear();

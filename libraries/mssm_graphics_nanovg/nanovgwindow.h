@@ -45,6 +45,7 @@ protected:
     int fontLight;
     std::vector<std::shared_ptr<mssm::ImageInternal>> keepImages;
     std::vector<Scissor> clipRects;
+    mssm::Color backgroundColor{mssm::BLACK};
 
 public:
     NanovgWindow(std::string title, int width, int height);
