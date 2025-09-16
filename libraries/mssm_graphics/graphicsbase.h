@@ -135,7 +135,7 @@ public:
         Args&&... args)
     {
         std::string formatted = format_helper(fmt, std::forward<Args>(args)...);
-        this->cerr << formatted << std::endl;
+        //this->cerr << formatted << std::endl;
         cerrLines.push_back(formatted);
     }
 
