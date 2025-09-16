@@ -284,6 +284,11 @@ void ArrayBase<T,Q>::removeAtIndex(int index)
 template<typename T, typename Q>
 void ArrayBase<T,Q>::insertAtIndex(int index, T element)
 {
+    if (index == elements.size()) {
+        elements.push_back(element);
+        return;
+    }
+
     if constexpr (enable_array_safety_checks) {
         if (!isIndexInRange(index)) {
             throwIndexError(index);
