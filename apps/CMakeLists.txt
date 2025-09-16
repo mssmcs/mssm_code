@@ -9,8 +9,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(EXCLUDE_SUBDIRS
 
 )
-# mlspring25-logistic_regression-ml_app
-
 
 # Not your situation, but in case you have a different linker
 # set(CMAKE_EXE_LINKER_FLAGS "-Wl,--verbose")
