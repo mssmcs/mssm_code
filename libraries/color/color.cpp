@@ -17,6 +17,9 @@ Color Color::fromHexRGB(std::string hexstring)
         if (hexstring.substr(0,2) == "0x") {
             hexstring = hexstring.substr(2);
         }
+        else if (hexstring.substr(0,1) == "#") {
+            hexstring = hexstring.substr(1);
+        }
         return Color::fromIntRGB(stoi(hexstring, 0, 16));
     }
 }

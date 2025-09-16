@@ -8,6 +8,8 @@
 #include <variant>
 #include <vector>
 #include <memory>
+#include <optional>
+
 #include "color.h"
 
 // Type alias for property values

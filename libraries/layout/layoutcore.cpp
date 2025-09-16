@@ -314,6 +314,9 @@ LayoutBase::EvtProp LayoutBase::propagateMouse(const PropertyBag& parentProps, E
 
 
     if (reason != MouseEventReason::hoverOnly) {
+        if (evt.action == MouseEvt::Action::scroll) {
+            std::cout << "Scrolling: " << getTypeStr() << std::endl;
+        }
         prop = onMouse(parentProps, reason, evt);
     }
 
@@ -464,29 +467,29 @@ void LayoutContext::setDragFocus(LayoutPtr focusElement)
 }
 
 
-void grow(RectI &rect, const Padding &pad)
-{
-    rect.pos.x -= pad.left;
-    rect.pos.y -= pad.top;
-    rect.width += pad.left + pad.right;
-    rect.height += pad.top + pad.bottom;
-}
+// void grow(RectI &rect, const Padding &pad)
+// {
+//     rect.pos.x -= pad.left;
+//     rect.pos.y -= pad.top;
+//     rect.width += pad.left + pad.right;
+//     rect.height += pad.top + pad.bottom;
+// }
 
-void shrink(RectI &rect, const Padding &pad)
-{
-    rect.pos.x += pad.left;
-    rect.pos.y += pad.top;
-    rect.width -= pad.left + pad.right;
-    rect.height -= pad.top + pad.bottom;
-    if (rect.width < 0) {
-        rect.pos.x += rect.width / 2;
-        rect.width = 0;
-    }
-    if (rect.height < 0) {
-        rect.pos.y += rect.height / 2;
-        rect.height = 0;
-    }
-}
+// void shrink(RectI &rect, const Padding &pad)
+// {
+//     rect.pos.x += pad.left;
+//     rect.pos.y += pad.top;
+//     rect.width -= pad.left + pad.right;
+//     rect.height -= pad.top + pad.bottom;
+//     if (rect.width < 0) {
+//         rect.pos.x += rect.width / 2;
+//         rect.width = 0;
+//     }
+//     if (rect.height < 0) {
+//         rect.pos.y += rect.height / 2;
+//         rect.height = 0;
+//     }
+// }
 
 void grow(SizeBound2d &bound, const Padding &pad)
 {

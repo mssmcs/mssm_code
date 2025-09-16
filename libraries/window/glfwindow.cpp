@@ -19,8 +19,8 @@ using namespace mssm;
 
 void errorcb(int error, const char* desc)
 {
-    throw std::runtime_error(std::string("GLFW error ") + to_string(error) + " " + desc);
     printf("GLFW error %d: %s\n", error, desc);
+    throw std::runtime_error(std::string("GLFW error ") + to_string(error) + " " + desc);
 }
 
 
@@ -325,11 +325,18 @@ GLFWwindow *buildWindow(WindowEventSink* owner, int width, int height, string ti
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        
+        #if defined(__linux__) && defined(__WSLERNEL__)
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+        #else
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        #endif
 #endif    
+
         glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_FALSE );
         //   glfwWindowHint(GLFW_SAMPLES, 2);
     }
+
 
 
     //    window =   glfwCreateWindow(glfwGetVideoMode(glfwGetPrimaryMonitor())->width,
@@ -339,7 +346,7 @@ GLFWwindow *buildWindow(WindowEventSink* owner, int width, int height, string ti
     GLFWwindow *window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
     //	window = glfwCreateWindow(1000, 600, "NanoVG", glfwGetPrimaryMonitor(), NULL);
     if (!window) {
-        //glfwTerminate();
+        std::cerr << "Window creation failed: " << glfwGetError(nullptr) << std::endl;
         return nullptr;
     }
 

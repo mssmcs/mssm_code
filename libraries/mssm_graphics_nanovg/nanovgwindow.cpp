@@ -10,6 +10,14 @@
 
 #include "fontstash.h"
 
+
+#define GLEW_STATIC  // Matches your build flag
+#define NANOVG_GLEW  // Tell NanoVG to use GLEW
+// #include <GL/glew.h>
+// #define NANOVG_GL3_IMPLEMENTATION
+// #include "nanovg_gl.h"
+
+
 #ifdef NANOVG_GLEW
 #	include <GL/glew.h>
 #endif
@@ -159,7 +167,13 @@ bool NanovgWindow::isDrawable()
 
 void NanovgWindow::setBackground(mssm::Color c)
 {
-    throw std::logic_error("Not implemented");
+    // Store the background color as a member variable
+    backgroundColor = c;
+
+    // Apply the background color during rendering
+    // This will be used in beginDrawing where glClearColor is set
+    glClearColor(c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, c.a / 255.0f);
+
 }
 
 ImageInternalVG::ImageInternalVG(NVGcontext* vg, int idx, int width, int height, Color *cached)
@@ -274,8 +288,10 @@ void NanovgWindow::configure()
 //     glfwMakeContextCurrent(window);
 #ifdef NANOVG_GLEW
     glewExperimental = GL_TRUE;
-    if(glewInit() != GLEW_OK) {
+    GLenum err = glewInit();
+    if (err != GLEW_OK) {
         printf("Could not init glew.\n");
+        std::cerr << "GLEW Initialization failed: " << glewGetErrorString(err) << std::endl;
         return;
     }
     // GLEW generates GL error because it calls glGetString(GL_EXTENSIONS), we'll consume it here.
@@ -476,7 +492,11 @@ void NanovgWindow::beginDrawing(bool wasResized)
 
     // Update and render
     glViewport(0, 0, fbWidth, fbHeight);
-    glClearColor(0,0,0,0);
+
+    // Update this line in beginDrawing:
+    glClearColor(backgroundColor.r / 255.0f, backgroundColor.g / 255.0f,
+                 backgroundColor.b / 255.0f, backgroundColor.a / 255.0f);
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     clipRects.clear();

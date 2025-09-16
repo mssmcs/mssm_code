@@ -69,13 +69,13 @@ SizeBound2d LayoutTabs::getBound(const PropertyBag& parentProps)
                               : tabBar->getBound(parentProps).xBound.minSize;
     SizeBound2d childBound = tabs[0]->getBound(parentProps);
     for (int i = 1; i < tabs.size(); i++) {
-        childBound = mergeB(childBound, tabs[i]->getBound(parentProps));
+        childBound = constraintIntersectionSafe(childBound, tabs[i]->getBound(parentProps));
     }
     if (isHorizontal) {
-        //childBound.yBound = mergeB(childBound.yBound, tabBar->getBound(parentProps).yBound);
+        //childBound.yBound = constraintIntersectionSafe(childBound.yBound, tabBar->getBound(parentProps).yBound);
         childBound.grow(0, headerSize);
     } else {
-        //childBound.xBound = mergeB(childBound.xBound, tabBar->getBound(parentProps).xBound);
+        //childBound.xBound = constraintIntersectionSafe(childBound.xBound, tabBar->getBound(parentProps).xBound);
         childBound.grow(headerSize, 0);
     }
     grow(childBound, margins, isHorizontal ? 0 : 1, isHorizontal ? 1 : 0);

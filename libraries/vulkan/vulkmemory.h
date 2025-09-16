@@ -6,9 +6,9 @@
 #include <iostream>
 #include <ostream>
 #include <span>
+#include <cstring> // Added to declare memcpy
 
 uint32_t findMemoryType(VulkDevice &device, uint32_t typeFilter, VkMemoryPropertyFlags properties);
-
 
 template <typename D>
 class VulkMemoryBase : public VulkHasDevIndirect<D> {
@@ -46,7 +46,7 @@ inline void VulkMemoryBase<D>::resize(VkDeviceSize newSizeBytes, VkDeviceSize pr
 
     VKCALL_D(vkMapMemory, newHandle, 0, newSizeBytes, 0, &newPtr);
 
-    memcpy(newPtr, oldPtr, preserveSizeBytes);
+    memcpy(newPtr, oldPtr, preserveSizeBytes); // memcpy is now declared
 
     derivedClass->unmap(); // unmap old memory
     derivedClass->setHandle(newHandle);  // deletes old memory
@@ -145,7 +145,7 @@ inline void VulkMemory::copyFrom(std::span<T2> source)
     if (!wasMapped) {
         this->map();
     }
-    memcpy(this->memPtr(), source.data(), sz);
+    memcpy(this->memPtr(), source.data(), sz); // memcpy is now declared
     if (!wasMapped) {
         this->unmap();
     }

@@ -5,6 +5,25 @@
 #include <ranges>
 #include <type_traits>
 
+// todo: put this somewhere to be shared across libraries
+#if defined(__GNUC__) || defined(__clang__)
+#define BEGIN_IGNORE_FLOAT_EQUAL \
+_Pragma("GCC diagnostic push") \
+    _Pragma("GCC diagnostic ignored \"-Wfloat-equal\"")
+#define END_IGNORE_WARNINGS \
+    _Pragma("GCC diagnostic pop")
+#elif defined(_MSC_VER)
+#define BEGIN_IGNORE_FLOAT_EQUAL \
+__pragma(warning(push)) \
+    __pragma(warning(disable:4244)) \
+    __pragma(warning(disable:4305))
+#define END_IGNORE_WARNINGS \
+    __pragma(warning(pop))
+#else
+#define BEGIN_IGNORE_FLOAT_EQUAL
+#define END_IGNORE_WARNINGS
+#endif
+
 template<typename T>
 concept Arithmetic = std::is_arithmetic_v<std::remove_cvref_t<T>>;
 
@@ -47,10 +66,9 @@ constexpr auto cross(const is3dVector auto& a, const is3dVector auto& b) {
 }
 
 bool isDiagonal(const is2dVector auto& inner, const is2dVector auto& outer) {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wfloat-equal"
+BEGIN_IGNORE_FLOAT_EQUAL
     return inner.x != outer.x && inner.y != outer.y;
-#pragma GCC diagnostic pop
+END_IGNORE_WARNINGS
 }
 
 constexpr auto dot(const is3dVector auto& a, const is3dVector auto& b) { return a.x*b.x+a.y*b.y+a.z*b.z; }

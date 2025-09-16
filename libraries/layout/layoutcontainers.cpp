@@ -670,7 +670,7 @@ SizeBound2d LayoutGrid::getBound(const PropertyBag& parentProps)
         heightBound = heightBound + rowBound.yBound;
         for (int i = 0; i < numColumns; i++) {
             auto cb = r->children[i]->getBound(parentProps).xBound;
-            columnBounds[i] = mergeB(columnBounds[i], cb);
+            columnBounds[i] = constraintIntersectionSafe(columnBounds[i], cb);
         }
     }
 

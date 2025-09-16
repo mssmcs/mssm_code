@@ -1,0 +1,22 @@
+{
+    "include_paths": [
+      "apps/CMakeLists.txt",
+      "apps/graphics_app",
+      "apps/cmd_app",
+      "libraries/cmake",
+      "libraries/cmake/packaging",
+      "libraries/array",
+      "libraries/color",
+      "libraries/vec",
+      "libraries/poly_partition",
+      "libraries/geometry",
+      "libraries/fontstash",
+      ".gitignore",
+      "mirror_config.json",
+      "mirror_project.py"
+    ],
+    "exclude_paths": [
+    ],
+    "other stuff": [
+    ]
+  }

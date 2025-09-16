@@ -33,6 +33,8 @@ public:
     Vec2d dragDelta;
     double dragMax;
     bool insideElement{false};
+
+    std::string actionName() const;
 };
 
 class KeyEvt {
