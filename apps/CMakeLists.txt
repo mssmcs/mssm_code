@@ -12,8 +12,6 @@ Quickhouse3
 sample_project
 mssm_cmd
 )
-# mlspring25-logistic_regression-ml_app
-
 
 # Not your situation, but in case you have a different linker
 # set(CMAKE_EXE_LINKER_FLAGS "-Wl,--verbose")

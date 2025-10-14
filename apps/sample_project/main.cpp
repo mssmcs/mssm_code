@@ -1,8 +1,8 @@
-#include <iostream>
+#include "mssm.h"
 
 int main()
 {
-    std::cout << "Hello world" << std::endl;
+    println("Hello");
 
     return 0;
 }
