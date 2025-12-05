@@ -245,6 +245,11 @@ void VulkCanvas::resetModelMatrix()
     dc->sendPushConstants(pipelineLayout, model);
 }
 
+void VulkCanvas::setCameraParams(const CameraParams &params)
+{
+    cameraParams = params;
+}
+
 void VulkCanvas::setCameraParams(Vec3d eye, Vec3d target, Vec3d up, double near, double far)
 {
     this->cameraParams.camera = eye;

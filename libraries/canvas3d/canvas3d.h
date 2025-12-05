@@ -11,6 +11,30 @@
 
 namespace mssm {
 
+class CameraParams {
+public:
+    Vec3d camera{0, 0, 50};
+    Vec3d target{0, 0, 0};
+    Vec3d up{0, 1, 0};
+    double fov{1.57079632679}; // 90 degrees
+    double near{10};
+    double far{200};
+
+    // TODO: cache
+    Vec3d ForwardDir() const { return (target - camera).unit(); }
+    Vec3d BackDir() const { return -ForwardDir(); }
+    Vec2d LeftDir() const { return cross(up, target-camera).unit(); }
+    Vec2d RightDir() const { return -LeftDir(); }
+    Vec2d UpDir() const { return cross(ForwardDir(), LeftDir()).unit(); }
+    Vec2d DownDir() const { return -UpDir(); }
+
+    void Roll(double angle);
+    void Pitch(double angle);
+    void Yaw(double angle);
+    void OrbitHoriz(double angle);
+    void OrbitVert(double angle);
+};
+
 class Canvas3d : public Canvas2d {
 public:
 
@@ -21,6 +45,7 @@ public:
                  mssm::Color fill) = 0;
     virtual void setModelMatrix(mat4x4 &model) = 0;
     virtual void resetModelMatrix() = 0;
+    virtual void setCameraParams(const CameraParams& params) = 0;
     virtual void setCameraParams(Vec3d eye, Vec3d target, Vec3d up, double near, double far) = 0;
     virtual void setLightParams(Vec3d pos, Color color) = 0;
 
@@ -96,6 +121,7 @@ public:
     void polygon3d(const std::vector<Vec3d> &points, mssm::Color c = WHITE, mssm::Color f = TRANS) override { canvas->polygon3d(points, c, f); }
     void setModelMatrix(mat4x4 &model) override { canvas->setModelMatrix(model); }
     void resetModelMatrix() override { canvas->resetModelMatrix(); }
+    void setCameraParams(const mssm::CameraParams& params) override { canvas->setCameraParams(params);}
     void setCameraParams(Vec3d eye, Vec3d target, Vec3d up, double near, double far) override { canvas->setCameraParams(eye, target, up, near, far); }
     void setLightParams(Vec3d pos, Color color) override { canvas->setLightParams(pos, color); }
     TriWriter<Vertex3dUV> getTriangleWriter(uint32_t triCount) override { return canvas->getTriangleWriter(triCount); }

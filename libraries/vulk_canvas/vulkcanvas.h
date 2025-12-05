@@ -23,18 +23,18 @@ struct UniformBufferObject {
     alignas(16) Vec3f viewPos; // Camera position
 };
 
-#undef near
-#undef far
+// #undef near
+// #undef far
 
-class CameraParams {
-public:
-    Vec3d camera;
-    Vec3d target;
-    Vec3d up{0, 1, 0};
-    double fov{1.57079632679}; // 90 degrees
-    double near{10};
-    double far{200};
-};
+// class CameraParams {
+// public:
+//     Vec3d camera;
+//     Vec3d target;
+//     Vec3d up{0, 1, 0};
+//     double fov{1.57079632679}; // 90 degrees
+//     double near{10};
+//     double far{200};
+// };
 
 class ViewProj {
 public:
@@ -51,7 +51,7 @@ public:
         mat4x4_identity(proj);
     };
 
-    void setupPerspective(CameraParams &cameraParams, int windowWidth, int windowHeight) {
+    void setupPerspective(mssm::CameraParams &cameraParams, int windowWidth, int windowHeight) {
         setupPerspective(cameraParams.fov, windowWidth, windowHeight, cameraParams.near, cameraParams.far);
         setCamera(cameraParams.camera, cameraParams.target, cameraParams.up);
     }
@@ -128,7 +128,7 @@ public:
 
     UniformBufferObject ubo;
 
-    CameraParams cameraParams;
+    mssm::CameraParams cameraParams;
     Vec3f lightPosition;
 
 
@@ -142,6 +142,7 @@ public:
     // Canvas interface
     void setModelMatrix(mat4x4 &model) override;
     void resetModelMatrix() override;
+    void setCameraParams(const mssm::CameraParams& params) override;
     void setCameraParams(Vec3d eye, Vec3d target, Vec3d up, double near, double far) override;
     void setLightParams(Vec3d pos, mssm::Color color) override;
 
