@@ -167,16 +167,48 @@ constexpr Vec3base<T> crossProduct(const Vec3base<T>& a, const Vec3base<T>& b)
 {
     return {a.y*b.z-a.z*b.y, a.z*b.x-a.x*b.z, a.x*b.y-b.x*a.y};
 }
+
 template<typename T>
 constexpr double dotProduct(const Vec3base<T>& a, const Vec3base<T>& b)
 {
     return a.x*b.x+b.y*a.y+b.z*a.z;
 }
+
+Vec3d rotateAround(Vec3base<double> v, Vec3base<double> axis, double angleRadians)
+{
+    Vec3d u = axis.unit();
+
+    double cosA = cos(angleRadians);
+    double sinA = sin(angleRadians);
+
+    Vec3d rotatedV = v * cosA +
+                         u * (u.dot(v)) * (1 - cosA) +
+                         (u.cross(v)) * sinA;
+
+    return rotatedV;
+}
+
+Vec3d rotateAround(Vec3base<double> point, Vec3base<double> center, Vec3base<double> axis, double angleRadians)
+{
+    Vec3d p = point - center;
+    Vec3d u = axis.unit();
+
+    double cosA = cos(angleRadians);
+    double sinA = sin(angleRadians);
+
+    Vec3d rotatedPoint = p * cosA +
+                         u * (u.dot(p)) * (1 - cosA) +
+                         (u.cross(p)) * sinA;
+
+    return rotatedPoint + center;
+}
+
 template<typename T>
 std::string Vec3base<T>::toIntString() const
 {
     return "(" + std::to_string(int(x)) + ", " + std::to_string(int(y))+ ", " + std::to_string(int(z)) +")";
 }
+
 template<typename T>
 std::string Vec3base<T>::toString() const
 {

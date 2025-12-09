@@ -18,15 +18,15 @@ public:
     Vec3d up{0, 1, 0};
     double fov{1.57079632679}; // 90 degrees
     double near{10};
-    double far{200};
+    double far{2000};
 
     // TODO: cache
     Vec3d ForwardDir() const { return (target - camera).unit(); }
     Vec3d BackDir() const { return -ForwardDir(); }
-    Vec2d LeftDir() const { return cross(up, target-camera).unit(); }
-    Vec2d RightDir() const { return -LeftDir(); }
-    Vec2d UpDir() const { return cross(ForwardDir(), LeftDir()).unit(); }
-    Vec2d DownDir() const { return -UpDir(); }
+    Vec3d LeftDir() const { return cross(up, target-camera).unit(); }
+    Vec3d RightDir() const { return -LeftDir(); }
+    Vec3d UpDir() const { return cross(ForwardDir(), LeftDir()).unit(); }
+    Vec3d DownDir() const { return -UpDir(); }
 
     void Roll(double angle);
     void Pitch(double angle);
@@ -34,6 +34,43 @@ public:
     void OrbitHoriz(double angle);
     void OrbitVert(double angle);
 };
+
+
+void CameraParams::Roll(double angle)
+{
+    // change updir
+    up = rotateAround(UpDir(), ForwardDir(), angle);
+}
+
+void CameraParams::Pitch(double angle)
+{
+    Vec3d axis = RightDir();
+    Vec3d fwd = ForwardDir();
+    fwd = rotateAround(fwd, axis, angle);
+    Vec3d toTarget = (target - camera).magnitude() * fwd;
+    target = camera + toTarget;
+    up = rotateAround(up, axis, angle);
+}
+
+void CameraParams::Yaw(double angle)
+{
+    up = UpDir();
+    Vec3d axis = up;
+    Vec3d fwd = ForwardDir();
+    fwd = rotateAround(fwd, axis, angle);
+    Vec3d toTarget = (target - camera).magnitude() * fwd;
+    target = camera + toTarget;
+}
+
+void CameraParams::OrbitHoriz(double angle)
+{
+
+}
+
+void CameraParams::OrbitVert(double angle)
+{
+
+}
 
 class Canvas3d : public Canvas2d {
 public:
@@ -133,6 +170,8 @@ public:
     void polygonPattern(const std::vector<Vec2d> &points, Color c, Color f) override { canvas->polygonPattern(points, c, f); }
     void polygonPattern(std::initializer_list<Vec2d> points, Color c, Color f) override { canvas->polygonPattern(points, c, f); }
 };
+
+
 
 }
 
