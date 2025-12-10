@@ -193,6 +193,7 @@ std::string Vec3base<T>::toIntString() const
 {
     return "(" + std::to_string(int(x)) + ", " + std::to_string(int(y))+ ", " + std::to_string(int(z)) +")";
 }
+
 template<typename T>
 std::string Vec3base<T>::toString() const
 {

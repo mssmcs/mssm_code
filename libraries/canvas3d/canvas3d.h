@@ -143,6 +143,8 @@ public:
     void polygonPattern(std::initializer_list<Vec2d> points, Color c, Color f) override { canvas->polygonPattern(points, c, f); }
 };
 
+
+
 }
 
 #endif // CANVAS3D_H
