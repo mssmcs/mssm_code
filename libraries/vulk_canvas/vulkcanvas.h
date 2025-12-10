@@ -330,10 +330,10 @@ protected:
         }
     }
   public:
-    TriWriter<Vertex3dUV> getTriangleWriter(uint32_t triCount) override
+    std::unique_ptr<ITriWriter<Vertex3dUV>> getTriangleWriter(uint32_t triCount) override
 	{
         dc->cmdBindPipeline(pl3dTri, pipelineDS);
-		return TriWriter<Vertex3dUV>(dc, *vBuff3dUV, triCount);
+        return std::make_unique<TriWriter<Vertex3dUV>>(dc, *vBuff3dUV, triCount);
 	}
 
     // Canvas2d interface

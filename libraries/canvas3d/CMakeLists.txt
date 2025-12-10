@@ -3,15 +3,17 @@ set(NAME "canvas3d")
 
 #include(${PROJECT_SOURCE_DIR}/cmake/StaticAnalyzers.cmake)
 
-add_library(${NAME} INTERFACE
+add_library(${NAME} STATIC
 canvas3d.h
 vertextypes3d.h
+canvas3d.cpp
+ITriWriter.h
 )
 
-target_include_directories(${NAME} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR} )
+target_include_directories(${NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} )
 set_target_properties(${NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
-target_link_libraries(${NAME} INTERFACE 
+target_link_libraries(${NAME} PUBLIC
 canvas2d
 )
 

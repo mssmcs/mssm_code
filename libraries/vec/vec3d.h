@@ -167,11 +167,27 @@ constexpr Vec3base<T> crossProduct(const Vec3base<T>& a, const Vec3base<T>& b)
 {
     return {a.y*b.z-a.z*b.y, a.z*b.x-a.x*b.z, a.x*b.y-b.x*a.y};
 }
+
 template<typename T>
 constexpr double dotProduct(const Vec3base<T>& a, const Vec3base<T>& b)
 {
     return a.x*b.x+b.y*a.y+b.z*a.z;
 }
+
+template<typename T>
+constexpr Vec3base<T> rotateAroundAxis(const Vec3base<T>& v, const Vec3base<T>& axis, double angle)
+{
+    Vec3d k = axis.unit();
+    double c = std::cos(angle);
+    double s = std::sin(angle);
+
+    // Rodrigues' rotation formula:
+    // v_rot = v*c + (k × v)*s + k*(k·v)*(1 - c)
+    return v * c
+           + k.cross(v) * s
+           + k * (k.dot(v) * (1.0 - c));
+}
+
 template<typename T>
 std::string Vec3base<T>::toIntString() const
 {

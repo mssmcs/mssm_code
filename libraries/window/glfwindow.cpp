@@ -17,6 +17,9 @@
 using namespace std;
 using namespace mssm;
 
+// UGH! global
+unsigned int g_CurrentMods = 0;
+
 void errorcb(int error, const char* desc)
 {
     printf("GLFW error %d: %s\n", error, desc);
@@ -189,6 +192,8 @@ ModKey cvtMods(int glfwMods)
 
 void key(GLFWwindow* window, int key, int /*scancode*/, int action, int mods)
 {
+    g_CurrentMods = mods;
+
     WindowEventSink* g = reinterpret_cast<WindowEventSink*>(glfwGetWindowUserPointer(window));
 
     if (key == GLFW_KEY_ENTER &&
@@ -238,7 +243,7 @@ void mousePosCallback(GLFWwindow* window, double x, double y)
 
     if (buttons > 0)
     {
-        g->postEvent(x, y, EvtType::MouseMove, cvtMods(0), buttons);
+        g->postEvent(x, y, EvtType::MouseMove, cvtMods(g_CurrentMods), buttons);
     }
 }
 

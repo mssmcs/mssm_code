@@ -4,7 +4,7 @@
 #include "canvas2d.h"
 #include "color.h"
 #include "linmath.h"
-#include "triwriter.h"
+#include "ITriWriter.h"
 #include "vec3d.h"
 #include "vertextypes3d.h"
 #include <vector>
@@ -13,20 +13,28 @@ namespace mssm {
 
 class CameraParams {
 public:
-    Vec3d camera{0, 0, 50};
+    Vec3d camera{0, 0, 20};
     Vec3d target{0, 0, 0};
     Vec3d up{0, 1, 0};
-    double fov{1.57079632679}; // 90 degrees
-    double near{10};
-    double far{200};
+
+    double fov{M_PI/2};
+    double near{0.1};
+    double far{2000};
 
     // TODO: cache
     Vec3d ForwardDir() const { return (target - camera).unit(); }
     Vec3d BackDir() const { return -ForwardDir(); }
-    Vec2d LeftDir() const { return cross(up, target-camera).unit(); }
-    Vec2d RightDir() const { return -LeftDir(); }
-    Vec2d UpDir() const { return cross(ForwardDir(), LeftDir()).unit(); }
-    Vec2d DownDir() const { return -UpDir(); }
+    Vec3d LeftDir() const { return cross(up, target-camera).unit(); }
+    Vec3d RightDir() const { return -LeftDir(); }
+    Vec3d UpDir() const { return cross(ForwardDir(), LeftDir()).unit(); }
+    Vec3d DownDir() const { return -UpDir(); }
+
+    void Frame(Vec3d position, double radius);
+
+    void Translate(Vec3d offset);
+    void Pan(Vec2d screenDisplacement, double screenWidth);
+
+    void Zoom(double factor);
 
     void Roll(double angle);
     void Pitch(double angle);
@@ -34,6 +42,7 @@ public:
     void OrbitHoriz(double angle);
     void OrbitVert(double angle);
 };
+
 
 class Canvas3d : public Canvas2d {
 public:
@@ -49,7 +58,7 @@ public:
     virtual void setCameraParams(Vec3d eye, Vec3d target, Vec3d up, double near, double far) = 0;
     virtual void setLightParams(Vec3d pos, Color color) = 0;
 
-    virtual TriWriter<Vertex3dUV> getTriangleWriter(uint32_t triCount) = 0;
+    virtual std::unique_ptr<ITriWriter<Vertex3dUV>> getTriangleWriter(uint32_t triCount) = 0;
 };
 
 class Canvas3dWrapper : public Canvas3d {
@@ -124,7 +133,7 @@ public:
     void setCameraParams(const mssm::CameraParams& params) override { canvas->setCameraParams(params);}
     void setCameraParams(Vec3d eye, Vec3d target, Vec3d up, double near, double far) override { canvas->setCameraParams(eye, target, up, near, far); }
     void setLightParams(Vec3d pos, Color color) override { canvas->setLightParams(pos, color); }
-    TriWriter<Vertex3dUV> getTriangleWriter(uint32_t triCount) override { return canvas->getTriangleWriter(triCount); }
+    std::unique_ptr<ITriWriter<Vertex3dUV>> getTriangleWriter(uint32_t triCount) override { return canvas->getTriangleWriter(triCount); }
 
     // Canvas2d interface
 public:
