@@ -136,7 +136,7 @@ void VulkImageInternal::load(VulkCommandPool &commandPool)
             // TODO: do this in one step
             image.create(commandPool, w, h, VK_FORMAT_R8G8B8A8_SRGB, cachePixels);
             image.setPixels(commandPool, std::span<const mssm::Color>(pixels, w*h));
-            delete [] pixels;
+            delete [] pixels;  // why delete then recreate?  I think because the new set of pixels have been memory mapped
             if (cachePixels) {
                 pixels = image.data<mssm::Color>();
             }

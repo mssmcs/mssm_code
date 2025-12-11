@@ -49,7 +49,7 @@ public:
     void submit() override;
     T* mapped() { return buffers[frameInFlight()].map(); }
     VkDeviceSize size() { return buffers[frameInFlight()].size(); }
-    virtual VkBuffer bufferToBind() override { return buffers[frameInFlight()]; };
+    virtual VkBuffer bufferToBind() override { return buffers[frameInFlight()]; }
     void copyFromVector(const std::vector<T> &vertices);
 
     std::span<T> &data() {

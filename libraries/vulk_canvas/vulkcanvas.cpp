@@ -83,7 +83,7 @@ inline void ViewProj::setCamera(Vec3d eye, Vec3d lookAt, Vec3d up)
 
 inline void ViewProj::setCamera2d(Vec2d pos, double scale)
 {
-
+    throw std::logic_error("ViewProj::setCamera2d not implemented");
 }
 
 VulkCanvas::VulkCanvas(VulkSurfaceRenderManager &renderManager)

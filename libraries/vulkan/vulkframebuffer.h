@@ -11,8 +11,9 @@ class VulkFrameBuffer : public VulkHandle<VkFramebuffer>
 public:
     VulkFrameBuffer(VulkDevice& device, VkFramebuffer fb, std::vector<VulkImageView> views);
    ~VulkFrameBuffer();
-    static std::unique_ptr<VulkFrameBuffer> createFramebuffer(VulkDevice& device, VkRenderPass renderPass,  std::vector<VulkImageView> views, VkExtent2D extent);
    static std::vector<std::unique_ptr<VulkFrameBuffer>> createOneToOneFromViews(VulkDevice& device, VkRenderPass renderPass, VkExtent2D extent, std::vector<VulkImageView> views, VulkImageView depthBufferView = {});
+private:
+   static std::unique_ptr<VulkFrameBuffer> createFramebuffer(VulkDevice& device, VkRenderPass renderPass,  std::vector<VulkImageView> views, VkExtent2D extent);
 };
 
 #endif // VULKFRAMEBUFFER_H

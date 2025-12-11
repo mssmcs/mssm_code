@@ -38,7 +38,7 @@ public:
     VkExtent2D getImageExtent() const { return imageExtent; }
     int count() const { return swapChainImages.size(); }
     bool hasSwapChain() const { return handle != VK_NULL_HANDLE; }
-public:
+private:
     static VkSwapchainKHR createSwapchain(VulkDevice& device, VkSurfaceKHR surface, VkExtent2D actualWindowExtent, VkSwapchainKHR oldSwapChain, VkFormat& imageFormatOut, VkExtent2D& imageExtentOut);
     static std::vector<VkImage> getSwapChainImages(VulkDevice &device, VkSwapchainKHR swapChain);
     static SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
