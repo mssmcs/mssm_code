@@ -42,4 +42,6 @@ VulkStaticMeshInternal::VulkStaticMeshInternal(VulkDevice& device, VulkCommandPo
         commandBuffer.copyBuffer(vertexStagingBuffer, this->vertexBuffer, sizeof(Vertex3dUV) * vertices.size());
         commandBuffer.copyBuffer(indexStagingBuffer, this->indexBuffer, sizeof(uint32_t) * indices.size());
     });
+
+    device.waitForIdle();
 }

@@ -455,7 +455,9 @@ void VulkSurfaceRenderManager::saveImg(std::shared_ptr<mssm::ImageInternal> img,
 
 std::shared_ptr<StaticMeshInternal> VulkSurfaceRenderManager::createMesh(const Mesh<EdgeData, VertexData, FaceData>& mesh)
 {
-    return std::make_shared<VulkStaticMeshInternal>(*device, *graphicsCommandPool, mesh);
+    auto meshInternal = std::make_shared<VulkStaticMeshInternal>(*device, *graphicsCommandPool, mesh);
+    meshes.push_back(meshInternal); // Retain ownership
+    return meshInternal;
 }
 
 std::shared_ptr<StaticMeshInternal> VulkSurfaceRenderManager::loadMesh(const std::string& filepath)

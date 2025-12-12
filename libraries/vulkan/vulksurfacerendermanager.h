@@ -141,6 +141,7 @@ private:
 
     bool imagesDirty{true};
     std::vector<std::shared_ptr<VulkImageInternal>> images;
+    std::vector<std::shared_ptr<StaticMeshInternal>> meshes;
 
     VulkFramebufferSynchronization framebufferSync;
 
