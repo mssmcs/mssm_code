@@ -8,6 +8,7 @@
 #include "vec3d.h"
 #include "vertextypes3d.h"
 #include <vector>
+#include <memory>
 
 namespace mssm {
 

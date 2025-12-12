@@ -1,0 +1,10 @@
+packaging
+playground
+app_template
+build/
+apps/build/
+**/build/
+_deps/
+**/_deps/
+apps
+**/Assets/

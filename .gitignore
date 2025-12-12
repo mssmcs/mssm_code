@@ -56,6 +56,6 @@ compile_commands.json
 
 *_qmlcache.qrc
 
-examples
+# examples
 playground
 grading
