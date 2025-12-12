@@ -82,8 +82,14 @@ VulkInstance::~VulkInstance()
     vkDestroyInstance(instance, nullptr);
 }
 
+#include <fstream>
+
+//...
+
 void VulkInstance::createInstance(std::vector<const char*> requiredExtensions)
 {
+    std::ofstream("vulkan_debug_output.txt") << "enableValidationLayers = " << enableValidationLayers << std::endl;
+
     if (volkInitialize() != VK_SUCCESS) {
         throw std::runtime_error("Failed to initialize Volk!");
     }

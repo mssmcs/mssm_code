@@ -1,4 +1,5 @@
 #include "vulksurfacerendermanager.h"
+#include "vulkstaticmeshinternal.h"
 #include <array>
 #include "stb_image_write.h"
 
@@ -450,4 +451,15 @@ void VulkSurfaceRenderManager::saveImg(std::shared_ptr<mssm::ImageInternal> img,
                                        std::string filename)
 {
     stbi_write_png(filename.c_str(), img->width(), img->height(), 4, img->getPixels(), 4*img->width());
+}
+
+std::shared_ptr<StaticMeshInternal> VulkSurfaceRenderManager::createMesh(const Mesh<EdgeData, VertexData, FaceData>& mesh)
+{
+    return std::make_shared<VulkStaticMeshInternal>(*device, *graphicsCommandPool, mesh);
+}
+
+std::shared_ptr<StaticMeshInternal> VulkSurfaceRenderManager::loadMesh(const std::string& filepath)
+{
+    // TODO: implement loading from .obj file
+    return nullptr;
 }

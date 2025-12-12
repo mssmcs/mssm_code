@@ -129,15 +129,21 @@ void VulkCommandBuffer::drawIndexed(uint32_t indexCount,
 void VulkCommandBuffer::draw(uint32_t vertexCount,
                              uint32_t instanceCount,
                              uint32_t firstVertex,
-                             uint32_t firstInstance)
-{
-    fn()->vkCmdDraw(cmdBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
-}
-
-void VulkCommandBuffer::submit(bool waitIdle)
-{
-    VkSubmitInfo submitInfo{};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+                                                                                                                       uint32_t firstInstance)
+                                                                                         {
+                                                                                             fn()->vkCmdDraw(cmdBuffer, vertexCount, instanceCount, firstVertex, firstInstance);
+                                                                                         }
+                                                                                         
+                                                                                         void VulkCommandBuffer::copyBuffer(VulkRawBuffer& srcBuffer, VulkRawBuffer& dstBuffer, VkDeviceSize size)
+                                                                                         {
+                                                                                             VkBufferCopy copyRegion{};
+                                                                                             copyRegion.size = size;
+                                                                                             fn()->vkCmdCopyBuffer(cmdBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+                                                                                         }
+                                                                                         
+                                                                                         void VulkCommandBuffer::submit(bool waitIdle)
+                                                                                         {
+                                                                                             VkSubmitInfo submitInfo{};    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &cmdBuffer;
 

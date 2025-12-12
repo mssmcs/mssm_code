@@ -9,9 +9,18 @@ namespace mssm {
 
 class Graphics3d : public mssm::GraphicsBase<VulkBackendWindow, mssm::Canvas3d>, public mssm::Canvas3dWrapper
 {
+private:
+    MeshLoader* m_meshLoader;
 public:
     Graphics3d(std::string title, int width, int height);
     virtual ~Graphics3d() {}
+
+    MeshLoader& meshLoader() {
+        if (!m_meshLoader) {
+            throw std::runtime_error("Mesh loading not supported by this backend.");
+        }
+        return *m_meshLoader;
+    }
 };
 
 }

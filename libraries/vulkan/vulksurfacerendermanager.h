@@ -16,6 +16,7 @@
 #include "vulksynchronization.h"
 #include "vulkvertex.h"
 #include "vulkabstractwindow.h"
+#include "staticmesh.h"
 
 #include <chrono>
 
@@ -109,7 +110,7 @@ protected:
     void updatePixels() override;
 };
 
-class VulkSurfaceRenderManager : public mssm::ImageLoader
+class VulkSurfaceRenderManager : public mssm::ImageLoader, public MeshLoader
 {
 public:
     std::vector<float> timeStats;
@@ -264,6 +265,8 @@ public:
                                                  bool cachePixels) override;
     void saveImg(std::shared_ptr<mssm::ImageInternal> img, std::string filename) override;
 
+    std::shared_ptr<StaticMeshInternal> createMesh(const Mesh<EdgeData, VertexData, FaceData>& mesh) override;
+    std::shared_ptr<StaticMeshInternal> loadMesh(const std::string& filepath) override;
 };
 
 template<typename T>

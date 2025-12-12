@@ -1,5 +1,5 @@
 set(NAME "canvas3d")
-# DEPENDS_ON: canvas2d
+# DEPENDS_ON: canvas2d static_mesh
 
 #include(${PROJECT_SOURCE_DIR}/cmake/StaticAnalyzers.cmake)
 
@@ -15,6 +15,7 @@ set_target_properties(${NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
 target_link_libraries(${NAME} PUBLIC
 canvas2d
+static_mesh
 )
 
 # file(GLOB_RECURSE GLSL_SOURCE_FILES "${PROJECT_SOURCE_DIR}/assets/vulkan/*.glsl")

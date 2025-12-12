@@ -40,4 +40,14 @@ void VulkBackendWindow::endDrawing()
     VulkanGraphicsWindow<VulkanWindowGLFW, VulkCanvas>::endDrawing();
 }
 
+std::shared_ptr<StaticMeshInternal> VulkBackendWindow::createMesh(const Mesh<EdgeData, VertexData, FaceData>& mesh)
+{
+    return renderManager->createMesh(mesh);
+}
+
+std::shared_ptr<StaticMeshInternal> VulkBackendWindow::loadMesh(const std::string& filepath)
+{
+    return renderManager->loadMesh(filepath);
+}
+
 

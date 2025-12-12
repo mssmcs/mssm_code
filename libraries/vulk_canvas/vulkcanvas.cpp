@@ -1,4 +1,5 @@
 #include "vulkcanvas.h"
+#include "vulkstaticmeshinternal.h"
 //#include "geometry.h"
 #include "image.h"
 #include "paths.h"
@@ -526,6 +527,20 @@ void VulkCanvas::line3d(Vec3d p1, Vec3d p2, mssm::Color c)
     vBuff3dUV->push(p2, Vec3d{ 0,0,0 },  c, Vec2f{ 0,0 });
     dc->cmdBindPipeline(pl3dLine, pipelineDS);
     dc->commandBuffer->draw(2, 1, idx, 0);
+}
+
+void VulkCanvas::drawMesh(const StaticMesh& mesh, const mat4x4& modelMatrix)
+{
+    const VulkStaticMeshInternal* vmesh = static_cast<const VulkStaticMeshInternal*>(mesh.internal.get());
+
+    PushConstant pushConstant;
+    mat4x4_dup(pushConstant.model, modelMatrix);
+
+    dc->cmdBindPipeline(pl3dTri, pipelineDS);
+    dc->sendPushConstants(pipelineLayout, pushConstant);
+    dc->commandBuffer->bindVertexBuffer(const_cast<VulkBuffer<Vertex3dUV>&>(vmesh->getVertexBuffer()), 0, 0);
+    dc->commandBuffer->bindIndexBuffer(const_cast<VulkBuffer<uint32_t>&>(vmesh->getIndexBuffer()), 0);
+    dc->commandBuffer->drawIndexed(vmesh->getIndexCount(), 1, 0, 0, 0);
 }
 
 void VulkCanvas::polygon3d(const std::vector<Vec3d> &points, mssm::Color border, mssm::Color fill)

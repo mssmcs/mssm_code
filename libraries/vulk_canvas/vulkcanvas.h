@@ -13,6 +13,8 @@
 
 #include <numbers>
 
+class StaticMesh;
+
 struct UniformBufferObject {
     mat4x4 view;
     mat4x4 proj;
@@ -335,6 +337,8 @@ protected:
         dc->cmdBindPipeline(pl3dTri, pipelineDS);
         return std::make_unique<TriWriter<Vertex3dUV>>(dc, *vBuff3dUV, triCount);
 	}
+
+    void drawMesh(const StaticMesh& mesh, const mat4x4& modelMatrix) override;
 
     // Canvas2d interface
 public:

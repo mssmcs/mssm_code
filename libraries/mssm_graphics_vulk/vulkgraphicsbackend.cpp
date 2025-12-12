@@ -25,6 +25,16 @@ void VulkanGraphicsBackend::saveImg(std::shared_ptr<mssm::ImageInternal> img, st
     window->saveImg(img, filename);
 }
 
+std::shared_ptr<StaticMeshInternal> VulkanGraphicsBackend::createMesh(const Mesh<EdgeData, VertexData, FaceData>& mesh)
+{
+    return window->createMesh(mesh);
+}
+
+std::shared_ptr<StaticMeshInternal> VulkanGraphicsBackend::loadMesh(const std::string& filepath)
+{
+    return window->loadMesh(filepath);
+}
+
 VulkanGraphicsBackend::VulkanGraphicsBackend(std::string title, int width, int height)
 {
     window = new VulkBackendWindow(title, width, height);

@@ -1,14 +1,14 @@
 set(NAME "vulk_canvas")
-# DEPENDS_ON: vulkan color vec font linmath paths poly_partition canvas3d
+# DEPENDS_ON: vulkan color vec font linmath paths poly_partition canvas3d static_mesh
 
 #include(${PROJECT_SOURCE_DIR}/cmake/StaticAnalyzers.cmake)
 
 add_library(${NAME} STATIC
-vulkcanvas.h 
-vulkcanvas.cpp
-triwriter.h
-triwriter.cpp
-vertexattrvulk.h
+    vulkcanvas.cpp
+    vulkcanvas.h
+    triwriter.cpp
+    triwriter.h
+    vertexattrvulk.h
 )
 
 target_include_directories(${NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} )
@@ -21,6 +21,7 @@ mssm_paths
 poly_partition
 canvas3d
 mssm_font
+static_mesh
 )
 
 # include(${CMAKE_SOURCE_DIR}/../libraries/cmake/glsl-shaders.cmake)

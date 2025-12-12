@@ -1,5 +1,5 @@
 set(NAME "vulk")
-# DEPENDS_ON: stbi image window color
+# DEPENDS_ON: stbi image window color static_mesh
 
 
 
@@ -80,6 +80,7 @@ vulkbufferpool.h vulkbufferpool.cpp
 
 vulkcanvasbase.h vulkcanvasbase.cpp
 vulkwindow.h vulkwindow.cpp
+vulkstaticmeshinternal.h vulkstaticmeshinternal.cpp
 # meshloader.cpp
 # meshloader.h
 # tiny_obj_loader.h
@@ -102,6 +103,7 @@ stbi
 image_base
 mssm_window
 mssm_color
+static_mesh
 # mssm_graphics 
 # poly_partition
 )

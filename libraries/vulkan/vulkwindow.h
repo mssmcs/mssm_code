@@ -27,6 +27,7 @@ class VulkanGraphicsWindow : public WINDOW, public mssm::ImageLoader
 
     VulkInstance instance;
 
+protected:
     std::unique_ptr<VulkSurfaceRenderManager> renderManager;
 
     std::unique_ptr<CANVAS> canvas;

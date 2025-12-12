@@ -28,6 +28,8 @@ public:
     VulkCanvasBase(VulkSurfaceRenderManager &renderManager);
     virtual ~VulkCanvasBase() = default;
 
+    VulkSurfaceRenderManager &getRenderManager() { return renderManager; }
+
     virtual void initializePipelines() = 0;
 
     VulkImage *addTexture(int width, int height, VkFormat format);

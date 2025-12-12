@@ -7,8 +7,11 @@
 #include "ITriWriter.h"
 #include "vec3d.h"
 #include "vertextypes3d.h"
+#include "vertex3duv.h"
 #include <vector>
 #include <memory>
+
+class StaticMesh;
 
 namespace mssm {
 
@@ -58,6 +61,7 @@ public:
     virtual void setCameraParams(const CameraParams& params) = 0;
     virtual void setCameraParams(Vec3d eye, Vec3d target, Vec3d up, double near, double far) = 0;
     virtual void setLightParams(Vec3d pos, Color color) = 0;
+    virtual void drawMesh(const StaticMesh& mesh, const mat4x4& modelMatrix) = 0;
 
     virtual std::unique_ptr<ITriWriter<Vertex3dUV>> getTriangleWriter(uint32_t triCount) = 0;
 };
@@ -134,6 +138,7 @@ public:
     void setCameraParams(const mssm::CameraParams& params) override { canvas->setCameraParams(params);}
     void setCameraParams(Vec3d eye, Vec3d target, Vec3d up, double near, double far) override { canvas->setCameraParams(eye, target, up, near, far); }
     void setLightParams(Vec3d pos, Color color) override { canvas->setLightParams(pos, color); }
+    void drawMesh(const StaticMesh& mesh, const mat4x4& modelMatrix) override { canvas->drawMesh(mesh, modelMatrix); }
     std::unique_ptr<ITriWriter<Vertex3dUV>> getTriangleWriter(uint32_t triCount) override { return canvas->getTriangleWriter(triCount); }
 
     // Canvas2d interface

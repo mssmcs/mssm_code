@@ -66,6 +66,7 @@ public:
     void bindVertexBuffer(VulkRawBuffer& buffer, uint32_t bindingIndex, VkDeviceSize offset);
     void drawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset, uint32_t firstInstance);
     void draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance);
+    void copyBuffer(VulkRawBuffer& srcBuffer, VulkRawBuffer& dstBuffer, VkDeviceSize size);
     void oneTimeCommand(std::function<void (VulkDevice &, VulkCommandBuffer &)> func);
     void setScissor(VkRect2D scissor);
     void setViewport(VkRect2D viewport);
