@@ -425,6 +425,7 @@ public:
                                            Color *pixels,
                                            bool cachePixels) override;
     void saveImg(std::shared_ptr<ImageInternal> img, std::string filename) override;
+    void queueForDestruction(std::shared_ptr<ImageInternal> img) override;
 };
 
 
@@ -485,6 +486,12 @@ inline void GraphicsBase<WINDOW, CANVAS>::saveImg(std::shared_ptr<ImageInternal>
                                                   std::string filename)
 {
     return backend->saveImg(img, filename);
+}
+
+template<typename WINDOW, typename CANVAS>
+void GraphicsBase<WINDOW, CANVAS>::queueForDestruction(std::shared_ptr<ImageInternal> img)
+{
+    return backend->queueForDestruction(img);
 }
 
 template <typename WINDOW, typename CANVAS>

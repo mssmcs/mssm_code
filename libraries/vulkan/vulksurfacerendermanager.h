@@ -141,7 +141,8 @@ private:
 
     bool imagesDirty{true};
     std::vector<std::shared_ptr<VulkImageInternal>> images;
-    std::vector<std::shared_ptr<StaticMeshInternal>> meshes;
+    std::vector<std::pair<uint64_t, std::shared_ptr<StaticMeshInternal>>> meshDestructionQueue;
+    std::vector<std::pair<uint64_t, std::shared_ptr<mssm::ImageInternal>>> imageDestructionQueue;
 
     VulkFramebufferSynchronization framebufferSync;
 
@@ -265,9 +266,11 @@ public:
                                                  mssm::Color *pixels,
                                                  bool cachePixels) override;
     void saveImg(std::shared_ptr<mssm::ImageInternal> img, std::string filename) override;
+    void queueForDestruction(std::shared_ptr<mssm::ImageInternal> img) override;
 
     std::shared_ptr<StaticMeshInternal> createMesh(const Mesh<EdgeData, VertexData, FaceData>& mesh) override;
     std::shared_ptr<StaticMeshInternal> loadMesh(const std::string& filepath) override;
+    void queueForDestruction(std::shared_ptr<StaticMeshInternal> mesh) override;
 };
 
 template<typename T>

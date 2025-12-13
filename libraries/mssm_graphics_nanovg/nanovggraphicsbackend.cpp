@@ -41,6 +41,11 @@ void NanovgGraphicsBackend::saveImg(std::shared_ptr<mssm::ImageInternal> img, st
     return window->saveImg(img, filename);
 }
 
+void NanovgGraphicsBackend::queueForDestruction(std::shared_ptr<mssm::ImageInternal> img)
+{
+    // No-op for NanoVG backend
+}
+
 NanovgGraphicsBackend::~NanovgGraphicsBackend()
 {
     delete window;

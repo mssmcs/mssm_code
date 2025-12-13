@@ -40,6 +40,7 @@ class MeshLoader {
 public:
     virtual std::shared_ptr<StaticMeshInternal> createMesh(const Mesh<EdgeData, VertexData, FaceData>& mesh) = 0;
     virtual std::shared_ptr<StaticMeshInternal> loadMesh(const std::string& filepath) = 0;
+    virtual void queueForDestruction(std::shared_ptr<StaticMeshInternal> mesh) = 0;
 };
 
 class StaticMesh {
@@ -50,6 +51,7 @@ public:
 public:
     StaticMesh(MeshLoader& meshLoader, const Mesh<EdgeData, VertexData, FaceData>& mesh);
     StaticMesh(MeshLoader& meshLoader, const std::string& filepath);
+    ~StaticMesh();
 };
 
 #endif // STATICMESH_H

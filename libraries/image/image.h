@@ -41,8 +41,8 @@ namespace mssm {
         virtual std::shared_ptr<ImageInternal> createImg(int width, int height, mssm::Color c, bool cachePixels) = 0;
         virtual std::shared_ptr<ImageInternal> initImg(int width, int height, Color* pixels, bool cachePixels) = 0;
         virtual void saveImg(std::shared_ptr<ImageInternal> img, std::string filename) = 0;
+        virtual void queueForDestruction(std::shared_ptr<ImageInternal> img) = 0;
     };
-
     class Image
     {
     protected:
@@ -53,8 +53,8 @@ namespace mssm {
         Image(ImageLoader& imageLoader);
         Image(ImageLoader& imageLoader, const std::string &filename, bool cachePixels = false);
         Image(ImageLoader& imageLoader, int width, int height, mssm::Color c, bool cachePixels = false);
-        void set(int width, int height, mssm::Color c, bool cachePixels = false);
-        void load(const std::string& fileName, bool cachePixels = false);
+        ~Image();
+        void set(int width, int height, mssm::Color c, bool cachePixels = false);        void load(const std::string& fileName, bool cachePixels = false);
         void save(const std::string& pngFileName);
         Color* pixels() { return img->pixels; } // changes won't take effect until updatePixels
         void  setPixel(int x, int y, Color c) { img->setPixel(x, y, c); } // won't take effect until updatePixels

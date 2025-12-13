@@ -25,6 +25,11 @@ void VulkanGraphicsBackend::saveImg(std::shared_ptr<mssm::ImageInternal> img, st
     window->saveImg(img, filename);
 }
 
+void VulkanGraphicsBackend::queueForDestruction(std::shared_ptr<mssm::ImageInternal> img)
+{
+    window->queueForDestruction(img);
+}
+
 std::shared_ptr<StaticMeshInternal> VulkanGraphicsBackend::createMesh(const Mesh<EdgeData, VertexData, FaceData>& mesh)
 {
     return window->createMesh(mesh);
@@ -33,6 +38,11 @@ std::shared_ptr<StaticMeshInternal> VulkanGraphicsBackend::createMesh(const Mesh
 std::shared_ptr<StaticMeshInternal> VulkanGraphicsBackend::loadMesh(const std::string& filepath)
 {
     return window->loadMesh(filepath);
+}
+
+void VulkanGraphicsBackend::queueForDestruction(std::shared_ptr<StaticMeshInternal> mesh)
+{
+    window->queueForDestruction(mesh);
 }
 
 VulkanGraphicsBackend::VulkanGraphicsBackend(std::string title, int width, int height)
@@ -46,3 +56,4 @@ VulkanGraphicsBackend::~VulkanGraphicsBackend()
 {
     delete window;
 }
+

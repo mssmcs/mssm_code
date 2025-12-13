@@ -17,3 +17,10 @@ StaticMesh::StaticMesh(MeshLoader& meshLoader, const std::string& filepath)
 {
     internal = meshLoader.loadMesh(filepath);
 }
+
+StaticMesh::~StaticMesh()
+{
+    if (internal) {
+        meshLoader.queueForDestruction(internal);
+    }
+}

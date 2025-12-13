@@ -64,6 +64,18 @@ VulkPipeline& VulkSurfaceRenderManager::addPipeline(VulkShaders &shaders,
 
 void VulkSurfaceRenderManager::beginDrawing(bool wasResized)
 {
+    // Process destruction queues
+    uint64_t currentFrame = framebufferSync.getCurrentFlight();
+    auto processQueue = [&](auto& queue) {
+        queue.erase(std::remove_if(queue.begin(), queue.end(),
+            [this, currentFrame](const auto& item) {
+                return currentFrame >= item.first + maxFramesInFlight;
+            }), queue.end());
+    };
+
+    processQueue(meshDestructionQueue);
+    processQueue(imageDestructionQueue);
+
     if (!swapChain) {
         throw std::runtime_error("beginDrawing() called before initialization");
     }
@@ -453,13 +465,21 @@ void VulkSurfaceRenderManager::saveImg(std::shared_ptr<mssm::ImageInternal> img,
     stbi_write_png(filename.c_str(), img->width(), img->height(), 4, img->getPixels(), 4*img->width());
 }
 
+void VulkSurfaceRenderManager::queueForDestruction(std::shared_ptr<mssm::ImageInternal> img)
+{
+    imageDestructionQueue.emplace_back(framebufferSync.getCurrentFlight(), img);
+}
+
 std::shared_ptr<StaticMeshInternal> VulkSurfaceRenderManager::createMesh(const Mesh<EdgeData, VertexData, FaceData>& mesh)
 {
     auto meshInternal = std::make_shared<VulkStaticMeshInternal>(*device, *graphicsCommandPool, mesh);
-    meshes.push_back(meshInternal); // Retain ownership
     return meshInternal;
 }
 
+void VulkSurfaceRenderManager::queueForDestruction(std::shared_ptr<StaticMeshInternal> mesh)
+{
+    meshDestructionQueue.emplace_back(framebufferSync.getCurrentFlight(), mesh);
+}
 std::shared_ptr<StaticMeshInternal> VulkSurfaceRenderManager::loadMesh(const std::string& filepath)
 {
     // TODO: implement loading from .obj file

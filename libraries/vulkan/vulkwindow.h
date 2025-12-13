@@ -19,7 +19,7 @@ concept IsCanvas =
     std::is_base_of<VulkCanvasBase0, T>::value;
 
 template <typename WINDOW, typename CANVAS> requires SupportsVulkanWindow<WINDOW> && IsCanvas<CANVAS>
-class VulkanGraphicsWindow : public WINDOW, public mssm::ImageLoader
+class VulkanGraphicsWindow : public WINDOW, public mssm::ImageLoader, public MeshLoader
 {
     using CreateCanvasFunc = std::function<std::unique_ptr<CANVAS>(VulkSurfaceRenderManager &renderManager)>;
 
@@ -53,8 +53,6 @@ protected:
 public:
     virtual std::shared_ptr<mssm::ImageInternal> loadImg(std::string filename, bool cachePixels) override;
 
-    // ImageLoader interface
-public:
     std::shared_ptr<mssm::ImageInternal> createImg(int width,
                                                    int height,
                                                    mssm::Color c,
@@ -64,7 +62,11 @@ public:
                                                  mssm::Color *pixels,
                                                  bool cachePixels) override;
     void saveImg(std::shared_ptr<mssm::ImageInternal> img, std::string filename) override;
+    void queueForDestruction(std::shared_ptr<mssm::ImageInternal> img) override;
 
+    std::shared_ptr<StaticMeshInternal> createMesh(const Mesh<EdgeData, VertexData, FaceData>& mesh) override;
+    std::shared_ptr<StaticMeshInternal> loadMesh(const std::string& filepath) override;
+    void queueForDestruction(std::shared_ptr<StaticMeshInternal> mesh) override;
 };
 
 template <typename WINDOW, typename CANVAS> requires SupportsVulkanWindow<WINDOW> && IsCanvas<CANVAS>
@@ -152,6 +154,30 @@ void VulkanGraphicsWindow<WINDOW, CANVAS>::saveImg(std::shared_ptr<mssm::ImageIn
 }
 
 template <typename WINDOW, typename CANVAS> requires SupportsVulkanWindow<WINDOW> && IsCanvas<CANVAS>
+std::shared_ptr<StaticMeshInternal> VulkanGraphicsWindow<WINDOW, CANVAS>::createMesh(const Mesh<EdgeData, VertexData, FaceData>& mesh)
+{
+    return renderManager->createMesh(mesh);
+}
+
+template <typename WINDOW, typename CANVAS> requires SupportsVulkanWindow<WINDOW> && IsCanvas<CANVAS>
+std::shared_ptr<StaticMeshInternal> VulkanGraphicsWindow<WINDOW, CANVAS>::loadMesh(const std::string& filepath)
+{
+    return renderManager->loadMesh(filepath);
+}
+
+template <typename WINDOW, typename CANVAS> requires SupportsVulkanWindow<WINDOW> && IsCanvas<CANVAS>
+void VulkanGraphicsWindow<WINDOW, CANVAS>::queueForDestruction(std::shared_ptr<StaticMeshInternal> mesh)
+{
+    renderManager->queueForDestruction(mesh);
+}
+
+template <typename WINDOW, typename CANVAS> requires SupportsVulkanWindow<WINDOW> && IsCanvas<CANVAS>
+void VulkanGraphicsWindow<WINDOW, CANVAS>::queueForDestruction(std::shared_ptr<mssm::ImageInternal> img)
+{
+    renderManager->queueForDestruction(img);
+}
+
+template <typename WINDOW, typename CANVAS> requires SupportsVulkanWindow<WINDOW> && IsCanvas<CANVAS>
 void VulkanGraphicsWindow<WINDOW, CANVAS>::detachRenderer(bool releaseSurface)
 {
     renderManager->waitForIdle();
@@ -161,5 +187,7 @@ void VulkanGraphicsWindow<WINDOW, CANVAS>::detachRenderer(bool releaseSurface)
     canvas.reset();
     renderManager.reset();
 }
+
+
 
 #endif // VULKANWINDOW_H

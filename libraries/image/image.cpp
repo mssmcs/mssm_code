@@ -21,6 +21,13 @@ Image::Image(ImageLoader& imageLoader, int width, int height, mssm::Color c, boo
     set(width, height, c, cachePixels);
 }
 
+Image::~Image()
+{
+    if (img) {
+        imageLoader.queueForDestruction(img);
+    }
+}
+
 void Image::set(int width, int height, mssm::Color c, bool cachePixels)
 {
     img = imageLoader.createImg(width, height, c, cachePixels);
