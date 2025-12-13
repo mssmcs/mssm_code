@@ -12,9 +12,6 @@ class VulkBackendWindow : public VulkanGraphicsWindow<VulkanWindowGLFW, VulkCanv
 public:
     VulkBackendWindow(std::string title, int width, int height);
 
-    std::shared_ptr<StaticMeshInternal> createMesh(const Mesh<EdgeData, VertexData, FaceData>& mesh);
-    std::shared_ptr<StaticMeshInternal> loadMesh(const std::string& filepath);
-
 protected:
     void beginDrawing(bool wasResized) override;
     void endDrawing() override;

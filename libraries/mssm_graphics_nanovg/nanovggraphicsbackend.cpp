@@ -14,36 +14,14 @@ void NanovgGraphicsBackend::setCursor(mssm::CoreWindowCursor cursor)
     window->setCursor(cursor);
 }
 
-std::shared_ptr<mssm::ImageInternal> NanovgGraphicsBackend::loadImg(std::string filename,
-                                                                    bool cachePixels)
+mssm::ImageLoader *NanovgGraphicsBackend::getImageLoader()
 {
-    return window->loadImg(filename, cachePixels);
+    return window;
 }
 
-std::shared_ptr<mssm::ImageInternal> NanovgGraphicsBackend::createImg(int width,
-                                                                      int height,
-                                                                      mssm::Color c,
-                                                                      bool cachePixels)
+MeshLoader *NanovgGraphicsBackend::getMeshLoader()
 {
-    return window->createImg(width, height, c, cachePixels);
-}
-
-std::shared_ptr<mssm::ImageInternal> NanovgGraphicsBackend::initImg(int width,
-                                                                    int height,
-                                                                    mssm::Color *pixels,
-                                                                    bool cachePixels)
-{
-    return window->initImg(width, height, pixels, cachePixels);
-}
-
-void NanovgGraphicsBackend::saveImg(std::shared_ptr<mssm::ImageInternal> img, std::string filename)
-{
-    return window->saveImg(img, filename);
-}
-
-void NanovgGraphicsBackend::queueForDestruction(std::shared_ptr<mssm::ImageInternal> img)
-{
-    // No-op for NanoVG backend
+    return nullptr;
 }
 
 NanovgGraphicsBackend::~NanovgGraphicsBackend()

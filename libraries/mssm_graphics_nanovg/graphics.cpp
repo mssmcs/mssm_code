@@ -13,7 +13,7 @@ GraphicsBackendBase<NanovgWindow, mssm::Canvas2d> *loadGraphicsBackend2d(std::st
 
 Graphics::Graphics(std::string title, int width, int height)
     : GraphicsBase(title, width, height,loadGraphicsBackend2d),
-    Canvas2dWrapper(backend->getCanvas())
+    Canvas2dWrapper(backend->getCanvas1())
 {
 }
 

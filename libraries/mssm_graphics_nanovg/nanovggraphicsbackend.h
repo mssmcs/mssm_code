@@ -13,11 +13,8 @@ public:
     // GraphicsBackend interface
 public:
     void setCursor(mssm::CoreWindowCursor cursor) override;
-    std::shared_ptr<mssm::ImageInternal> loadImg(std::string filename, bool cachePixels) override;
-    std::shared_ptr<mssm::ImageInternal> createImg(int width, int height, mssm::Color c, bool cachePixels) override;
-    std::shared_ptr<mssm::ImageInternal> initImg(int width, int height, mssm::Color* pixels, bool cachePixels) override;
-    void saveImg(std::shared_ptr<mssm::ImageInternal> img, std::string filename) override;
-    void queueForDestruction(std::shared_ptr<mssm::ImageInternal> img) override;
+    virtual mssm::ImageLoader* getImageLoader() override;
+    virtual MeshLoader* getMeshLoader() override;
 };
 
 #endif // NANOVGGRAPHICSBACKEND_H

@@ -4,15 +4,18 @@
 #include "canvas2d.h"
 #include "windowbase.h"
 #include "image.h"
+#include "staticmesh.h"
 
 template <typename WINDOW, typename CANVAS>
-class GraphicsBackendBase : public mssm::ImageLoader {
+class GraphicsBackendBase {
 public:
     virtual ~GraphicsBackendBase() {}
     virtual mssm::EventSource* eventSource() =0;
-    virtual CANVAS* getCanvas() =0;
-    virtual WINDOW* getWindow() =0;
+    virtual CANVAS* getCanvas1() =0;
+    virtual WINDOW* getWindow1() =0;
     virtual void setCursor(mssm::CoreWindowCursor cursor) = 0;
+    virtual mssm::ImageLoader* getImageLoader() = 0;
+    virtual MeshLoader* getMeshLoader() = 0;
 };
 
 template <typename WINDOW, typename CANVAS>
@@ -23,8 +26,8 @@ protected:
     CANVAS *canvas{};
 public:
     mssm::EventSource* eventSource() { return window; }
-    CANVAS* getCanvas() { return canvas; }
-    WINDOW* getWindow() { return window; }
+    CANVAS* getCanvas1() { return canvas; }
+    WINDOW* getWindow1() { return window; }
     virtual ~GraphicsBackend() {}
 };
 
