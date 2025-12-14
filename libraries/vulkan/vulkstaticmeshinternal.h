@@ -20,6 +20,7 @@ public:
     const VulkBuffer<Vertex3dUV>& getVertexBuffer() const { return vertexBuffer; }
     const VulkBuffer<uint32_t>& getIndexBuffer() const { return indexBuffer; }
     uint32_t getIndexCount() const override { return indexCount; }
+    MeshType getMeshType() const override { return MeshType::Standard; }
 
 private:
     VulkBuffer<Vertex3dUV> vertexBuffer;

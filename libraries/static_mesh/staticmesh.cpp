@@ -12,6 +12,12 @@ StaticMesh::StaticMesh(MeshLoader& meshLoader, const Mesh<EdgeData, VertexData, 
     internal = meshLoader.createMesh(mesh);
 }
 
+StaticMesh::StaticMesh(MeshLoader& meshLoader, const Mesh<EdgeData, VertexDataUV, FaceData>& mesh, const mssm::Image& texture)
+    : meshLoader(meshLoader)
+{
+    internal = meshLoader.createMesh(mesh, texture);
+}
+
 StaticMesh::StaticMesh(MeshLoader& meshLoader, const std::string& filepath)
     : meshLoader(meshLoader)
 {

@@ -106,6 +106,7 @@ class VulkCanvas : public VulkCanvasBase, public mssm::Canvas3d
     VulkBoundPipeline plFontTri;
     VulkBoundPipeline pl3dLine;
     VulkBoundPipeline pl3dTri;
+    VulkBoundPipeline pl3dTriTextured;
 
     std::unique_ptr<VulkUniformBuffer<UniformBufferObject>> uniformBuffer;
 

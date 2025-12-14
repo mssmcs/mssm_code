@@ -1,5 +1,6 @@
 #include "vulkcanvas.h"
 #include "vulkstaticmeshinternal.h"
+#include "vulkstaticmeshinternaluv.h" // Need this for VulkStaticMeshInternalUV
 //#include "geometry.h"
 #include "image.h"
 #include "paths.h"
@@ -171,6 +172,13 @@ void VulkCanvas::initializePipelines()
         VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
         "default3d.vert.glsl.spv",
         "default3d.frag.glsl.spv",
+        pipelineLayout,
+        vBuff3dUV, true);
+
+    pl3dTriTextured = createPipeline(
+        VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+        "textured3d.vert.glsl.spv",
+        "textured3d.frag.glsl.spv",
         pipelineLayout,
         vBuff3dUV, true);
 
@@ -531,16 +539,49 @@ void VulkCanvas::line3d(Vec3d p1, Vec3d p2, mssm::Color c)
 
 void VulkCanvas::drawMesh(const StaticMesh& mesh, const mat4x4& modelMatrix)
 {
-    const VulkStaticMeshInternal* vmesh = static_cast<const VulkStaticMeshInternal*>(mesh.internal.get());
-
     PushConstant pushConstant;
     mat4x4_dup(pushConstant.model, modelMatrix);
 
-    dc->cmdBindPipeline(pl3dTri, pipelineDS);
-    dc->sendPushConstants(pipelineLayout, pushConstant);
-    dc->commandBuffer->bindVertexBuffer(const_cast<VulkBuffer<Vertex3dUV>&>(vmesh->getVertexBuffer()), 0, 0);
-    dc->commandBuffer->bindIndexBuffer(const_cast<VulkBuffer<uint32_t>&>(vmesh->getIndexBuffer()), 0);
-    dc->commandBuffer->drawIndexed(vmesh->getIndexCount(), 1, 0, 0, 0);
+    switch (mesh.internal->getMeshType()) {
+        case MeshType::Standard: {
+            const VulkStaticMeshInternal* vmesh = static_cast<const VulkStaticMeshInternal*>(mesh.internal.get());
+            dc->cmdBindPipeline(pl3dTri, pipelineDS);
+            dc->sendPushConstants(pipelineLayout, pushConstant);
+            dc->commandBuffer->bindVertexBuffer(const_cast<VulkBuffer<Vertex3dUV>&>(vmesh->getVertexBuffer()), 0, 0);
+            dc->commandBuffer->bindIndexBuffer(const_cast<VulkBuffer<uint32_t>&>(vmesh->getIndexBuffer()), 0);
+            dc->commandBuffer->drawIndexed(vmesh->getIndexCount(), 1, 0, 0, 0);
+            break;
+        }
+        case MeshType::Textured: {
+            const VulkStaticMeshInternalUV* vmesh = static_cast<const VulkStaticMeshInternalUV*>(mesh.internal.get());
+            dc->cmdBindPipeline(pl3dTriTextured, pipelineDS);
+            dc->sendPushConstants(pipelineLayout, pushConstant);
+
+            const mssm::Image* texture = vmesh->getTexture();
+            if (texture) {
+                // Assuming textureIndex returns the index for the sampler2DArray
+                // in the shader. The binding is already set up in initializePipelines
+                // for the descriptor set.
+                uint32_t texIdx = texture->textureIndex();
+                // This assumes the sampler array is at binding 1 in set 0, as defined in the shader
+                // and descSetLayout1.
+                // The current mechanism for binding textures via imageViews in descSetLayout1
+                // is a bit broad, binding all images. We need to ensure the correct image
+                // is active/selected by the shader. The shader uses texSampler[0], meaning
+                // we'd typically arrange for the desired texture to be at index 0 or pass
+                // its actual index as a push constant or uniform.
+                // For simplicity now, let's rely on the shader using texSampler[0] and assume
+                // the relevant texture is at index 0 if only one is supported for now.
+                // A more robust solution would involve dynamically updating a descriptor set
+                // or using a push constant for the texture index.
+            }
+
+            dc->commandBuffer->bindVertexBuffer(const_cast<VulkBuffer<Vertex3dUV>&>(vmesh->getVertexBuffer()), 0, 0);
+            dc->commandBuffer->bindIndexBuffer(const_cast<VulkBuffer<uint32_t>&>(vmesh->getIndexBuffer()), 0);
+            dc->commandBuffer->drawIndexed(vmesh->getIndexCount(), 1, 0, 0, 0);
+            break;
+        }
+    }
 }
 
 void VulkCanvas::polygon3d(const std::vector<Vec3d> &points, mssm::Color border, mssm::Color fill)

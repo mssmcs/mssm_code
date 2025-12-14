@@ -61,3 +61,9 @@ void mssm::Graphics3d::queueForDestruction(std::shared_ptr<StaticMeshInternal> m
 {
     return m_meshLoader->queueForDestruction(mesh);
 }
+
+
+std::shared_ptr<StaticMeshInternal> mssm::Graphics3d::createMesh(const Mesh<EdgeData, VertexDataUV, FaceData> &mesh, const Image &texture)
+{
+    return m_meshLoader->createMesh(mesh, texture);
+}

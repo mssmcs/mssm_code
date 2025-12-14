@@ -81,6 +81,7 @@ vulkbufferpool.h vulkbufferpool.cpp
 vulkcanvasbase.h vulkcanvasbase.cpp
 vulkwindow.h vulkwindow.cpp
 vulkstaticmeshinternal.h vulkstaticmeshinternal.cpp
+vulkstaticmeshinternaluv.h vulkstaticmeshinternaluv.cpp
 # meshloader.cpp
 # meshloader.h
 # tiny_obj_loader.h

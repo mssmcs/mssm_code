@@ -38,6 +38,8 @@ public:
 public:
     std::shared_ptr<StaticMeshInternal> createMesh(
         const Mesh<EdgeData, VertexData, FaceData> &mesh) override;
+    std::shared_ptr<StaticMeshInternal> createMesh(
+        const Mesh<EdgeData, VertexDataUV, FaceData> &mesh, const Image &texture) override;
     std::shared_ptr<StaticMeshInternal> loadMesh(const std::string &filepath) override;
     void queueForDestruction(std::shared_ptr<StaticMeshInternal> mesh) override;
 };

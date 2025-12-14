@@ -65,6 +65,8 @@ public:
     void queueForDestruction(std::shared_ptr<mssm::ImageInternal> img) override;
 
     std::shared_ptr<StaticMeshInternal> createMesh(const Mesh<EdgeData, VertexData, FaceData>& mesh) override;
+    std::shared_ptr<StaticMeshInternal> createMesh(const Mesh<EdgeData, VertexDataUV, FaceData>& mesh, const mssm::Image& texture) override;
+
     std::shared_ptr<StaticMeshInternal> loadMesh(const std::string& filepath) override;
     void queueForDestruction(std::shared_ptr<StaticMeshInternal> mesh) override;
 };
@@ -157,6 +159,12 @@ template <typename WINDOW, typename CANVAS> requires SupportsVulkanWindow<WINDOW
 std::shared_ptr<StaticMeshInternal> VulkanGraphicsWindow<WINDOW, CANVAS>::createMesh(const Mesh<EdgeData, VertexData, FaceData>& mesh)
 {
     return renderManager->createMesh(mesh);
+}
+
+template <typename WINDOW, typename CANVAS> requires SupportsVulkanWindow<WINDOW> && IsCanvas<CANVAS>
+std::shared_ptr<StaticMeshInternal> VulkanGraphicsWindow<WINDOW, CANVAS>::createMesh(const Mesh<EdgeData, VertexDataUV, FaceData>& mesh, const mssm::Image& texture)
+{
+    return renderManager->createMesh(mesh, texture);
 }
 
 template <typename WINDOW, typename CANVAS> requires SupportsVulkanWindow<WINDOW> && IsCanvas<CANVAS>

@@ -476,6 +476,12 @@ std::shared_ptr<StaticMeshInternal> VulkSurfaceRenderManager::createMesh(const M
     return meshInternal;
 }
 
+std::shared_ptr<StaticMeshInternal> VulkSurfaceRenderManager::createMesh(const Mesh<EdgeData, VertexDataUV, FaceData>& mesh, const mssm::Image& texture)
+{
+    auto meshInternal = std::make_shared<VulkStaticMeshInternalUV>(*device, *graphicsCommandPool, mesh, texture);
+    return meshInternal;
+}
+
 void VulkSurfaceRenderManager::queueForDestruction(std::shared_ptr<StaticMeshInternal> mesh)
 {
     meshDestructionQueue.emplace_back(framebufferSync.getCurrentFlight(), mesh);
