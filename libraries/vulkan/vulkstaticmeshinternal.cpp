@@ -11,13 +11,30 @@ VulkStaticMeshInternal::VulkStaticMeshInternal(VulkDevice& device, VulkCommandPo
     std::unordered_map<const Mesh<EdgeData, VertexData, FaceData>::Vertex*, uint32_t> vertex_map;
 
     for (const auto& face : mesh.faces()) {
+        std::vector<const Mesh<EdgeData, VertexData, FaceData>::Vertex*> face_verts;
         for (const auto& edge : face.edges()) {
-            auto v = &edge.v1();
-            if (vertex_map.find(v) == vertex_map.end()) {
-                vertex_map[v] = vertices.size();
-                vertices.push_back({v->pos, v->normal, face.c, Vec2f{0, 0}});
+            face_verts.push_back(&edge.v1());
+        }
+
+        if (face_verts.size() < 3) {
+            continue;
+        }
+
+        for (const auto* v_ptr : face_verts) {
+             if (vertex_map.find(v_ptr) == vertex_map.end()) {
+                vertex_map[v_ptr] = static_cast<uint32_t>(vertices.size());
+                vertices.push_back(Vertex3dUV{v_ptr->pos, v_ptr->normal, face.c, Vec2f{0, 0}});
             }
-            indices.push_back(vertex_map[v]);
+        }
+
+        // Create a triangle fan for the indices
+        uint32_t i0 = vertex_map[face_verts[0]];
+        for (size_t i = 1; i < face_verts.size() - 1; ++i) {
+            uint32_t i1 = vertex_map[face_verts[i]];
+            uint32_t i2 = vertex_map[face_verts[i+1]];
+            indices.push_back(i0);
+            indices.push_back(i1);
+            indices.push_back(i2);
         }
     }
 
