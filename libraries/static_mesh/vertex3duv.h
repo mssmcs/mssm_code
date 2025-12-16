@@ -28,6 +28,14 @@ public:
         , uv{uv}
         , color{color.toRealVec4<Vec4f>()}
     {}
+
+    template<typename VPos, typename VNormal, typename VColor, typename VUV>
+    constexpr Vertex3dUV(const VPos& pos, const VNormal& normal, const VColor &color, const VUV &uv)
+        : pos{pos}
+        , normal{normal}
+        , uv{uv}
+        , color{color.template toRealVec4<Vec4f>()}
+    {}
 };
 
 #endif // VERTEX3DUV_H

@@ -59,7 +59,7 @@ template<typename EBase, typename VBase, typename FBase> requires hasPosField<VB
 VMeshVertex *VMeshHE<EBase, VBase, FBase>::createVertex(Vec3d pos, Vec2f uv)
 {
     VBase vdata;
-    vdata.pos = pos;
+    vdata.pos = decltype(vdata.pos){pos};
     if constexpr (requires { vdata.uv; }) {
         vdata.uv = uv;
     }

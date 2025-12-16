@@ -5,26 +5,25 @@
 #include "mesh.h" // For Meshy
 #include "vec3d.h"
 #include "vec2d.h"
- // For mssm::Image
 #include <memory>
 #include <string>
 
 struct EdgeData {
     bool marked{};
-    Vec3d normal;
+    Vec3f normal;
 };
 
 struct VertexData {
-    Vec3d pos;
-    Vec3d normal;
+    Vec3f pos;
+    Vec3f normal;
 
     bool marked{};
 };
 
 // New struct for vertex data with UV coordinates
 struct VertexDataUV {
-    Vec3d pos;
-    Vec3d normal;
+    Vec3f pos;
+    Vec3f normal;
     Vec2f uv; // Texture coordinates
 
     bool marked{};

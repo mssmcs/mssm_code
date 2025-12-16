@@ -1,5 +1,5 @@
 set(NAME "vulk")
-# DEPENDS_ON: stbi image window color static_mesh
+# DEPENDS_ON: stbi image window color static_mesh triangularmesh
 
 
 
@@ -105,6 +105,7 @@ image_base
 mssm_window
 mssm_color
 static_mesh
+triangularmesh
 # mssm_graphics 
 # poly_partition
 )
