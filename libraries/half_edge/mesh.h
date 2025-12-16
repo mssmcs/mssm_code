@@ -115,7 +115,7 @@ public:
         Vertex* prev{}; // prev in list of vertices on the mesh (this is consequence of allocation strategy, not part of the half edge ADT)
         Edge* edge{}; // one of the "outgoing" edges from this vertex
     public:
-        Vertex(posType pos) : VBase{pos} {}
+        Vertex(const VBase& vdata) : VBase{vdata} {}
         Vertex(const Vertex& other) = delete;
         Vertex& operator= (const Vertex& other) = delete;
         Vertex& operator= (const VBase& other) {
@@ -288,8 +288,8 @@ public:
     void iterateEdges(std::function<void(Edge& e)> visitor) const;
     bool iterateEdgesWhileTrue(std::function<bool(Edge& e)> visitor)  const;
 
-public:
-    Vertex& createVertex(posType pos);
+    Vertex& createVertex(const VBase& vdata);
+
     Edge& createEdge(Vertex& vertex);
     Face& createFace(Edge& edge);
 
@@ -461,7 +461,7 @@ Mesh<EBase, VBase, FBase>::Edge &Mesh<EBase, VBase, FBase>::initSeg(posType p1, 
 template <typename EBase, typename VBase, typename FBase> requires hasPosField<VBase>
 Mesh<EBase, VBase, FBase>::Vertex& Mesh<EBase, VBase, FBase>::initPoint(posType p1)
 {
-    auto& v = createVertex(p1);
+    auto& v = createVertex({p1});
     auto& e = createEdge(v);
     auto& f = faceList.empty() ? createFace(e) : faceList.front();
 
@@ -653,7 +653,7 @@ Mesh<EBase, VBase, FBase>::Vertex& Mesh<EBase, VBase, FBase>::extrudeVertex(Edge
         // special case: extruding from the first vertex.
 
         Vertex& oldV = corner.v1();
-        Vertex& newV = createVertex(point);
+        Vertex& newV = createVertex({point});
 
         Edge& oldNew = corner;
         Edge& newOld = createEdge(newV);
@@ -678,7 +678,7 @@ Mesh<EBase, VBase, FBase>::Vertex& Mesh<EBase, VBase, FBase>::extrudeVertex(Edge
     Edge& prev = *corner.prev;
 
     Vertex& oldV = corner.v1();
-    Vertex& newV = createVertex(point);
+    Vertex& newV = createVertex({point});
 
     Edge& oldNew = createEdge(oldV);
     Edge& newOld = createEdge(newV);
@@ -717,7 +717,7 @@ Mesh<EBase, VBase, FBase>::Vertex& Mesh<EBase, VBase, FBase>::extrudeVertex(Vert
     if (!corner) {
         // this is our first edge
 
-        Vertex& v2 = createVertex(point);
+        Vertex& v2 = createVertex({point});
 
         Edge& e1 = createEdge(v);
         Edge& e2 = createEdge(v2);
@@ -813,7 +813,7 @@ Mesh<EBase, VBase, FBase>::Vertex& Mesh<EBase, VBase, FBase>::insertVertexBetwee
     // posType t2 = e2.v1().pos;
 
     Vertex& oldV = e2.v1();
-    Vertex& newV = createVertex(pos);
+    Vertex& newV = createVertex({pos});
 
     Edge& oldNew = createEdge(oldV);
     Edge& newOld = createEdge(newV);
@@ -905,7 +905,7 @@ Mesh<EBase, VBase, FBase>::Vertex& Mesh<EBase, VBase, FBase>::divideEdge(Edge &e
     Edge& e32 = *e.twin;
 
     // split edge between v1 and v3 and place new vertex v2 at pos
-    Vertex& v2 = createVertex(pos);
+    Vertex& v2 = createVertex({pos});
 
     Edge& e23 = createEdge(v2);
     Edge& e21 = createEdge(v2);
@@ -1153,18 +1153,16 @@ bool Mesh<EBase, VBase, FBase>::iterateEdgesWhileTrue(std::function<bool (Edge &
 
 
 template <typename EBase, typename VBase, typename FBase> requires hasPosField<VBase>
-Mesh<EBase, VBase, FBase>::Vertex &Mesh<EBase, VBase, FBase>::createVertex(posType pos)
+Mesh<EBase, VBase, FBase>::Vertex &Mesh<EBase, VBase, FBase>::createVertex(const VBase& vdata)
 {
     if (deletedVertices.empty()) {
-        vertexList.push_back(new Vertex(pos));
+        vertexList.push_back(new Vertex(vdata));
         return vertexList.back();
     }
     auto& v = deletedVertices.pop_front();
 
-    VBase base{};
-    v = base;  // set base to defaults
+    v = vdata;  // set base to defaults
 
-    v.pos = pos;
     vertexList.push_back(&v);
     reusedVertices++;
     return v;

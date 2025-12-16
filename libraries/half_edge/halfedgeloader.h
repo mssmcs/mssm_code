@@ -38,7 +38,7 @@ public:
 public:
     VMeshHE(Mesh<EBase, VBase, FBase>* mesh) : mesh(mesh) {}
 
-    virtual VMeshVertex* createVertex(Vec3d pos);
+    virtual VMeshVertex* createVertex(Vec3d pos, Vec2f uv);
     virtual VMeshFace* createFace(std::vector<VMeshVertex*> verts);
     virtual void linkEdges(VMeshEdge* e1, VMeshEdge* e2);
     virtual void repairNonManifoldEdges();
@@ -56,9 +56,14 @@ inline std::vector<VMeshEdge *> VMeshFaceHE<EBase, VBase, FBase>::getEdges()
 }
 
 template<typename EBase, typename VBase, typename FBase> requires hasPosField<VBase>
-VMeshVertex *VMeshHE<EBase, VBase, FBase>::createVertex(Vec3d pos)
+VMeshVertex *VMeshHE<EBase, VBase, FBase>::createVertex(Vec3d pos, Vec2f uv)
 {
-    auto& mv = mesh->createVertex(pos);
+    VBase vdata;
+    vdata.pos = pos;
+    if constexpr (requires { vdata.uv; }) {
+        vdata.uv = uv;
+    }
+    auto& mv = mesh->createVertex(vdata);
     return new VMeshVertexHE<EBase, VBase, FBase>(&mv);
 }
 

@@ -1,8 +1,10 @@
 #include "meshloader.h"
 #include "vec3d.h"
+#include "vec2d.h"
 #include <list>
 #include <iostream>
 #include <functional>
+#include <map>
 
 #define TINYOBJLOADER_IMPLEMENTATION // define this in only *one* .cc
 
@@ -16,6 +18,7 @@ class ObjVert {
 public:
     VMeshVertex* meshVertex{nullptr};
     Vec3d pos;
+    Vec2f uv;
     bool visited{false};
     std::set<ObjFace*> faces;
 public:
@@ -62,7 +65,6 @@ VMeshEdge* ObjFace::oppositeEdge(int idx)
     return nullptr;
 }
 
-
 class ObjMesh {
 public:
     std::list<ObjFace> faces;
@@ -73,24 +75,26 @@ public:
     void reserveTotalVerts(int n) {};
     void reserveTotalFaces(int n) {};
     void startShape(std::string name, int numFaces) {};
-    void addVert(Vec3d pos);
-    void addFace(int shapeIdx, std::vector<int> vertIndices);
+    ObjVert* addVert(Vec3d pos, Vec2f uv);
+    void addFace(int shapeIdx, std::vector<ObjVert*> vertIndices);
     void linkFaces();
     void buildMesh(VMesh& mesh);
 };
 
-void ObjMesh::addVert(Vec3d pos)
+ObjVert* ObjMesh::addVert(Vec3d pos, Vec2f uv)
 {
     ObjVert& v = verts.emplace_back();
     v.pos = pos;
+    v.uv = uv;
     vertPtrs.push_back(&verts.back());
+    return &v;
 }
 
-void ObjMesh::addFace(int shapeIdx, std::vector<int> vertIndices)
+void ObjMesh::addFace(int shapeIdx, std::vector<ObjVert*> vertIndices)
 {
     ObjFace& f = faces.emplace_back();
     for (auto i : vertIndices) {
-        f.verts.push_back(vertPtrs[i]);
+        f.verts.push_back(i);
     }
     for (auto v : f.verts) {
         v->faces.insert(&faces.back());
@@ -113,12 +117,9 @@ void ObjMesh::linkFaces()
 void ObjMesh::buildMesh(VMesh &mesh)
 {
     for (auto& v : verts) {
-        v.meshVertex = mesh.createVertex(v.pos);
+        v.meshVertex = mesh.createVertex(v.pos, v.uv);
     }
 
-    // ObjFace* face = &faces.front();
-    // int visitCount = 0;
-    // bool firstFace = true;
     for (ObjFace& f : faces) {
         std::vector<VMeshVertex*> meshVerts;
         for (auto& v : f.verts) {
@@ -139,6 +140,20 @@ void ObjMesh::buildMesh(VMesh &mesh)
     }
 }
 
+namespace std {
+    template<> struct less<tinyobj::index_t> {
+        bool operator()(const tinyobj::index_t& a, const tinyobj::index_t& b) const {
+            if (a.vertex_index < b.vertex_index) return true;
+            if (a.vertex_index > b.vertex_index) return false;
+            if (a.normal_index < b.normal_index) return true;
+            if (a.normal_index > b.normal_index) return false;
+            if (a.texcoord_index < b.texcoord_index) return true;
+            if (a.texcoord_index > b.texcoord_index) return false;
+            return false;
+        }
+    };
+}
+
 void loadMesh(VMesh& mesh, const std::string& filename, bool triangulate)
 {
     tinyobj::attrib_t attrib;
@@ -153,7 +168,7 @@ void loadMesh(VMesh& mesh, const std::string& filename, bool triangulate)
     ObjMesh objMesh;
 
     if (!warn.empty()) {
-        std::cerr << err << std::endl;
+        std::cerr << warn << std::endl;
     }
 
     if (!err.empty()) {
@@ -165,36 +180,35 @@ void loadMesh(VMesh& mesh, const std::string& filename, bool triangulate)
         return;
     }
 
-    // std::map<int, Meshy::Vertex*> pointMap;
-
-    objMesh.reserveTotalVerts(attrib.vertices.size()/3);
-
-    int totalFaces = 0;
-    for (size_t s = 0; s < shapes.size(); s++) {
-        totalFaces += shapes[s].mesh.num_face_vertices.size();
-    }
-
-    objMesh.reserveTotalFaces(totalFaces);
-
-    for (int i = 0; i < attrib.vertices.size()/3; i++) {
-        objMesh.addVert({attrib.vertices[3*i+0]*50+200, attrib.vertices[3*i+1]*50+200, attrib.vertices[3*i+2]*50+200});
-    }
+    std::map<tinyobj::index_t, ObjVert*> unique_vertices;
 
     for (size_t s = 0; s < shapes.size(); s++) {
         objMesh.startShape(shapes[s].name, shapes[s].mesh.num_face_vertices.size());
 
-        // Loop over faces(polygon)
         size_t index_offset = 0;
         for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
             size_t fv = size_t(shapes[s].mesh.num_face_vertices[f]);
-            // Loop over vertices in the face.
-            std::vector<int> vertIndices;
+            
+            std::vector<ObjVert*> face_verts;
             for (size_t v = 0; v < fv; v++) {
-                // access to vertex
                 tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
-                vertIndices.push_back(idx.vertex_index);
+
+                if (unique_vertices.find(idx) == unique_vertices.end()) {
+                    tinyobj::real_t vx = attrib.vertices[3 * idx.vertex_index + 0];
+                    tinyobj::real_t vy = attrib.vertices[3 * idx.vertex_index + 1];
+                    tinyobj::real_t vz = attrib.vertices[3 * idx.vertex_index + 2];
+                    
+                    tinyobj::real_t tx = 0, ty = 0;
+                    if (idx.texcoord_index >= 0) {
+                        tx = attrib.texcoords[2 * idx.texcoord_index + 0];
+                        ty = attrib.texcoords[2 * idx.texcoord_index + 1];
+                    }
+
+                    unique_vertices[idx] = objMesh.addVert({vx, vy, vz}, {tx, 1-ty}); // OBJ format has 0,0 at bottom-left, so flip y
+                }
+                face_verts.push_back(unique_vertices[idx]);
             }
-            objMesh.addFace(s, vertIndices);
+            objMesh.addFace(s, face_verts);
             index_offset += fv;
         }
     }
