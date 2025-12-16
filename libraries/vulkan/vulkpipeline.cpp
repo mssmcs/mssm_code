@@ -172,7 +172,7 @@ void VulkPipelineLayout::initialize(const std::initializer_list<VulkDescSetLayou
     VkPushConstantRange pushConstant{};
     pushConstant.offset = 0;
     pushConstant.size = pushConstantSize;
-    pushConstant.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    pushConstant.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 
     VkPipelineLayoutCreateInfo pipeline_layout_info = {};
     pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;

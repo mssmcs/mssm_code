@@ -5,6 +5,7 @@
 #include <iostream>
 #include <functional>
 #include <map>
+#include <optional>
 
 #define TINYOBJLOADER_IMPLEMENTATION // define this in only *one* .cc
 
@@ -33,6 +34,7 @@ public:
     std::vector<ObjVert*> verts;
     std::vector<VMeshEdge*> edges;
     std::set<ObjFace*> adjFaces;
+    int material_id{-1};
 public:
     ~ObjFace();
     VMeshEdge *oppositeEdge(int idx);
@@ -76,9 +78,9 @@ public:
     void reserveTotalFaces(int n) {};
     void startShape(std::string name, int numFaces) {};
     ObjVert* addVert(Vec3d pos, Vec2f uv);
-    void addFace(int shapeIdx, std::vector<ObjVert*> vertIndices);
+    void addFace(int shapeIdx, std::vector<ObjVert*> vertIndices, int material_id);
     void linkFaces();
-    void buildMesh(VMesh& mesh);
+    void buildMesh(VMesh& mesh, const std::vector<tinyobj::material_t>& materials, std::function<void(VMeshFace&, std::optional<const tinyobj::material_t*>)> populator);
 };
 
 ObjVert* ObjMesh::addVert(Vec3d pos, Vec2f uv)
@@ -90,9 +92,10 @@ ObjVert* ObjMesh::addVert(Vec3d pos, Vec2f uv)
     return &v;
 }
 
-void ObjMesh::addFace(int shapeIdx, std::vector<ObjVert*> vertIndices)
+void ObjMesh::addFace(int shapeIdx, std::vector<ObjVert*> vertIndices, int material_id)
 {
     ObjFace& f = faces.emplace_back();
+    f.material_id = material_id;
     for (auto i : vertIndices) {
         f.verts.push_back(i);
     }
@@ -114,7 +117,7 @@ void ObjMesh::linkFaces()
     }
 }
 
-void ObjMesh::buildMesh(VMesh &mesh)
+void ObjMesh::buildMesh(VMesh &mesh, const std::vector<tinyobj::material_t>& materials, std::function<void(VMeshFace&, std::optional<const tinyobj::material_t*>)> populator)
 {
     for (auto& v : verts) {
         v.meshVertex = mesh.createVertex(v.pos, v.uv);
@@ -127,6 +130,13 @@ void ObjMesh::buildMesh(VMesh &mesh)
         }
         f.meshFace = mesh.createFace(meshVerts);
         f.edges = f.meshFace->getEdges();
+
+        if (f.material_id >= 0 && f.material_id < materials.size()) {
+            populator(*f.meshFace, &materials[f.material_id]);
+        }
+        else {
+            populator(*f.meshFace, std::nullopt);
+        }
     }
 
     for (ObjFace& f : faces) {
@@ -154,7 +164,7 @@ namespace std {
     };
 }
 
-void loadMesh(VMesh& mesh, const std::string& filename, bool triangulate)
+void loadMesh(VMesh& mesh, const std::string& filename, bool triangulate, std::function<void(VMeshFace&, std::optional<const tinyobj::material_t*>)> populator)
 {
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
@@ -163,7 +173,12 @@ void loadMesh(VMesh& mesh, const std::string& filename, bool triangulate)
     std::string warn;
     std::string err;
 
-    bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filename.c_str(), NULL, triangulate);
+    // material_t loading is not working correctly because the path is not being passed in
+    // correctly.  The path should be the path to the file, not the path to the folder.
+    // So we need to get the path to the folder from the filename.
+    std::string folder = filename.substr(0, filename.find_last_of("/\\") + 1);
+
+    bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filename.c_str(), folder.c_str(), triangulate);
 
     ObjMesh objMesh;
 
@@ -208,13 +223,13 @@ void loadMesh(VMesh& mesh, const std::string& filename, bool triangulate)
                 }
                 face_verts.push_back(unique_vertices[idx]);
             }
-            objMesh.addFace(s, face_verts);
+            objMesh.addFace(s, face_verts, shapes[s].mesh.material_ids[f]);
             index_offset += fv;
         }
     }
 
     objMesh.linkFaces();
-    objMesh.buildMesh(mesh);
+    objMesh.buildMesh(mesh, materials, populator);
     try {
         mesh.repairNonManifoldEdges();
     }

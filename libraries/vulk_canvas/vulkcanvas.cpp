@@ -555,26 +555,12 @@ void VulkCanvas::drawMesh(const StaticMesh& mesh, const mat4x4& modelMatrix)
         case MeshType::Textured: {
             const VulkStaticMeshInternalUV* vmesh = static_cast<const VulkStaticMeshInternalUV*>(mesh.internal.get());
             dc->cmdBindPipeline(pl3dTriTextured, pipelineDS);
-            dc->sendPushConstants(pipelineLayout, pushConstant);
-
+            pushConstant.textureId = 0; // Default to texture 0 if no texture provided
             const mssm::Image* texture = vmesh->getTexture();
             if (texture) {
-                // Assuming textureIndex returns the index for the sampler2DArray
-                // in the shader. The binding is already set up in initializePipelines
-                // for the descriptor set.
-                uint32_t texIdx = texture->textureIndex();
-                // This assumes the sampler array is at binding 1 in set 0, as defined in the shader
-                // and descSetLayout1.
-                // The current mechanism for binding textures via imageViews in descSetLayout1
-                // is a bit broad, binding all images. We need to ensure the correct image
-                // is active/selected by the shader. The shader uses texSampler[0], meaning
-                // we'd typically arrange for the desired texture to be at index 0 or pass
-                // its actual index as a push constant or uniform.
-                // For simplicity now, let's rely on the shader using texSampler[0] and assume
-                // the relevant texture is at index 0 if only one is supported for now.
-                // A more robust solution would involve dynamically updating a descriptor set
-                // or using a push constant for the texture index.
+                pushConstant.textureId = texture->textureIndex();
             }
+            dc->sendPushConstants(pipelineLayout, pushConstant);
 
             dc->commandBuffer->bindVertexBuffer(const_cast<VulkBuffer<Vertex3dUV>&>(vmesh->getVertexBuffer()), 0, 0);
             dc->commandBuffer->bindIndexBuffer(const_cast<VulkBuffer<uint32_t>&>(vmesh->getIndexBuffer()), 0);

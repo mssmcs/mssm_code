@@ -74,6 +74,7 @@ public:
 
 struct PushConstant {
     mat4x4 model;
+    alignas(4) int textureId;
 };
 
 class VulkCanvas : public VulkCanvasBase, public mssm::Canvas3d

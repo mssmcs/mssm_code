@@ -65,7 +65,7 @@ public:
     template <typename TPushConstant>
     void sendPushConstants(VulkPipelineLayout& layout, TPushConstant& pushConstants)
     {
-        device.fn.vkCmdPushConstants(*commandBuffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(TPushConstant), &pushConstants);
+        device.fn.vkCmdPushConstants(*commandBuffer, layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(TPushConstant), &pushConstants);
     }
 
     void cmdBindPipeline(VulkBoundPipeline& pipeline, VulkPipelineDescriptorSets& pds) {

@@ -5,6 +5,10 @@
 #include "vec3d.h"
 #include "vec2d.h"
 
+namespace tinyobj {
+struct material_t;
+}
+
 class VMeshEdge {
 public:
     virtual ~VMeshEdge() {}

@@ -4,6 +4,10 @@
 #include "meshloader.h"
 #include "mesh.h"
 
+namespace tinyobj {
+    struct material_t;
+}
+
 template<typename EBase, typename VBase, typename FBase> requires hasPosField<VBase>
 class VMeshEdgeHE : public VMeshEdge {
     Mesh<EBase, VBase, FBase>::Edge* edge;
@@ -20,7 +24,7 @@ public:
     Mesh<EBase, VBase, FBase>::Face* face;
 public:
     VMeshFaceHE(Mesh<EBase, VBase, FBase>::Face* face) : face(face) {}
-    virtual std::vector<VMeshEdge*> getEdges();
+    virtual std::vector<VMeshEdge*> getEdges() override;
 };
 
 template<typename EBase, typename VBase, typename FBase> requires hasPosField<VBase>
@@ -93,11 +97,37 @@ void VMeshHE<EBase, VBase, FBase>::repairNonManifoldEdges()
     mesh->repairNonManifoldEdges();
 }
 
+#include "meshloader.h"
+#include "mesh.h"
+#include <optional>
+
+namespace tinyobj {
+    struct material_t;
+}
+
+void loadMesh(VMesh& mesh, const std::string& filename, bool triangulate, std::function<void(VMeshFace&, std::optional<const tinyobj::material_t*>)> populator);
+
+template<typename EBase, typename VBase, typename FBase> requires hasPosField<VBase>
+void loadMesh(Mesh<EBase, VBase, FBase>& mesh, const std::string& filename, bool triangulate, std::function<void(typename Mesh<EBase, VBase, FBase>::Face&, std::optional<const tinyobj::material_t*>)> populator)
+{
+    VMeshHE heMesh(&mesh);
+
+    auto vmesh_populator = [&populator](VMeshFace& face, std::optional<const tinyobj::material_t*> mat) {
+        auto heFace = static_cast<VMeshFaceHE<EBase, VBase, FBase>*>(&face);
+        populator(*heFace->face, mat);
+    };
+
+    loadMesh(heMesh, filename, triangulate, vmesh_populator);
+}
+
 template<typename EBase, typename VBase, typename FBase> requires hasPosField<VBase>
 void loadMesh(Mesh<EBase, VBase, FBase>& mesh, const std::string& filename, bool triangulate)
 {
-    VMeshHE heMesh(&mesh);
-    loadMesh(heMesh, filename, triangulate);
+    auto populator = [](typename Mesh<EBase, VBase, FBase>::Face& face, std::optional<const tinyobj::material_t*> mat) {
+        // do nothing
+    };
+    loadMesh(mesh, filename, triangulate, populator);
 }
+
 
 #endif // HALFEDGELOADER_H

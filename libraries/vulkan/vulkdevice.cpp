@@ -92,8 +92,13 @@ VkDevice VulkDevice::createLogicalDevice(VkPhysicalDevice physicalDevice, VkSurf
 
     deviceFeatures.samplerAnisotropy = VK_TRUE;  // TODO: only need this if we're using the feature (textures)
 
+    VkPhysicalDeviceVulkan12Features features12{};
+    features12.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
+    features12.shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
+
     VkDeviceCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    createInfo.pNext = &features12; // Chain the new features struct
 
     createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
     createInfo.pQueueCreateInfos = queueCreateInfos.data();
@@ -186,8 +191,19 @@ bool VulkDevice::isDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface,
     VkPhysicalDeviceFeatures deviceFeatures;
     vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 
+    VkPhysicalDeviceVulkan12Features supportedFeatures12{};
+    supportedFeatures12.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
 
-    return indices.isComplete(surface != VK_NULL_HANDLE) && extensionsSupported && deviceFeatures.samplerAnisotropy;
+    VkPhysicalDeviceFeatures2 deviceFeatures2{};
+    deviceFeatures2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+    deviceFeatures2.pNext = &supportedFeatures12;
+
+    vkGetPhysicalDeviceFeatures2(device, &deviceFeatures2);
+
+    bool nonUniformIndexingSupported = supportedFeatures12.shaderSampledImageArrayNonUniformIndexing;
+
+
+    return indices.isComplete(surface != VK_NULL_HANDLE) && extensionsSupported && deviceFeatures.samplerAnisotropy && nonUniformIndexingSupported;
 
 
 

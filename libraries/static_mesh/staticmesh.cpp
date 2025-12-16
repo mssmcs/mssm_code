@@ -3,7 +3,7 @@
 
 FaceData::FaceData()
 {
-    c = mssm::GREEN;
+    c = mssm::WHITE;
 }
 
 StaticMesh::StaticMesh(MeshLoader& meshLoader, const Mesh<EdgeData, VertexData, FaceData>& mesh)
