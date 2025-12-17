@@ -37,9 +37,9 @@ public:
     // MeshLoader interface
 public:
     std::shared_ptr<StaticMeshInternal> createMesh(
-        const Mesh<EdgeData, VertexData, FaceData> &mesh) override;
+        const TriangularMesh<Vertex3dUV>& triMesh) override;
     std::shared_ptr<StaticMeshInternal> createMesh(
-        const Mesh<EdgeData, VertexDataUV, FaceData> &mesh, const Image &texture) override;
+        const TriangularMesh<Vertex3dUV>& triMesh, const Image &texture) override;
     std::shared_ptr<StaticMeshInternal> loadMesh(const std::string &filepath) override;
     void queueForDestruction(std::shared_ptr<StaticMeshInternal> mesh) override;
 };

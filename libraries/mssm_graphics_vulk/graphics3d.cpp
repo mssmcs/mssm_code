@@ -47,9 +47,9 @@ void mssm::Graphics3d::queueForDestruction(std::shared_ptr<mssm::ImageInternal> 
 }
 
 std::shared_ptr<StaticMeshInternal> mssm::Graphics3d::createMesh(
-    const Mesh<EdgeData, VertexData, FaceData> &mesh)
+    const TriangularMesh<Vertex3dUV>& triMesh)
 {
-    return m_meshLoader->createMesh(mesh);
+    return m_meshLoader->createMesh(triMesh);
 }
 
 std::shared_ptr<StaticMeshInternal> mssm::Graphics3d::loadMesh(const std::string &filepath)
@@ -63,7 +63,7 @@ void mssm::Graphics3d::queueForDestruction(std::shared_ptr<StaticMeshInternal> m
 }
 
 
-std::shared_ptr<StaticMeshInternal> mssm::Graphics3d::createMesh(const Mesh<EdgeData, VertexDataUV, FaceData> &mesh, const Image &texture)
+std::shared_ptr<StaticMeshInternal> mssm::Graphics3d::createMesh(const TriangularMesh<Vertex3dUV>& triMesh, const Image &texture)
 {
-    return m_meshLoader->createMesh(mesh, texture);
+    return m_meshLoader->createMesh(triMesh, texture);
 }

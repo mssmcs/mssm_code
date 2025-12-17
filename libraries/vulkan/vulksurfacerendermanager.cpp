@@ -470,35 +470,35 @@ void VulkSurfaceRenderManager::queueForDestruction(std::shared_ptr<mssm::ImageIn
     imageDestructionQueue.emplace_back(framebufferSync.getCurrentFlight(), img);
 }
 
-std::shared_ptr<StaticMeshInternal> VulkSurfaceRenderManager::createMesh(const Mesh<EdgeData, VertexData, FaceData>& mesh)
+std::shared_ptr<StaticMeshInternal> VulkSurfaceRenderManager::createMesh(const TriangularMesh<Vertex3dUV> &triMesh)
 {
-    auto converter = [](const VertexData& v, const FaceData& f) {
-        Vertex3dUV dest_v;
-        dest_v.pos = v.pos;
-        dest_v.normal = v.normal;
-        dest_v.color = f.c.toRealVec4<Vec4f>();
-        dest_v.uv = {0.0f, 0.0f}; // Default UV for non-UV meshes
-        return dest_v;
-    };
+    // auto converter = [](const VertexData& v, const FaceData& f) {
+    //     Vertex3dUV dest_v;
+    //     dest_v.pos = v.pos;
+    //     dest_v.normal = v.normal;
+    //     dest_v.color = f.c.toRealVec4<Vec4f>();
+    //     dest_v.uv = {0.0f, 0.0f}; // Default UV for non-UV meshes
+    //     return dest_v;
+    // };
 
-    auto triMesh = buildTriangularMesh<Vertex3dUV>(mesh, converter);
+    // auto triMesh = buildTriangularMesh<Vertex3dUV>(triMesh, converter);
 
     auto meshInternal = std::make_shared<VulkStaticMeshInternal>(*device, *graphicsCommandPool, triMesh);
     return meshInternal;
 }
 
-std::shared_ptr<StaticMeshInternal> VulkSurfaceRenderManager::createMesh(const Mesh<EdgeData, VertexDataUV, FaceData>& mesh, const mssm::Image& texture)
+std::shared_ptr<StaticMeshInternal> VulkSurfaceRenderManager::createMesh(const TriangularMesh<Vertex3dUV> &triMesh, const mssm::Image& texture)
 {
-    auto converter = [](const VertexDataUV& v, const FaceData& f) {
-        Vertex3dUV dest_v;
-        dest_v.pos = v.pos;
-        dest_v.normal = v.normal;
-        dest_v.color = f.c.toRealVec4<Vec4f>();
-        dest_v.uv = v.uv;
-        return dest_v;
-    };
+    // auto converter = [](const VertexDataUV& v, const FaceData& f) {
+    //     Vertex3dUV dest_v;
+    //     dest_v.pos = v.pos;
+    //     dest_v.normal = v.normal;
+    //     dest_v.color = f.c.toRealVec4<Vec4f>();
+    //     dest_v.uv = v.uv;
+    //     return dest_v;
+    // };
 
-    auto triMesh = buildTriangularMesh<Vertex3dUV>(mesh, converter);
+    // auto triMesh = buildTriangularMesh<Vertex3dUV>(mesh, converter);
 
     auto meshInternal = std::make_shared<VulkStaticMeshInternalUV>(*device, *graphicsCommandPool, triMesh, texture);
     return meshInternal;

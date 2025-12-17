@@ -6,16 +6,17 @@ FaceData::FaceData()
     c = mssm::WHITE;
 }
 
-StaticMesh::StaticMesh(MeshLoader& meshLoader, const Mesh<EdgeData, VertexData, FaceData>& mesh)
+StaticMesh::StaticMesh(MeshLoader& meshLoader, const TriangularMesh<Vertex3dUV>& triMesh)
     : meshLoader(meshLoader)
 {
-    internal = meshLoader.createMesh(mesh);
+    internal = meshLoader.createMesh(triMesh);
 }
 
-StaticMesh::StaticMesh(MeshLoader& meshLoader, const Mesh<EdgeData, VertexDataUV, FaceData>& mesh, const mssm::Image& texture)
+StaticMesh::StaticMesh(MeshLoader& meshLoader
+                       , const TriangularMesh<Vertex3dUV>& triMesh, const mssm::Image& texture)
     : meshLoader(meshLoader)
 {
-    internal = meshLoader.createMesh(mesh, texture);
+    internal = meshLoader.createMesh(triMesh, texture);
 }
 
 StaticMesh::StaticMesh(MeshLoader& meshLoader, const std::string& filepath)

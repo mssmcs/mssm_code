@@ -64,8 +64,8 @@ public:
     void saveImg(std::shared_ptr<mssm::ImageInternal> img, std::string filename) override;
     void queueForDestruction(std::shared_ptr<mssm::ImageInternal> img) override;
 
-    std::shared_ptr<StaticMeshInternal> createMesh(const Mesh<EdgeData, VertexData, FaceData>& mesh) override;
-    std::shared_ptr<StaticMeshInternal> createMesh(const Mesh<EdgeData, VertexDataUV, FaceData>& mesh, const mssm::Image& texture) override;
+    std::shared_ptr<StaticMeshInternal> createMesh(const TriangularMesh<Vertex3dUV>& triMesh) override;
+    std::shared_ptr<StaticMeshInternal> createMesh(const TriangularMesh<Vertex3dUV>& triMesh, const mssm::Image& texture) override;
 
     std::shared_ptr<StaticMeshInternal> loadMesh(const std::string& filepath) override;
     void queueForDestruction(std::shared_ptr<StaticMeshInternal> mesh) override;
@@ -156,15 +156,15 @@ void VulkanGraphicsWindow<WINDOW, CANVAS>::saveImg(std::shared_ptr<mssm::ImageIn
 }
 
 template <typename WINDOW, typename CANVAS> requires SupportsVulkanWindow<WINDOW> && IsCanvas<CANVAS>
-std::shared_ptr<StaticMeshInternal> VulkanGraphicsWindow<WINDOW, CANVAS>::createMesh(const Mesh<EdgeData, VertexData, FaceData>& mesh)
+std::shared_ptr<StaticMeshInternal> VulkanGraphicsWindow<WINDOW, CANVAS>::createMesh(const TriangularMesh<Vertex3dUV>& triMesh)
 {
-    return renderManager->createMesh(mesh);
+    return renderManager->createMesh(triMesh);
 }
 
 template <typename WINDOW, typename CANVAS> requires SupportsVulkanWindow<WINDOW> && IsCanvas<CANVAS>
-std::shared_ptr<StaticMeshInternal> VulkanGraphicsWindow<WINDOW, CANVAS>::createMesh(const Mesh<EdgeData, VertexDataUV, FaceData>& mesh, const mssm::Image& texture)
+std::shared_ptr<StaticMeshInternal> VulkanGraphicsWindow<WINDOW, CANVAS>::createMesh(const TriangularMesh<Vertex3dUV>& triMesh, const mssm::Image& texture)
 {
-    return renderManager->createMesh(mesh, texture);
+    return renderManager->createMesh(triMesh, texture);
 }
 
 template <typename WINDOW, typename CANVAS> requires SupportsVulkanWindow<WINDOW> && IsCanvas<CANVAS>

@@ -2,11 +2,12 @@
 #define STATICMESH_H
 
 #include "color.h"
-#include "mesh.h" // For Meshy
 #include "vec3d.h"
 #include "vec2d.h"
 #include <memory>
 #include <string>
+#include "triangularmesh.h"
+#include "vertex3duv.h"
 
 struct EdgeData {
     bool marked{};
@@ -56,8 +57,8 @@ public:
 
 class MeshLoader {
 public:
-    virtual std::shared_ptr<StaticMeshInternal> createMesh(const Mesh<EdgeData, VertexData, FaceData>& mesh) = 0;
-    virtual std::shared_ptr<StaticMeshInternal> createMesh(const Mesh<EdgeData, VertexDataUV, FaceData>& mesh, const mssm::Image& texture) = 0;
+    virtual std::shared_ptr<StaticMeshInternal> createMesh(const TriangularMesh<Vertex3dUV> &triMesh) = 0;
+    virtual std::shared_ptr<StaticMeshInternal> createMesh(const TriangularMesh<Vertex3dUV> &triMesh, const mssm::Image& texture) = 0;
     virtual std::shared_ptr<StaticMeshInternal> loadMesh(const std::string& filepath) = 0;
     virtual void queueForDestruction(std::shared_ptr<StaticMeshInternal> mesh) = 0;
 };
@@ -68,8 +69,8 @@ protected:
 public:
     std::shared_ptr<StaticMeshInternal> internal;
 public:
-    StaticMesh(MeshLoader& meshLoader, const Mesh<EdgeData, VertexData, FaceData>& mesh);
-    StaticMesh(MeshLoader& meshLoader, const Mesh<EdgeData, VertexDataUV, FaceData>& mesh, const mssm::Image& texture);
+    StaticMesh(MeshLoader& meshLoader, const TriangularMesh<Vertex3dUV> &triMesh);
+    StaticMesh(MeshLoader& meshLoader, const TriangularMesh<Vertex3dUV> &triMesh, const mssm::Image& texture);
     StaticMesh(MeshLoader& meshLoader, const std::string& filepath);
     ~StaticMesh();
 };

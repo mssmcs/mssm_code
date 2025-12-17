@@ -1,5 +1,5 @@
 set(NAME "static_mesh")
-# DEPENDS_ON: color half_edge
+# DEPENDS_ON: color half_edge triangularmesh
 
 add_library(${NAME} STATIC
     staticmesh.h
@@ -13,4 +13,5 @@ set_target_properties(${NAME} PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(${NAME} PUBLIC
     half_edge
     mssm_color
+    triangularmesh
 )
