@@ -121,7 +121,7 @@ public:
     }
 
     void initialize(VulkDevice &device, VkDeviceSize count, VkBufferUsageFlags usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VkMemoryPropertyFlags properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-    void copyFrom(std::span<T> source) { memory.copyFrom(source); }
+    void copyFrom(const std::span<const T>& source) { memory.copyFrom(source); }
     void copyFromValue(T& value) { memory.copyFrom(std::span<T>(&value, 1)); }
     size_t count() const { return this->itemCount; }
     size_t sizeBytes() const { return memory.getMemSizeBytes(); }

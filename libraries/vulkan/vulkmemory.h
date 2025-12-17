@@ -126,14 +126,14 @@ public:
     VkDeviceSize getMemSizeBytes() const { return memSizeBytes; }
 
     template <typename T2>
-    void copyFrom(std::span<T2> source);
+    void copyFrom(const std::span<T2> source);
 
     VkMemoryPropertyFlags getProperties() const { return properties; }
 };
 
 
 template <typename T2>
-inline void VulkMemory::copyFrom(std::span<T2> source)
+inline void VulkMemory::copyFrom(const std::span<T2> source)
 {
     auto sz = source.size_bytes();
     assertm(sz <= memSizeBytes, "VulkBuffer::copyFrom() called with source span larger than buffer size");

@@ -6,6 +6,7 @@
 #include "vertex3duv.h"
 #include "mesh.h"
 #include "vulkcommandbuffers.h"
+#include "triangularmesh.h"
 
 // Forward declarations
 namespace mssm {
@@ -15,7 +16,7 @@ class VulkCanvas;
 
 class VulkStaticMeshInternal : public StaticMeshInternal {
 public:
-    VulkStaticMeshInternal(VulkDevice& device, VulkCommandPool& commandPool, const Mesh<EdgeData, VertexData, FaceData>& mesh);
+    VulkStaticMeshInternal(VulkDevice& device, VulkCommandPool& commandPool, const TriangularMesh<Vertex3dUV>& mesh);
 
     const VulkBuffer<Vertex3dUV>& getVertexBuffer() const { return vertexBuffer; }
     const VulkBuffer<uint32_t>& getIndexBuffer() const { return indexBuffer; }

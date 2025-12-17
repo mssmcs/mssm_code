@@ -4,20 +4,9 @@
 #include <unordered_map>
 #include "triangularmesh.h"
 
-VulkStaticMeshInternalUV::VulkStaticMeshInternalUV(VulkDevice& device, VulkCommandPool& commandPool, const Mesh<EdgeData, VertexDataUV, FaceData>& mesh, const mssm::Image& tex)
+VulkStaticMeshInternalUV::VulkStaticMeshInternalUV(VulkDevice& device, VulkCommandPool& commandPool, const TriangularMesh<Vertex3dUV>& triMesh, const mssm::Image& tex)
     : texture(std::make_shared<mssm::Image>(tex))
 {
-    auto converter = [](const VertexDataUV& v, const FaceData& f) {
-        Vertex3dUV dest_v;
-        dest_v.pos = v.pos;
-        dest_v.normal = v.normal;
-        dest_v.color = f.c.toRealVec4<Vec4f>();
-        dest_v.uv = v.uv;
-        return dest_v;
-    };
-
-    auto triMesh = buildTriangularMesh<Vertex3dUV>(mesh, converter);
-
     this->indexCount = static_cast<uint32_t>(triMesh.indices.size());
 
     // Create staging buffer for vertices

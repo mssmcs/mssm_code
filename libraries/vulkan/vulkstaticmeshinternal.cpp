@@ -4,18 +4,8 @@
 #include <unordered_map>
 #include "triangularmesh.h"
 
-VulkStaticMeshInternal::VulkStaticMeshInternal(VulkDevice& device, VulkCommandPool& commandPool, const Mesh<EdgeData, VertexData, FaceData>& mesh)
+VulkStaticMeshInternal::VulkStaticMeshInternal(VulkDevice& device, VulkCommandPool& commandPool, const TriangularMesh<Vertex3dUV>& triMesh)
 {
-    auto converter = [](const VertexData& v, const FaceData& f) {
-        Vertex3dUV dest_v;
-        dest_v.pos = v.pos;
-        dest_v.normal = v.normal;
-        dest_v.color = f.c.toRealVec4<Vec4f>();
-        dest_v.uv = {0.0f, 0.0f}; // Default UV for non-UV meshes
-        return dest_v;
-    };
-
-    auto triMesh = buildTriangularMesh<Vertex3dUV>(mesh, converter);
 
     this->indexCount = triMesh.indices.size();
 

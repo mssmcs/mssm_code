@@ -7,10 +7,11 @@
 #include "mesh.h"
 #include "vulkcommandbuffers.h"
 #include "image.h" // For mssm::Image
+#include "triangularmesh.h"
 
 class VulkStaticMeshInternalUV : public StaticMeshInternal {
 public:
-    VulkStaticMeshInternalUV(VulkDevice& device, VulkCommandPool& commandPool, const Mesh<EdgeData, VertexDataUV, FaceData>& mesh, const mssm::Image& texture);
+    VulkStaticMeshInternalUV(VulkDevice& device, VulkCommandPool& commandPool, const TriangularMesh<Vertex3dUV>& mesh, const mssm::Image& texture);
 
     const VulkBuffer<Vertex3dUV>& getVertexBuffer() const { return vertexBuffer; }
     const VulkBuffer<uint32_t>& getIndexBuffer() const { return indexBuffer; }
