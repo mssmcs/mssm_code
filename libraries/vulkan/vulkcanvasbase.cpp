@@ -39,10 +39,20 @@ void VulkCanvasBase::beginPaint()
 
     dc->beginBuffer();
     dc->beginRenderPass();
+
+    inPaint = true;
 }
 
-void VulkCanvasBase::endPaint()
+void VulkCanvasBase::endPaint(bool isClosing)
 {
+    if (!inPaint) {
+        throw std::logic_error("HeyHey!");
+    }
+    if (isClosing) {
+        //throw std::logic_error("Hey");
+    }
     dc->endRenderPass();
     dc->endBuffer();
+
+    inPaint = false;
 }

@@ -53,8 +53,8 @@ public:
     // CoreWindow interface
 protected:
     void configure() override;
-    void beginDrawing(bool wasResized) override;
-    void endDrawing() override;
+    bool beginDrawing(bool wasResized) override;
+    void endDrawing(bool isClosing) override;
 
     // Canvas2d interface
 public:

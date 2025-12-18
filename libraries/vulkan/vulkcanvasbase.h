@@ -9,7 +9,7 @@ public:
     virtual ~VulkCanvasBase0() = default;
     virtual void initializePipelines() = 0;
     virtual void beginPaint() = 0;
-    virtual void endPaint() = 0;
+    virtual void endPaint(bool isClosing) = 0;
 };
 
 class VulkCanvasBase : public VulkCanvasBase0 {
@@ -23,6 +23,7 @@ protected:
     VulkDrawContext *dc{};
     VkExtent2D extent{};
     VkRenderPass renderPass{};
+    bool inPaint{false};
 
 public:
     VulkCanvasBase(VulkSurfaceRenderManager &renderManager);
@@ -54,7 +55,7 @@ public:
                                      bool is3d);
 
     virtual void beginPaint();
-    virtual void endPaint();
+    virtual void endPaint(bool isClosing);
 };
 
 

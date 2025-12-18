@@ -413,12 +413,14 @@ void VulkCanvas::beginPaint()
     dc->commandBuffer->bindIndexBuffer(iBuff->buffer(), 0);
 }
 
-void VulkCanvas::endPaint()
+void VulkCanvas::endPaint(bool isClosing)
 {
-    this->resetModelMatrix();
+    if (!isClosing) {
+        this->resetModelMatrix();
+    }
     //drawTimeStats();
 
-    VulkCanvasBase::endPaint();  // must be last thing
+    VulkCanvasBase::endPaint(isClosing);  // must be last thing
 }
 
 int VulkCanvas::width()

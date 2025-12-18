@@ -49,6 +49,8 @@ public:
         return *this;
     }
 
+    bool getHasBegun() const { return hasBegun; }
+
     void initialize(VulkCommandPool& commandPool);
     void initialize(VulkCommandPool& commandPool, VkCommandBuffer buffer);
 

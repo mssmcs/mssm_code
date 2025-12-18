@@ -35,9 +35,10 @@ bool CoreWindow::update(bool autoEndDrawing)
             (std::chrono::steady_clock::now().time_since_epoch()).count();
         lastDrawTime = std::chrono::steady_clock::now();
     }
-    else if (autoEndDrawing) {
+    else if (isDrawing && !closed && autoEndDrawing) {
         // submit previous drawing commands
-        endDrawing();
+        endDrawing(shouldClose());
+        isDrawing = false;
     }
 
     if (closed || shouldClose()) {
@@ -61,7 +62,7 @@ bool CoreWindow::update(bool autoEndDrawing)
         postEvent(currentWidth, currentHeight, EvtType::WindowResize, ModKey::None, 0);
     }
 
-    beginDrawing(wasResized);
+    isDrawing = beginDrawing(wasResized);
 
     auto currDrawTime = std::chrono::steady_clock::now();
     elapsed = std::chrono::duration_cast<std::chrono::microseconds>(currDrawTime - lastDrawTime).count();

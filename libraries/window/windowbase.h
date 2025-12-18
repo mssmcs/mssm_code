@@ -16,6 +16,7 @@ class CoreWindow : public EventManager
 
     bool        configured{false};  // configures on first call to update
     bool        closed{false};
+    bool        isDrawing{false};
 
     bool        requestToggleFullScreen{false};
     int         currentWidth{100};
@@ -54,8 +55,8 @@ protected:
     virtual bool shouldClose() const = 0;
     virtual void handleToggleFullScreen() = 0;
     virtual void pollEvents() = 0;
-    virtual void beginDrawing(bool wasResized) = 0;
-    virtual void endDrawing() = 0;
+    virtual bool beginDrawing(bool wasResized) = 0;
+    virtual void endDrawing(bool closing) = 0;
 protected:
     bool isClosed() const { return closed; }
     void toggleFullScreen() override;

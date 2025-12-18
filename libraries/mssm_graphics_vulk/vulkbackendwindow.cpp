@@ -30,14 +30,14 @@ VulkBackendWindow::VulkBackendWindow(std::string title, int width, int height)
     : VulkanGraphicsWindow<VulkanWindowGLFW, VulkCanvas>(title, width, height, ::createCanvas)
 {}
 
-void VulkBackendWindow::beginDrawing(bool wasResized)
+bool VulkBackendWindow::beginDrawing(bool wasResized)
 {
-    VulkanGraphicsWindow<VulkanWindowGLFW, VulkCanvas>::beginDrawing(wasResized);
+    return VulkanGraphicsWindow<VulkanWindowGLFW, VulkCanvas>::beginDrawing(wasResized);
 }
 
-void VulkBackendWindow::endDrawing()
+void VulkBackendWindow::endDrawing(bool isClosing)
 {
-    VulkanGraphicsWindow<VulkanWindowGLFW, VulkCanvas>::endDrawing();
+    VulkanGraphicsWindow<VulkanWindowGLFW, VulkCanvas>::endDrawing(isClosing);
 }
 
 

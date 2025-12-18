@@ -62,7 +62,7 @@ VulkPipeline& VulkSurfaceRenderManager::addPipeline(VulkShaders &shaders,
     return *pipelines.back();
 }
 
-void VulkSurfaceRenderManager::beginDrawing(bool wasResized)
+bool VulkSurfaceRenderManager::beginDrawing(bool wasResized)
 {
     // Process destruction queues
     uint64_t currentFrame = framebufferSync.getCurrentFlight();
@@ -86,12 +86,12 @@ void VulkSurfaceRenderManager::beginDrawing(bool wasResized)
             recreateSwapChain();
             if (!swapChain->hasSwapChain()) {
                 // maybe next time
-                return;
+                return false;
             }
         }
         else {
             // we're minimized or something
-            return;
+            return false;
         }
     }
 
@@ -99,9 +99,11 @@ void VulkSurfaceRenderManager::beginDrawing(bool wasResized)
     while (!beforeDrawCommands(imageIndex)) {
         // recreateSwapChain() was called
     }
+
+    return true;
 }
 
-void VulkSurfaceRenderManager::endDrawing()
+void VulkSurfaceRenderManager::endDrawing(bool isClosing)
 {
     if (!swapChain->hasSwapChain()) {
         return;

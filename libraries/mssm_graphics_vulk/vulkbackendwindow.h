@@ -13,8 +13,8 @@ public:
     VulkBackendWindow(std::string title, int width, int height);
 
 protected:
-    void beginDrawing(bool wasResized) override;
-    void endDrawing() override;
+    bool beginDrawing(bool wasResized) override;
+    void endDrawing(bool isClosing) override;
 };
 
 #endif // VULKBACKENDWINDOW_H

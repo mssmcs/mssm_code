@@ -472,7 +472,7 @@ void NanovgWindow::resetViewport()
 // }
 
 
-void NanovgWindow::beginDrawing(bool wasResized)
+bool NanovgWindow::beginDrawing(bool wasResized)
 {
     // int winWidth = width();
     // int winHeight = height();
@@ -511,9 +511,11 @@ void NanovgWindow::beginDrawing(bool wasResized)
     resetViewport();
 
     nvgBeginFrame(vg, winWidth, winHeight, pxRatio);
+
+    return true;
 }
 
-void NanovgWindow::endDrawing()
+void NanovgWindow::endDrawing(bool isClosing)
 {
 
     nvgEndFrame(vg);

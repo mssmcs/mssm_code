@@ -46,8 +46,8 @@ public:
 
 protected:
     virtual void configure() override;
-    virtual void beginDrawing(bool wasResized) override;
-    virtual void endDrawing() override;
+    virtual bool beginDrawing(bool wasResized) override;
+    virtual void endDrawing(bool isClosing) override;
     void detachRenderer(bool releaseSurface) override;
     // ImageLoader interface
 public:
@@ -111,23 +111,23 @@ void VulkanGraphicsWindow<WINDOW, CANVAS>::configure()
 }
 
 template <typename WINDOW, typename CANVAS> requires SupportsVulkanWindow<WINDOW> && IsCanvas<CANVAS>
-void VulkanGraphicsWindow<WINDOW, CANVAS>::beginDrawing(bool wasResized)
+bool VulkanGraphicsWindow<WINDOW, CANVAS>::beginDrawing(bool wasResized)
 {
-    renderManager->beginDrawing(wasResized);
-    if (renderManager->isDrawable()) {
+    bool res = renderManager->beginDrawing(wasResized);
+    if (res && renderManager->isDrawable()) {
         canvas->beginPaint();
     }
-
+    return res;
 }
 
 template <typename WINDOW, typename CANVAS> requires SupportsVulkanWindow<WINDOW> && IsCanvas<CANVAS>
-void VulkanGraphicsWindow<WINDOW, CANVAS>::endDrawing()
+void VulkanGraphicsWindow<WINDOW, CANVAS>::endDrawing(bool isClosing)
 {
     //std::cout << "EndDrawing" << std::endl;
     if (renderManager->isDrawable()) {
-        canvas->endPaint();
+        canvas->endPaint(isClosing);
     }
-    renderManager->endDrawing();
+    renderManager->endDrawing(isClosing);
 }
 
 template <typename WINDOW, typename CANVAS> requires SupportsVulkanWindow<WINDOW> && IsCanvas<CANVAS>

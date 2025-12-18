@@ -65,6 +65,10 @@ public:
     template <typename TPushConstant>
     void sendPushConstants(VulkPipelineLayout& layout, TPushConstant& pushConstants)
     {
+        if (!this->commandBuffer->getHasBegun()) {
+            throw std::logic_error("trying to send push consts when not begun");
+        }
+
         device.fn.vkCmdPushConstants(*commandBuffer, layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(TPushConstant), &pushConstants);
     }
 
@@ -198,8 +202,8 @@ public:
         return addPipeline(shaders, layout, vertexInfo.info(), topology, is3d);
     }
 
-    void beginDrawing(bool wasResized);
-    void endDrawing();
+    bool beginDrawing(bool wasResized);
+    void endDrawing(bool isClosing);
 
     bool isDrawable() const { return swapChain->hasSwapChain(); }   // false probably means we're minimized
 

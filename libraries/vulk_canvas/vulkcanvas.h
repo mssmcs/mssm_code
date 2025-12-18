@@ -172,7 +172,7 @@ public:
     void drawTimeStats();
     void setEllipseMode(bool daniel);
     void beginPaint() override;
-    void endPaint() override;
+    void endPaint(bool isClosing) override;
     virtual int width() override;
     virtual int height() override;
     virtual void setBackground(mssm::Color c) override;
