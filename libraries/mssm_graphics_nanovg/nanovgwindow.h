@@ -88,15 +88,15 @@ public:
                                              double startX,
                                              const std::string &text) override;
     void point(Vec2d pos, mssm::Color c = mssm::WHITE) override;
-    void image(Vec2d pos, const mssm::Image &img) override;
-    void image(Vec2d pos, const mssm::Image &img, Vec2d src, int srcw, int srch) override;
-    void image(Vec2d pos, double w, double h, const mssm::Image &img) override;
-    void image(Vec2d pos, double w, double h, const mssm::Image &img, Vec2d src, int srcw, int srch)
+    void image(Vec2d pos, const mssm::Image &img, double alpha = 1.0) override;
+    void image(Vec2d pos, const mssm::Image &img, Vec2d src, int srcw, int srch, double alpha = 1.0) override;
+    void image(Vec2d pos, double w, double h, const mssm::Image &img, double alpha = 1.0) override;
+    void image(Vec2d pos, double w, double h, const mssm::Image &img, Vec2d src, int srcw, int srch, double alpha = 1.0)
         override;
-    void imageC(Vec2d center, double angle, const mssm::Image &img) override;
+    void imageC(Vec2d center, double angle, const mssm::Image &img, double alpha = 1.0) override;
     void imageC(
-        Vec2d center, double angle, const mssm::Image &img, Vec2d src, int srcw, int srch) override;
-    void imageC(Vec2d center, double angle, double w, double h, const mssm::Image &img) override;
+        Vec2d center, double angle, const mssm::Image &img, Vec2d src, int srcw, int srch, double alpha = 1.0) override;
+    void imageC(Vec2d center, double angle, double w, double h, const mssm::Image &img, double alpha = 1.0) override;
     void imageC(Vec2d center,
                 double angle,
                 double w,
@@ -104,7 +104,7 @@ public:
                 const mssm::Image &img,
                 Vec2d src,
                 int srcw,
-                int srch) override;
+                int srch, double alpha = 1.0) override;
     bool isClipped(Vec2d pos) const override;
     void pushClip(int x, int y, int w, int h, bool replace) override;
     void popClip() override;

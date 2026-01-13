@@ -41,14 +41,14 @@ public:
     virtual void textExtents(const FontInfo& sizeAndFace, const std::string &str, TextExtents &extents) override;
     virtual double textWidth(const FontInfo& sizeAndFace, const std::string &str) override;
     virtual void point(Vec2d pos, Color c) override;
-    virtual void image(Vec2d pos, const Image &img) override;
-    virtual void image(Vec2d pos, const Image &img, Vec2d src, int srcw, int srch) override;
-    virtual void image(Vec2d pos, double w, double h, const Image &img) override;
-    virtual void image(Vec2d pos, double w, double h, const Image &img, Vec2d src, int srcw, int srch) override;
-    virtual void imageC(Vec2d center, double angle, const Image &img) override;
-    virtual void imageC(Vec2d center, double angle, const Image &img, Vec2d src, int srcw, int srch) override;
-    virtual void imageC(Vec2d center, double angle, double w, double h, const Image &img) override;
-    virtual void imageC(Vec2d center, double angle, double w, double h, const Image &img, Vec2d src, int srcw, int srch) override;
+    virtual void image(Vec2d pos, const Image &img, double alpha = 1.0) override;
+    virtual void image(Vec2d pos, const Image &img, Vec2d src, int srcw, int srch, double alpha = 1.0) override;
+    virtual void image(Vec2d pos, double w, double h, const Image &img, double alpha = 1.0) override;
+    virtual void image(Vec2d pos, double w, double h, const Image &img, Vec2d src, int srcw, int srch, double alpha = 1.0) override;
+    virtual void imageC(Vec2d center, double angle, const Image &img, double alpha = 1.0) override;
+    virtual void imageC(Vec2d center, double angle, const Image &img, Vec2d src, int srcw, int srch, double alpha = 1.0) override;
+    virtual void imageC(Vec2d center, double angle, double w, double h, const Image &img, double alpha = 1.0) override;
+    virtual void imageC(Vec2d center, double angle, double w, double h, const Image &img, Vec2d src, int srcw, int srch, double alpha = 1.0) override;
 
     std::string toString(mssm::Color color) const;
 

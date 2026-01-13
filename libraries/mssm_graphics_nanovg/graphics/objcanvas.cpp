@@ -111,34 +111,34 @@ void mssm::ObjCanvas::point(Vec2d pos, Color c)
 {
 }
 
-void mssm::ObjCanvas::image(Vec2d pos, const Image &img)
+void mssm::ObjCanvas::image(Vec2d pos, const Image &img, double alpha)
 {
 }
 
-void mssm::ObjCanvas::image(Vec2d pos, const Image &img, Vec2d src, int srcw, int srch)
+void mssm::ObjCanvas::image(Vec2d pos, const Image &img, Vec2d src, int srcw, int srch, double alpha)
 {
 }
 
-void mssm::ObjCanvas::image(Vec2d pos, double w, double h, const Image &img)
+void mssm::ObjCanvas::image(Vec2d pos, double w, double h, const Image &img, double alpha)
 {
 }
 
-void mssm::ObjCanvas::image(Vec2d pos, double w, double h, const Image &img, Vec2d src, int srcw, int srch)
+void mssm::ObjCanvas::image(Vec2d pos, double w, double h, const Image &img, Vec2d src, int srcw, int srch, double alpha)
 {
 }
 
-void mssm::ObjCanvas::imageC(Vec2d center, double angle, const Image &img)
+void mssm::ObjCanvas::imageC(Vec2d center, double angle, const Image &img, double alpha)
 {
 }
 
-void mssm::ObjCanvas::imageC(Vec2d center, double angle, const Image &img, Vec2d src, int srcw, int srch)
+void mssm::ObjCanvas::imageC(Vec2d center, double angle, const Image &img, Vec2d src, int srcw, int srch, double alpha)
 {
 }
 
-void mssm::ObjCanvas::imageC(Vec2d center, double angle, double w, double h, const Image &img)
+void mssm::ObjCanvas::imageC(Vec2d center, double angle, double w, double h, const Image &img, double alpha)
 {
 }
 
-void mssm::ObjCanvas::imageC(Vec2d center, double angle, double w, double h, const Image &img, Vec2d src, int srcw, int srch)
+void mssm::ObjCanvas::imageC(Vec2d center, double angle, double w, double h, const Image &img, Vec2d src, int srcw, int srch, double alpha)
 {
 }

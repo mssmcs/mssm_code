@@ -50,6 +50,7 @@ namespace mssm {
     public: // TODO: hack
         std::shared_ptr<ImageInternal> img;
     public:
+        Image(const Image& other);
         Image(ImageLoader& imageLoader);
         Image(ImageLoader& imageLoader, const std::string &filename, bool cachePixels = false);
         Image(ImageLoader& imageLoader, int width, int height, mssm::Color c, bool cachePixels = false);
@@ -63,6 +64,7 @@ namespace mssm {
         int width() const { return img->width(); }
         int height() const { return img->height(); }
         uint32_t textureIndex() const { return img->textureIndex(); }
+        Image& operator=(const mssm::Image& other);
     };
 
 }

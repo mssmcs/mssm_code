@@ -630,16 +630,22 @@ void VulkCanvas::point(Vec2d pos, mssm::Color color)
     dc->commandBuffer->draw(1, 1, startIdx, 0);
 }
 
-void VulkCanvas::image(Vec2d pos, const mssm::Image &img)
+void VulkCanvas::image(Vec2d pos, const mssm::Image &img, double alpha)
 {
+    if (alpha != 1.0) {
+        throw std::logic_error("Image Alpha not implemented in vulkan");
+    }
     vTexturedRect->ensureSpace(1);
     auto idx = vTexturedRect->push(pos, static_cast<double>(img.width()), static_cast<double>(img.height()), WHITE, img.textureIndex()); // img.width(), img.height(), WHITE, WHITE);
     dc->cmdBindPipeline(this->plTexturedRect, pipelineDS);
     dc->commandBuffer->draw(4, 1, 0, idx);
 }
 
-void VulkCanvas::image(Vec2d pos, const mssm::Image &img, Vec2d src, int srcw, int srch)
+void VulkCanvas::image(Vec2d pos, const mssm::Image &img, Vec2d src, int srcw, int srch, double alpha)
 {
+    if (alpha != 1.0) {
+        throw std::logic_error("Image Alpha not implemented in vulkan");
+    }
     vTexturedRectUV->ensureSpace(1);
     Vec2f fPos(pos);
     Vec2f fSize(srcw, srch);
@@ -652,16 +658,22 @@ void VulkCanvas::image(Vec2d pos, const mssm::Image &img, Vec2d src, int srcw, i
 
 }
 
-void VulkCanvas::image(Vec2d pos, double w, double h, const mssm::Image &img)
+void VulkCanvas::image(Vec2d pos, double w, double h, const mssm::Image &img, double alpha)
 {
+    if (alpha != 1.0) {
+        throw std::logic_error("Image Alpha not implemented in vulkan");
+    }
     vTexturedRect->ensureSpace(1);
     auto idx = vTexturedRect->push(pos, w, h, WHITE, img.textureIndex()); // img.width(), img.height(), WHITE, WHITE);
     dc->cmdBindPipeline(this->plTexturedRect, pipelineDS);
     dc->commandBuffer->draw(4, 1, 0, idx);
 }
 
-void VulkCanvas::image(Vec2d pos, double w, double h, const mssm::Image &img, Vec2d src, int srcw, int srch)
+void VulkCanvas::image(Vec2d pos, double w, double h, const mssm::Image &img, Vec2d src, int srcw, int srch, double alpha)
 {
+    if (alpha != 1.0) {
+        throw std::logic_error("Image Alpha not implemented in vulkan");
+    }
     vTexturedRectUV->ensureSpace(1);
     Vec2f fPos(pos);
     Vec2f fSize(w, h);
@@ -673,26 +685,26 @@ void VulkCanvas::image(Vec2d pos, double w, double h, const mssm::Image &img, Ve
     dc->commandBuffer->draw(4, 1, 0, idx);
 }
 
-void VulkCanvas::imageC(Vec2d center, double angle, const mssm::Image &img)
+void VulkCanvas::imageC(Vec2d center, double angle, const mssm::Image &img, double alpha)
 {
     setModelMatrixRotate(center, angle);
-    image(center - Vec2d{img.width()/2, img.height()/2}, img);
+    image(center - Vec2d{img.width()/2, img.height()/2}, img, alpha);
     resetModelMatrix();
 //    ellipse(center, 10,10,WHITE, TRANS);
 }
 
-void VulkCanvas::imageC(Vec2d center, double angle, const mssm::Image &img, Vec2d src, int srcw, int srch)
+void VulkCanvas::imageC(Vec2d center, double angle, const mssm::Image &img, Vec2d src, int srcw, int srch, double alpha)
 {
     setModelMatrixRotate(center, angle);
-    image(center - Vec2d{img.width()/2, img.height()/2}, img, src, srcw, srch);
+    image(center - Vec2d{img.width()/2, img.height()/2}, img, src, srcw, srch, alpha);
     resetModelMatrix();
 //    ellipse(center, 10,10,WHITE, TRANS);
 }
 
-void VulkCanvas::imageC(Vec2d center, double angle, double w, double h, const mssm::Image &img)
+void VulkCanvas::imageC(Vec2d center, double angle, double w, double h, const mssm::Image &img, double alpha)
 {
     setModelMatrixRotate(center, angle);
-    image(center - Vec2d{w/2, h/2}, w, h, img);
+    image(center - Vec2d{w/2, h/2}, w, h, img, alpha);
     resetModelMatrix();
 //    ellipse(center, 10,10,WHITE, TRANS);
 }
@@ -704,10 +716,10 @@ void VulkCanvas::imageC(Vec2d center,
                         const mssm::Image &img,
                         Vec2d src,
                         int srcw,
-                        int srch)
+                        int srch, double alpha)
 {
     setModelMatrixRotate(center, angle);
-    image(center - Vec2d{w/2, h/2}, w, h, img, src, srcw, srch);
+    image(center - Vec2d{w/2, h/2}, w, h, img, src, srcw, srch, alpha);
     resetModelMatrix();
 //    ellipse(center, 10,10,WHITE, TRANS);
 }

@@ -110,14 +110,14 @@ public:
     virtual double textWidth(const FontInfo& sizeAndFace, const std::string& str) = 0;
     virtual std::vector<double> getCharacterXOffsets(const FontInfo& sizeAndFace, double startX, const std::string& text) = 0;
     virtual void   point(Vec2d pos, mssm::Color c) = 0;
-    virtual void   image(Vec2d pos, const Image& img) = 0;
-    virtual void   image(Vec2d pos, const Image& img, Vec2d src, int srcw, int srch) = 0;
-    virtual void   image(Vec2d pos, double w, double h, const Image& img) = 0;
-    virtual void   image(Vec2d pos, double w, double h, const Image& img, Vec2d src, int srcw, int srch) = 0;
-    virtual void   imageC(Vec2d center, double angle, const Image& img) = 0;
-    virtual void   imageC(Vec2d center, double angle, const Image& img, Vec2d src, int srcw, int srch) = 0;
-    virtual void   imageC(Vec2d center, double angle, double w, double h, const Image& img) = 0;
-    virtual void   imageC(Vec2d center, double angle, double w, double h, const Image& img, Vec2d src, int srcw, int srch) = 0;
+    virtual void   image(Vec2d pos, const Image& img, double alpha = 1.0) = 0;
+    virtual void   image(Vec2d pos, const Image& img, Vec2d src, int srcw, int srch, double alpha = 1.0) = 0;
+    virtual void   image(Vec2d pos, double w, double h, const Image& img, double alpha = 1.0) = 0;
+    virtual void   image(Vec2d pos, double w, double h, const Image& img, Vec2d src, int srcw, int srch, double alpha = 1.0) = 0;
+    virtual void   imageC(Vec2d center, double angle, const Image& img, double alpha = 1.0) = 0;
+    virtual void   imageC(Vec2d center, double angle, const Image& img, Vec2d src, int srcw, int srch, double alpha = 1.0) = 0;
+    virtual void   imageC(Vec2d center, double angle, double w, double h, const Image& img, double alpha = 1.0) = 0;
+    virtual void   imageC(Vec2d center, double angle, double w, double h, const Image& img, Vec2d src, int srcw, int srch, double alpha = 1.0) = 0;
 
     virtual bool isClipped(Vec2d pos) const = 0;
     virtual void pushClip(int x, int y, int w, int h, bool replace) = 0;
@@ -171,15 +171,15 @@ public:
                                              const std::string &text) override
     { return canvas->getCharacterXOffsets(sizeAndFace, startX, text); }
     void point(Vec2d pos, Color c) override { canvas->point(pos, c); }
-    void image(Vec2d pos, const Image &img) override { canvas->image(pos, img); }
-    void image(Vec2d pos, const Image &img, Vec2d src, int srcw, int srch) override { canvas->image(pos, img, src, srcw, srch); }
-    void image(Vec2d pos, double w, double h, const Image &img) override { canvas->image(pos, w, h, img); }
-    void image(Vec2d pos, double w, double h, const Image &img, Vec2d src, int srcw, int srch) override
-    { canvas->image(pos, w, h, img, src, srcw, srch); }
-    void imageC(Vec2d center, double angle, const Image &img) override { canvas->imageC(center, angle, img); }
-    void imageC(Vec2d center, double angle, const Image &img, Vec2d src, int srcw, int srch) override
-    { canvas->imageC(center, angle, img, src, srcw, srch); }
-    void imageC(Vec2d center, double angle, double w, double h, const Image &img) override { canvas->imageC(center, angle, w, h, img); }
+    void image(Vec2d pos, const Image &img, double alpha = 1.0) override { canvas->image(pos, img, alpha); }
+    void image(Vec2d pos, const Image &img, Vec2d src, int srcw, int srch, double alpha = 1.0) override { canvas->image(pos, img, src, srcw, srch, alpha); }
+    void image(Vec2d pos, double w, double h, const Image &img, double alpha = 1.0) override { canvas->image(pos, w, h, img, alpha); }
+    void image(Vec2d pos, double w, double h, const Image &img, Vec2d src, int srcw, int srch, double alpha = 1.0) override
+    { canvas->image(pos, w, h, img, src, srcw, srch, alpha); }
+    void imageC(Vec2d center, double angle, const Image &img, double alpha = 1.0) override { canvas->imageC(center, angle, img, alpha); }
+    void imageC(Vec2d center, double angle, const Image &img, Vec2d src, int srcw, int srch, double alpha = 1.0) override
+    { canvas->imageC(center, angle, img, src, srcw, srch, alpha); }
+    void imageC(Vec2d center, double angle, double w, double h, const Image &img, double alpha = 1.0) override { canvas->imageC(center, angle, w, h, img, alpha); }
     void imageC(Vec2d center,
                 double angle,
                 double w,
@@ -187,8 +187,8 @@ public:
                 const Image &img,
                 Vec2d src,
                 int srcw,
-                int srch) override
-    { canvas->imageC(center, angle, w, h, img, src, srcw, srch); }
+                int srch, double alpha = 1.0) override
+    { canvas->imageC(center, angle, w, h, img, src, srcw, srch, alpha); }
     bool isClipped(Vec2d pos) const override { return canvas->isClipped(pos); }
     void pushClip(int x, int y, int w, int h, bool replace) override { canvas->pushClip(x, y, w, h, replace); }
     void popClip() override { canvas->popClip(); }

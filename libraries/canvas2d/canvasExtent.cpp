@@ -169,60 +169,60 @@ void ExtentWrapper::point(Vec2d pos, mssm::Color c) {
     g.point(pos, c);
 }
 
-void ExtentWrapper::image(Vec2d pos, const mssm::Image &img) {
+void ExtentWrapper::image(Vec2d pos, const mssm::Image &img, double alpha) {
     extend(pos);
     extend(Vec2d(pos.x + img.width(), pos.y + img.height()));
-    g.image(pos, img);
+    g.image(pos, img, alpha);
 }
 
-void ExtentWrapper::image(Vec2d pos, const mssm::Image &img, Vec2d src, int srcw, int srch) {
+void ExtentWrapper::image(Vec2d pos, const mssm::Image &img, Vec2d src, int srcw, int srch, double alpha) {
     extend(pos);
     extend(Vec2d(pos.x + srcw, pos.y + srch));
-    g.image(pos, img, src, srcw, srch);
+    g.image(pos, img, src, srcw, srch, alpha);
 }
 
-void ExtentWrapper::image(Vec2d pos, double w, double h, const mssm::Image &img) {
+void ExtentWrapper::image(Vec2d pos, double w, double h, const mssm::Image &img, double alpha) {
     extend(pos);
     extend(Vec2d(pos.x + w, pos.y + h));
-    g.image(pos, w, h, img);
+    g.image(pos, w, h, img, alpha);
 }
 
-void ExtentWrapper::image(Vec2d pos, double w, double h, const mssm::Image &img, Vec2d src, int srcw, int srch) {
+void ExtentWrapper::image(Vec2d pos, double w, double h, const mssm::Image &img, Vec2d src, int srcw, int srch, double alpha) {
     extend(pos);
     extend(Vec2d(pos.x + w, pos.y + h));
-    g.image(pos, w, h, img, src, srcw, srch);
+    g.image(pos, w, h, img, src, srcw, srch, alpha);
 }
 
-void ExtentWrapper::imageC(Vec2d center, double angle, const mssm::Image &img) {
+void ExtentWrapper::imageC(Vec2d center, double angle, const mssm::Image &img, double alpha) {
     // For rotated images, we use the enclosing circle as an approximation
     double radius = std::sqrt(img.width() * img.width() + img.height() * img.height()) / 2;
     extend(Vec2d(center.x - radius, center.y - radius));
     extend(Vec2d(center.x + radius, center.y + radius));
-    g.imageC(center, angle, img);
+    g.imageC(center, angle, img, alpha);
 }
 
-void ExtentWrapper::imageC(Vec2d center, double angle, const mssm::Image &img, Vec2d src, int srcw, int srch) {
+void ExtentWrapper::imageC(Vec2d center, double angle, const mssm::Image &img, Vec2d src, int srcw, int srch, double alpha) {
     // For rotated images, we use the enclosing circle as an approximation
     double radius = std::sqrt(srcw * srcw + srch * srch) / 2;
     extend(Vec2d(center.x - radius, center.y - radius));
     extend(Vec2d(center.x + radius, center.y + radius));
-    g.imageC(center, angle, img, src, srcw, srch);
+    g.imageC(center, angle, img, src, srcw, srch, alpha);
 }
 
-void ExtentWrapper::imageC(Vec2d center, double angle, double w, double h, const mssm::Image &img) {
+void ExtentWrapper::imageC(Vec2d center, double angle, double w, double h, const mssm::Image &img, double alpha) {
     // For rotated images, we use the enclosing circle as an approximation
     double radius = std::sqrt(w * w + h * h) / 2;
     extend(Vec2d(center.x - radius, center.y - radius));
     extend(Vec2d(center.x + radius, center.y + radius));
-    g.imageC(center, angle, w, h, img);
+    g.imageC(center, angle, w, h, img, alpha);
 }
 
-void ExtentWrapper::imageC(Vec2d center, double angle, double w, double h, const mssm::Image &img, Vec2d src, int srcw, int srch) {
+void ExtentWrapper::imageC(Vec2d center, double angle, double w, double h, const mssm::Image &img, Vec2d src, int srcw, int srch, double alpha) {
     // For rotated images, we use the enclosing circle as an approximation
     double radius = std::sqrt(w * w + h * h) / 2;
     extend(Vec2d(center.x - radius, center.y - radius));
     extend(Vec2d(center.x + radius, center.y + radius));
-    g.imageC(center, angle, w, h, img, src, srcw, srch);
+    g.imageC(center, angle, w, h, img, src, srcw, srch, alpha);
 }
 
 bool ExtentWrapper::isClipped(Vec2d pos) const {

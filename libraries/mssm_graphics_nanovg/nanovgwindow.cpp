@@ -152,8 +152,9 @@ void NanovgWindow::saveImg(std::shared_ptr<mssm::ImageInternal> img, std::string
 
 void NanovgWindow::queueForDestruction(std::shared_ptr<mssm::ImageInternal> img)
 {
+  //  std::cout << "Not implemented NanovgWindow::queueForDestruction" << std::endl;
     // TODO: what should we do here
-    throw std::logic_error("Not implemented NanovgWindow::queueForDestruction");
+//    throw std::logic_error("Not implemented NanovgWindow::queueForDestruction");
 }
 
 void NanovgWindow::polygonPattern(const std::vector<Vec2d> &points, mssm::Color c, mssm::Color f)
@@ -196,6 +197,7 @@ ImageInternalVG::~ImageInternalVG()
     if (vgImageIdx) {
         nvgDeleteImage(vg, vgImageIdx);
     }
+    freeCachedPixels();
 }
 
 void ImageInternalVG::freeCachedPixels()
@@ -586,13 +588,13 @@ void NanovgWindow::endDrawing(bool isClosing)
 //     }
 // }
 
-void NanovgWindow::image(Vec2d pos, const mssm::Image& img)
+void NanovgWindow::image(Vec2d pos, const mssm::Image& img, double alpha)
 {
     keepImages.push_back(img.img);
 
     const float w = img.width();
     const float h = img.height();
-    NVGpaint ip = nvgImagePattern(vg, pos.x, pos.y, w, h, 0.0f, img.textureIndex(), 1.0f);
+    NVGpaint ip = nvgImagePattern(vg, pos.x, pos.y, w, h, 0.0f, img.textureIndex(), alpha);
     nvgSave(vg);
     nvgBeginPath(vg);
     nvgRect(vg, pos.x, pos.y, w, h);
@@ -601,7 +603,7 @@ void NanovgWindow::image(Vec2d pos, const mssm::Image& img)
     nvgRestore(vg);
 }
 
-void NanovgWindow::image(Vec2d pos, const mssm::Image& img, Vec2d src, int srcw, int srch)
+void NanovgWindow::image(Vec2d pos, const mssm::Image& img, Vec2d src, int srcw, int srch, double alpha)
 {
     keepImages.push_back(img.img);
 
@@ -615,7 +617,7 @@ void NanovgWindow::image(Vec2d pos, const mssm::Image& img, Vec2d src, int srcw,
     float startY = pos.y - src.y * ratioy;
     float pw = img.width()  * ratiox;
     float ph = img.height() * ratioy;
-    NVGpaint ip = nvgImagePattern(vg, startX, startY, pw, ph, 0.0f, img.textureIndex(), 1.0f);
+    NVGpaint ip = nvgImagePattern(vg, startX, startY, pw, ph, 0.0f, img.textureIndex(), alpha);
     nvgSave(vg);
     nvgBeginPath(vg);
     nvgRect(vg, pos.x, pos.y, w, h);
@@ -624,7 +626,7 @@ void NanovgWindow::image(Vec2d pos, const mssm::Image& img, Vec2d src, int srcw,
     nvgRestore(vg);
 }
 
-void NanovgWindow::image(Vec2d pos, double w, double h, const mssm::Image& img)
+void NanovgWindow::image(Vec2d pos, double w, double h, const mssm::Image& img, double alpha)
 {
     keepImages.push_back(img.img);
 
@@ -636,7 +638,7 @@ void NanovgWindow::image(Vec2d pos, double w, double h, const mssm::Image& img)
     }
     //   _checkAlignPixelsAdjust(&dx, &dy);
     //   _checkAlignPixels(&dw, &dh);
-    NVGpaint ip = nvgImagePattern(vg, pos.x, pos.y, w, h, 0.0f, img.textureIndex(), 1.0f);
+    NVGpaint ip = nvgImagePattern(vg, pos.x, pos.y, w, h, 0.0f, img.textureIndex(), alpha);
     nvgSave(vg);
     nvgBeginPath(vg);
     nvgRect(vg, pos.x, pos.y, w, h);
@@ -645,7 +647,7 @@ void NanovgWindow::image(Vec2d pos, double w, double h, const mssm::Image& img)
     nvgRestore(vg);
 }
 
-void NanovgWindow::image(Vec2d pos, double w, double h, const mssm::Image& img, Vec2d src, int srcw, int srch)
+void NanovgWindow::image(Vec2d pos, double w, double h, const mssm::Image& img, Vec2d src, int srcw, int srch, double alpha)
 {
     keepImages.push_back(img.img);
 
@@ -663,7 +665,7 @@ void NanovgWindow::image(Vec2d pos, double w, double h, const mssm::Image& img, 
     float startY = pos.y - src.y * ratioy;
     float pw = img.width()  * ratiox;
     float ph = img.height() * ratioy;
-    NVGpaint ip = nvgImagePattern(vg, startX, startY, pw, ph, 0.0f, img.textureIndex(), 1.0f);
+    NVGpaint ip = nvgImagePattern(vg, startX, startY, pw, ph, 0.0f, img.textureIndex(), alpha);
     nvgSave(vg);
     nvgBeginPath(vg);
     nvgRect(vg, pos.x, pos.y, w, h);
@@ -672,7 +674,7 @@ void NanovgWindow::image(Vec2d pos, double w, double h, const mssm::Image& img, 
     nvgRestore(vg);
 }
 
-void NanovgWindow::imageC(Vec2d center, double angle, const mssm::Image& img)
+void NanovgWindow::imageC(Vec2d center, double angle, const mssm::Image& img, double alpha)
 {
     keepImages.push_back(img.img);
 
@@ -680,7 +682,7 @@ void NanovgWindow::imageC(Vec2d center, double angle, const mssm::Image& img)
     const float h = img.height();
     const float offx = -w/2;
     const float offy = -h/2;
-    NVGpaint ip = nvgImagePattern(vg, offx, offy, w, h, 0.0f, img.textureIndex(), 1.0f);
+    NVGpaint ip = nvgImagePattern(vg, offx, offy, w, h, 0.0f, img.textureIndex(), alpha);
     nvgSave(vg);
     nvgTranslate(vg, center.x, center.y);
     if (angle != 0) {
@@ -693,7 +695,7 @@ void NanovgWindow::imageC(Vec2d center, double angle, const mssm::Image& img)
     nvgRestore(vg);
 }
 
-void NanovgWindow::imageC(Vec2d center, double angle, const mssm::Image& img, Vec2d src, int srcw, int srch)
+void NanovgWindow::imageC(Vec2d center, double angle, const mssm::Image& img, Vec2d src, int srcw, int srch, double alpha)
 {
     keepImages.push_back(img.img);
 
@@ -707,7 +709,7 @@ void NanovgWindow::imageC(Vec2d center, double angle, const mssm::Image& img, Ve
     float startY = offy - src.y * ratioy;
     float pw = img.width()  * ratiox;
     float ph = img.height() * ratioy;
-    NVGpaint ip = nvgImagePattern(vg, startX, startY, pw, ph, 0.0f, img.textureIndex(), 1.0f);
+    NVGpaint ip = nvgImagePattern(vg, startX, startY, pw, ph, 0.0f, img.textureIndex(), alpha);
     nvgSave(vg);
     nvgTranslate(vg, center.x, center.y);
     if (angle != 0) {
@@ -720,13 +722,13 @@ void NanovgWindow::imageC(Vec2d center, double angle, const mssm::Image& img, Ve
     nvgRestore(vg);
 }
 
-void NanovgWindow::imageC(Vec2d center, double angle, double w, double h, const mssm::Image& img)
+void NanovgWindow::imageC(Vec2d center, double angle, double w, double h, const mssm::Image& img, double alpha)
 {
     keepImages.push_back(img.img);
 
     const float offx = -w/2;
     const float offy = -h/2;
-    NVGpaint ip = nvgImagePattern(vg, offx, offy, w, h, 0.0f, img.textureIndex(), 1.0f);
+    NVGpaint ip = nvgImagePattern(vg, offx, offy, w, h, 0.0f, img.textureIndex(), alpha);
     nvgSave(vg);
     nvgTranslate(vg, center.x, center.y);
     if (angle != 0) {
@@ -739,7 +741,7 @@ void NanovgWindow::imageC(Vec2d center, double angle, double w, double h, const 
     nvgRestore(vg);
 }
 
-void NanovgWindow::imageC(Vec2d center, double angle, double w, double h, const mssm::Image &img, Vec2d src, int srcw, int srch)
+void NanovgWindow::imageC(Vec2d center, double angle, double w, double h, const mssm::Image &img, Vec2d src, int srcw, int srch, double alpha)
 {
     keepImages.push_back(img.img);
 
@@ -753,7 +755,7 @@ void NanovgWindow::imageC(Vec2d center, double angle, double w, double h, const 
     float startY = offy - src.y * ratioy;
     float pw = img.width()  * ratiox;
     float ph = img.height() * ratioy;
-    NVGpaint ip = nvgImagePattern(vg, startX, startY, pw, ph, 0.0f, img.textureIndex(), 1.0f);
+    NVGpaint ip = nvgImagePattern(vg, startX, startY, pw, ph, 0.0f, img.textureIndex(), alpha);
     nvgSave(vg);
     nvgTranslate(vg, center.x, center.y);
     if (angle != 0) {

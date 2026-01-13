@@ -225,21 +225,21 @@ public:
     virtual double textWidth(const FontInfo &sizeAndFace, const std::string &str) override;
     std::vector<double> getCharacterXOffsets(const FontInfo& sizeAndFace, double startX, const std::string& text) override;
     virtual void point(Vec2d pos, mssm::Color c) override;
-    virtual void image(Vec2d pos, const mssm::Image &img) override;
-    virtual void image(Vec2d pos, const mssm::Image &img, Vec2d src, int srcw, int srch) override;
-    virtual void image(Vec2d pos, double w, double h, const mssm::Image &img) override;
+    virtual void image(Vec2d pos, const mssm::Image &img, double alpha = 1.0) override;
+    virtual void image(Vec2d pos, const mssm::Image &img, Vec2d src, int srcw, int srch, double alpha = 1.0) override;
+    virtual void image(Vec2d pos, double w, double h, const mssm::Image &img, double alpha = 1.0) override;
     virtual void image(Vec2d pos,
                        double w,
                        double h,
                        const mssm::Image &img,
                        Vec2d src,
                        int srcw,
-                       int srch) override;
-    virtual void imageC(Vec2d center, double angle, const mssm::Image &img) override;
+                       int srch, double alpha = 1.0) override;
+    virtual void imageC(Vec2d center, double angle, const mssm::Image &img, double alpha = 1.0) override;
     virtual void imageC(
-        Vec2d center, double angle, const mssm::Image &img, Vec2d src, int srcw, int srch) override;
+        Vec2d center, double angle, const mssm::Image &img, Vec2d src, int srcw, int srch, double alpha = 1.0) override;
     virtual void imageC(
-        Vec2d center, double angle, double w, double h, const mssm::Image &img) override;
+        Vec2d center, double angle, double w, double h, const mssm::Image &img, double alpha = 1.0) override;
     virtual void imageC(Vec2d center,
                         double angle,
                         double w,
@@ -247,7 +247,7 @@ public:
                         const mssm::Image &img,
                         Vec2d src,
                         int srcw,
-                        int srch) override;
+                        int srch, double alpha = 1.0) override;
     bool isClipped(Vec2d pos) const override;
     void setClip(int x, int y, int w, int h) override;
     void resetClip() override;
