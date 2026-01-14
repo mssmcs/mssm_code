@@ -178,6 +178,11 @@ void LayoutManager::draw(mssm::CoreWindow& window, mssm::Canvas2d &g)
     }
 }
 
+LayoutPtr LayoutManager::findByName(std::string name)
+{
+    return layout->findByName(name);
+}
+
 LayoutBase::EvtProp LayoutManager::propagateMouse(const PropertyBag &parentProps, const RectI &clip, MouseEvt &evt)
 {
     LayoutBase::EvtProp res = LayoutBase::EvtProp::propagate;

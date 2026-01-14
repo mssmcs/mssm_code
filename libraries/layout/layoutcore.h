@@ -195,6 +195,8 @@ public:
     virtual ~LayoutBase() = default;
     virtual std::string getTypeStr() const = 0;
     virtual void setParent(LayoutBase* parent);
+    std::string getName() const { return name; }
+    void setName(std::string nm) { name = nm; }
     void updateLayer(int layer, int depth);
     int getLayer() const { return layer; }
     int getDepth() const { return depth; }
@@ -239,6 +241,8 @@ public:
             f(curr);
         }
     }
+
+    LayoutPtr findByName(std::string name);
 
     void traversePreOrder(std::function<void(LayoutBase*)> f, bool includeOverlay, bool includeCollapsed);
     void traversePostorder(std::function<void(LayoutBase*)> f, bool includeOverlay, bool includeCollapsed);
@@ -299,6 +303,7 @@ public:
     bool getCollapsed() const { return isCollapsed; }
 };
 
+// TODO: what is the point of this class?
 class LayoutWithContent : public LayoutBase {
 protected:
     RectI contentRect;

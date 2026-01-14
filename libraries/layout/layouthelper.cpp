@@ -3,14 +3,14 @@
 LayoutHelper::HStack::operator LayoutHelper::Builder() const
 {
     auto tmp = children;
-    ConfigFunc config = this->config;
+    auto config = this->config;
     return [tmp, config](LayoutContext* context) {
         std::vector<LayoutPtr> kids;
         for (auto& c : tmp) {
             kids.push_back(c(context));
         }
         auto widget = LayoutStacked::make(context, true, Justify::begin, CrossJustify::stretch, kids);
-        if (config) config(widget.get());
+        config.applyTo(widget);
         return widget;
     };
 }
@@ -18,14 +18,14 @@ LayoutHelper::HStack::operator LayoutHelper::Builder() const
 LayoutHelper::VStack::operator LayoutHelper::Builder() const
 {
     auto tmp = children;
-    ConfigFunc config = this->config;
+    auto config = this->config;
     return [tmp, config](LayoutContext* context) {
         std::vector<LayoutPtr> kids;
         for (auto& c : tmp) {
             kids.push_back(c(context));
         }
         auto widget = LayoutStacked::make(context, false, Justify::begin, CrossJustify::stretch, kids);
-        if (config) config(widget.get());
+        config.applyTo(widget);
         return widget;
     };
 }
@@ -45,14 +45,14 @@ LayoutHelper::GridRowWrapper::operator LayoutHelper::GridRowBuilder() const
 LayoutHelper::Grid::operator LayoutHelper::Builder() const
 {
     auto tmp = children;
-    ConfigFunc config = this->config;
+    auto config = this->config;
     return [tmp, config](LayoutContext* context) {
         std::vector<LayoutGridRowPtr> kids;
         for (auto& c : tmp) {
             kids.push_back(c(context));
         }
         auto widget = LayoutGrid::make(context, kids);
-        if (config) config(widget.get());
+        config.applyTo(widget);
         return widget;
     };
 }
@@ -78,7 +78,7 @@ Builder operator/(Wrapper aw, Wrapper bw) {
 HTabs::operator Builder() const
 {
     auto tmp = children;
-    ConfigFunc config = this->config;
+    auto config = this->config;
 
     return [tmp, config](LayoutContext* context) {
         std::vector<LayoutPtr> kids;
@@ -86,7 +86,7 @@ HTabs::operator Builder() const
             kids.push_back(c(context));
         }
         auto widget = LayoutTabs::make(context, true, kids);
-        if (config) config(widget.get());
+        config.applyTo(widget);
         return widget;
     };
 }
@@ -94,7 +94,7 @@ HTabs::operator Builder() const
 VTabs::operator Builder() const
 {
     auto tmp = children;
-    ConfigFunc config = this->config;
+    auto config = this->config;
 
     return [tmp, config](LayoutContext* context) {
         std::vector<LayoutPtr> kids;
@@ -102,7 +102,7 @@ VTabs::operator Builder() const
             kids.push_back(c(context));
         }
         auto widget = LayoutTabs::make(context, false, kids);
-        if (config) config(widget.get());
+        config.applyTo(widget);
         return widget;
     };
 }
@@ -111,10 +111,10 @@ HSplit::operator Builder() const
 {
     Builder left = this->left;
     Builder right = this->right;
-    ConfigFunc config = this->config;
+    auto config = this->config;
     return [left, right, config](LayoutContext *context) {
         auto widget = LayoutSplitter::make(context, true, left(context), right(context));
-        if (config) config(widget.get());
+        config.applyTo(widget);
         return widget;
     };
 }
@@ -123,10 +123,10 @@ VSplit::operator Builder() const
 {
     Builder top = this->top;
     Builder bottom = this->bottom;
-    ConfigFunc config = this->config;
+    auto config = this->config;
     return [top, bottom, config](LayoutContext *context) {
         auto widget = LayoutSplitter::make(context, false, top(context), bottom(context));
-        if (config) config(widget.get());
+        config.applyTo(widget);
         return widget;
     };
 }
@@ -134,10 +134,10 @@ VSplit::operator Builder() const
 Button::operator Builder() const
 {
     std::string txt = label;
-    ConfigFunc config = this->config;
+    auto config = this->config;
     return [txt, config](LayoutContext *context) {
         auto widget = LayoutButton::make(context, LayoutLabel::make(context, txt));
-        if (config) config(widget.get());
+        config.applyTo(widget);
         return widget;
     };
 }
@@ -148,10 +148,10 @@ Slider::operator Builder() const
     double minValue = this->minValue;
     double maxValue = this->maxValue;
     double value = this->value;
-    ConfigFunc config = this->config;
+    auto config = this->config;
     return [isHorizontal, minValue, maxValue, value, config](LayoutContext *context) {
         auto widget = LayoutSlider::make(context, isHorizontal, minValue, maxValue, value);
-        if (config) config(widget.get());
+        config.applyTo(widget);
         return widget;
     };
 }
@@ -159,10 +159,10 @@ Slider::operator Builder() const
 Scroll::operator Builder() const
 {
     Builder child = this->child;
-    ConfigFunc config = this->config;
+    auto config = this->config;
     return [child, config](LayoutContext *context) {
         auto widget = LayoutScroll::make(context, child(context));
-        if (config) config(widget.get());
+        config.applyTo(widget);
         return widget;
     };
 }
@@ -170,10 +170,22 @@ Scroll::operator Builder() const
 Panel::operator Builder() const
 {
     mssm::Color color = this->color;
-    ConfigFunc config = this->config;
-    return [color, config](LayoutContext *context) {
-        auto widget = LayoutColor::make(context, color);
-        if (config) config(widget.get());
+    auto bound = this->bound;
+    auto config = this->config;
+    return [color, config, bound](LayoutContext *context) {
+        auto widget = LayoutColor::make(context, color, bound);
+        config.applyTo(widget);
+        return widget;
+    };
+}
+
+ImagePanel::operator Builder() const
+{
+    mssm::Image image = this->image;
+    auto config = this->config;
+    return [image, config](LayoutContext *context) {
+        auto widget = LayoutImage::make(context, image);
+        config.applyTo(widget);
         return widget;
     };
 }
@@ -181,7 +193,7 @@ Panel::operator Builder() const
 HMenu::operator Builder() const
 {
     auto tmp = children;
-    ConfigFunc config = this->config;
+    auto config = this->config;
 
     return [tmp, config](LayoutContext* context) {
         std::vector<LayoutPtr> kids;
@@ -189,14 +201,14 @@ HMenu::operator Builder() const
             kids.push_back(c(context));
         }
         auto widget = LayoutMenu::make(context, true, kids);
-        if (config) config(widget.get());
+        config.applyTo(widget);
         return widget;
     };
 }
 
 VMenu::operator Builder() const {
     auto tmp = children;
-    ConfigFunc config = this->config;
+    auto config = this->config;
 
     return [tmp, config](LayoutContext* context) {
         std::vector<LayoutPtr> kids;
@@ -204,7 +216,7 @@ VMenu::operator Builder() const {
             kids.push_back(c(context));
         }
         auto widget = LayoutMenu::make(context, false, kids);
-        if (config) config(widget.get());
+        config.applyTo(widget);
         return widget;
     };
 }
@@ -212,11 +224,11 @@ VMenu::operator Builder() const {
 Flyout::operator Builder() const
 {
     auto tmp = children;
-    ConfigFunc config = this->config;
+    auto config = this->config;
 
     return [tmp, config](LayoutContext* context) {
         auto widget = LayoutFlyout::make(context, tmp[0](context), tmp[1](context));
-        if (config) config(widget.get());
+        config.applyTo(widget);
         return widget;
     };
 }
@@ -224,11 +236,11 @@ Flyout::operator Builder() const
 Expander::operator Builder() const
 {
     auto tmp = children;
-    ConfigFunc config = this->config;
+    auto config = this->config;
 
     return [tmp, config](LayoutContext* context) {
         auto widget = LayoutExpander::make(context, tmp[0](context), tmp[1](context));
-        if (config) config(widget.get());
+        config.applyTo(widget);
         return widget;
     };
 }

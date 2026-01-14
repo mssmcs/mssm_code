@@ -3,6 +3,7 @@
 
 #include "layoutcore.h"
 #include "texteditbox.h"
+#include "image.h"
 
 class LayoutLeaf : public LayoutBase {
 public:
@@ -32,10 +33,28 @@ class LayoutColor : public LayoutWithContent {
     mssm::Color color;
     SizeBound2d bound;
 public:
-    LayoutColor(Private privateTag, LayoutContext* context, mssm::Color color);
+    LayoutColor(Private privateTag, LayoutContext* context, mssm::Color color, SizeBound2d bound = {200,200,50,50});
     virtual ~LayoutColor();
+    static std::shared_ptr<LayoutColor> make(LayoutContext* context, mssm::Color color, SizeBound2d bound) { return std::make_shared<LayoutColor>(Private{}, context, color, bound); }
     static std::shared_ptr<LayoutColor> make(LayoutContext* context, mssm::Color color) { return std::make_shared<LayoutColor>(Private{}, context, color); }
     std::string getTypeStr() const override { return "Color"; }
+    void draw(const PropertyBag& parentProps, mssm::Canvas2d& g) override;
+    SizeBound2d getBound(const PropertyBag& parentProps) override;
+    void resize(const PropertyBag& parentProps, const RectI& rect) override;
+    void foreachChild(std::function<void(LayoutBase*)> f, bool includeOverlay, bool includeCollapsed) override;
+    EvtProp onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt) override;
+};
+
+
+class LayoutImage : public LayoutBase {
+    mssm::Image image;
+    SizeBound2d bound;
+public:
+    LayoutImage(Private privateTag, LayoutContext* context, mssm::Image img);
+    virtual ~LayoutImage();
+    void updateImage(mssm::Image img);
+    static std::shared_ptr<LayoutImage> make(LayoutContext* context, mssm::Image img) { return std::make_shared<LayoutImage>(Private{}, context, img); }
+    std::string getTypeStr() const override { return "Image"; }
     void draw(const PropertyBag& parentProps, mssm::Canvas2d& g) override;
     SizeBound2d getBound(const PropertyBag& parentProps) override;
     void resize(const PropertyBag& parentProps, const RectI& rect) override;

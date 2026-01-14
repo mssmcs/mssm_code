@@ -18,6 +18,28 @@ using GridRowBuilder = std::function<LayoutGridRowPtr(LayoutContext*)>;
 template<typename T>
 using Configurator = std::function<void(T*)>;
 
+template<typename T>
+class LayoutConfig {
+public:
+    Configurator<T> configFunc{};
+    std::string  name;
+public:
+    LayoutConfig() {}
+
+    LayoutConfig(std::string name) : name{name} {}
+    LayoutConfig(Configurator<T> configFunc) : configFunc{configFunc} {}
+
+    LayoutConfig(std::string name, Configurator<T> configFunc) : configFunc{configFunc}, name{name} {}
+
+    void applyTo(std::shared_ptr<T>& ptr) const
+    {
+        ptr->setName(name);
+        if (configFunc) {
+            configFunc(ptr.get());
+        }
+    }
+};
+
 class Wrapper {
 private:
     Builder layout{};
@@ -48,10 +70,10 @@ public:
 template <typename T>
 class BuilderBase {
 protected:
-    Configurator<T> config{};
+    LayoutConfig<T> config{};
     using ConfigFunc = Configurator<T>;
 public:
-    BuilderBase(Configurator<T> config = {}) : config{config} {}
+    BuilderBase(LayoutConfig<T> config = {}) : config{config} {}
 };
 
 class HSplit : BuilderBase<LayoutSplitter> {
@@ -59,9 +81,9 @@ private:
     Builder left;
     Builder right;
 public:
-    HSplit(Configurator<LayoutSplitter> config, Wrapper a, Wrapper b) : BuilderBase{config}, left{a}, right{b} {}
+    HSplit(LayoutConfig<LayoutSplitter> config, Wrapper a, Wrapper b) : BuilderBase{config}, left{a}, right{b} {}
     HSplit(Wrapper a, Wrapper b) : left{a}, right{b} {}
-    operator Builder() const;;
+    operator Builder() const;
     operator Wrapper() const { return static_cast<Builder>(*this); }
 };
 
@@ -70,7 +92,7 @@ private:
     Builder top;
     Builder bottom;
 public:
-    VSplit(Configurator<LayoutSplitter> config, Wrapper a, Wrapper b) : BuilderBase{config}, top{a}, bottom{b} {}
+    VSplit(LayoutConfig<LayoutSplitter> config, Wrapper a, Wrapper b) : BuilderBase{config}, top{a}, bottom{b} {}
     VSplit(Wrapper a, Wrapper b) : top{a}, bottom{b} {}
     operator Builder() const;
     operator Wrapper() const { return static_cast<Builder>(*this); }
@@ -80,7 +102,7 @@ class HStack : BuilderBase<LayoutStacked>  {
 private:
     std::vector<Builder> children;
 public:
-    HStack(Configurator<LayoutStacked> config, std::initializer_list<Wrapper> kids) : BuilderBase{config} {
+    HStack(LayoutConfig<LayoutStacked> config, std::initializer_list<Wrapper> kids) : BuilderBase{config} {
         for(auto& c : kids) {
             children.push_back(c);
         }
@@ -98,7 +120,7 @@ class VStack : BuilderBase<LayoutStacked>  {
 private:
     std::vector<Builder> children;
 public:
-    VStack(Configurator<LayoutStacked> config, std::initializer_list<Wrapper> kids) : BuilderBase{config} {
+    VStack(LayoutConfig<LayoutStacked> config, std::initializer_list<Wrapper> kids) : BuilderBase{config} {
         for(auto& c : kids) {
             children.push_back(c);
         }
@@ -128,7 +150,7 @@ class Grid : BuilderBase<LayoutGrid>  {
 private:
     std::vector<GridRowBuilder> children;
 public:
-    Grid(Configurator<LayoutGrid> config, std::initializer_list<GridRowWrapper> kids) : BuilderBase{config} {
+    Grid(LayoutConfig<LayoutGrid> config, std::initializer_list<GridRowWrapper> kids) : BuilderBase{config} {
         for(auto& c : kids) {
             children.push_back(c);
         }
@@ -146,7 +168,7 @@ class Button : BuilderBase<LayoutButton>  {
 private:
     std::string label;
 public:
-    Button(Configurator<LayoutButton> config, std::string label) : BuilderBase{config}, label{label} {}
+    Button(LayoutConfig<LayoutButton> config, std::string label) : BuilderBase{config}, label{label} {}
     Button(std::string label) : label{label} {}
     operator Builder() const;
     operator Wrapper() const { return static_cast<Builder>(*this); }
@@ -156,9 +178,20 @@ public:
 class Panel : BuilderBase<LayoutColor>  {
 private:
     mssm::Color color;
+    SizeBound2d bound;
 public:
-    Panel(Configurator<LayoutColor> config, mssm::Color color) : BuilderBase{config}, color{color} {}
-    Panel(mssm::Color color) : color{color} {}
+    Panel(LayoutConfig<LayoutColor> config, mssm::Color color, SizeBound2d bound = {200,200,50,50}) : BuilderBase{config}, color{color}, bound{bound} {}
+    Panel(mssm::Color color, SizeBound2d bound = {200,200,50,50}) : color{color}, bound{bound} {}
+    operator Builder() const;
+    operator Wrapper() const { return static_cast<Builder>(*this); }
+};
+
+class ImagePanel : BuilderBase<LayoutImage> {
+private:
+    mssm::Image image;
+public:
+    ImagePanel(LayoutConfig<LayoutImage> config, mssm::Image image) : BuilderBase{config}, image{image} {}
+    ImagePanel(mssm::Image image) : image{image} {}
     operator Builder() const;
     operator Wrapper() const { return static_cast<Builder>(*this); }
 };
@@ -170,7 +203,7 @@ private:
     double maxValue{100};
     double value{20};
 public:
-    Slider(Configurator<LayoutSlider> config, bool isHorizontal) : BuilderBase{config}, isHorizontal{isHorizontal}  {}
+    Slider(LayoutConfig<LayoutSlider> config, bool isHorizontal) : BuilderBase{config}, isHorizontal{isHorizontal}  {}
     Slider(bool isHorizontal) : isHorizontal{isHorizontal}  {}
     operator Builder() const;
     operator Wrapper() const { return static_cast<Builder>(*this); }
@@ -180,7 +213,7 @@ class Scroll : BuilderBase<LayoutScroll>  {
 private:
     Builder child;
 public:
-    Scroll(Configurator<LayoutScroll> config, Wrapper child) : BuilderBase{config}, child{child} {}
+    Scroll(LayoutConfig<LayoutScroll> config, Wrapper child) : BuilderBase{config}, child{child} {}
     Scroll(Wrapper child) : child{child} {}
     operator Builder() const;
     operator Wrapper() const { return static_cast<Builder>(*this); }
@@ -194,7 +227,7 @@ class HTabs : BuilderBase<LayoutTabs>  {
 private:
     std::vector<Builder> children;
 public:
-    HTabs(Configurator<LayoutTabs> config, std::initializer_list<Wrapper> kids) : BuilderBase{config} {
+    HTabs(LayoutConfig<LayoutTabs> config, std::initializer_list<Wrapper> kids) : BuilderBase{config} {
         for(auto& c : kids) {
             children.push_back(c);
         }
@@ -212,7 +245,7 @@ class VTabs : BuilderBase<LayoutTabs>  {
 private:
     std::vector<Builder> children;
 public:
-    VTabs(Configurator<LayoutTabs> config, std::initializer_list<Wrapper> kids) : BuilderBase{config} {
+    VTabs(LayoutConfig<LayoutTabs> config, std::initializer_list<Wrapper> kids) : BuilderBase{config} {
         for(auto& c : kids) {
             children.push_back(c);
         }
@@ -230,7 +263,7 @@ class HMenu : BuilderBase<LayoutMenu>  {
 private:
     std::vector<Builder> children;
 public:
-    HMenu(Configurator<LayoutMenu> config, std::initializer_list<Wrapper> kids) : BuilderBase{config} {
+    HMenu(LayoutConfig<LayoutMenu> config, std::initializer_list<Wrapper> kids) : BuilderBase{config} {
         for(auto& c : kids) {
             children.push_back(c);
         }
@@ -248,7 +281,7 @@ class VMenu : BuilderBase<LayoutMenu>  {
 private:
     std::vector<Builder> children;
 public:
-    VMenu(Configurator<LayoutMenu> config, std::initializer_list<Wrapper> kids) : BuilderBase{config} {
+    VMenu(LayoutConfig<LayoutMenu> config, std::initializer_list<Wrapper> kids) : BuilderBase{config} {
         for(auto& c : kids) {
             children.push_back(c);
         }
@@ -266,7 +299,7 @@ class Flyout : BuilderBase<LayoutFlyout>  {
 private:
     std::vector<Builder> children;
 public:
-    Flyout(Configurator<LayoutFlyout> config, std::initializer_list<Wrapper> kids) : BuilderBase{config} {
+    Flyout(LayoutConfig<LayoutFlyout> config, std::initializer_list<Wrapper> kids) : BuilderBase{config} {
         for(auto& c : kids) {
             children.push_back(c);
         }
@@ -284,7 +317,7 @@ class Expander : BuilderBase<LayoutExpander>  {
 private:
     std::vector<Builder> children;
 public:
-    Expander(Configurator<LayoutExpander> config, std::initializer_list<Wrapper> kids) : BuilderBase{config} {
+    Expander(LayoutConfig<LayoutExpander> config, std::initializer_list<Wrapper> kids) : BuilderBase{config} {
         for(auto& c : kids) {
             children.push_back(c);
         }

@@ -21,6 +21,16 @@ public:
     void propagateEvents(const PropertyBag &parentProps);
     void draw(mssm::CoreWindow &window, mssm::Canvas2d &g);
 
+    LayoutPtr findByName(std::string name);
+
+    template<typename T> T* findByName(std::string name)
+    {
+        LayoutPtr p = findByName(name);
+        if (p) {
+            return dynamic_cast<T*>(p.get());
+        }
+        return nullptr;
+    }
 
     LayoutBase::EvtProp propagateMouse(const PropertyBag &parentProps, const RectI& clip, MouseEvt& evt);
     LayoutBase::EvtProp propagateKey(const PropertyBag &parentProps, const RectI& clip, KeyEvt& evt);

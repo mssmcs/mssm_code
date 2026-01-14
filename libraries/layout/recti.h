@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <concepts>
 #include <optional>
+#include <vector>
+#include <numeric>
 #include "vec2d.h"
 #include "vecUtil.h"
 
@@ -729,6 +731,31 @@ struct RectBase {
         return result;
     }
 
+
+    constexpr void centerWithin(const RectBase<V>& container, bool stretch, double stretchMargin)
+    {
+        if (stretch) {
+            // fill but keep aspect ratio
+            double scaleW = (container.width-2*stretchMargin) / width;
+            double scaleH = (container.height-2*stretchMargin) / height;
+            double scale  = std::min(scaleW, scaleH);
+            width  *= scale;
+            height *= scale;
+        }
+
+        double hOffset = (container.width-width)/2;
+        double vOffset = (container.height-height)/2;
+
+        pos.x = container.pos.x + hOffset;
+        pos.y = container.pos.y + vOffset;
+    }
+
+    [[nodiscard]] constexpr RectBase centered(const RectBase<V>& container, bool stretch, double stretchMargin) const noexcept {
+        RectBase result = *this;
+        result.centerWithin(container, stretch, stretchMargin);
+        return result;
+    }
+
     /**
      * @brief Grow the rectangle downward by specified amount.
      *
@@ -803,202 +830,226 @@ struct RectBase {
     }
 
 
-/**
+    /**
      * @brief Remove a portion from the bottom side of the rectangle.
      *
      * @param amount Amount to remove from bottom
      * @return Reference to this rectangle
      */
-constexpr RectBase& removeBottom(int amount) noexcept {
-    height = std::max(0, height - amount);
-    return *this;
-}
+    constexpr RectBase& removeBottom(int amount) noexcept {
+        height = std::max(0, height - amount);
+        return *this;
+    }
 
-//==============================================================================
-// Comparison Operations
-//==============================================================================
+    //==============================================================================
+    // Comparison Operations
+    //==============================================================================
 
-/**
+    /**
      * @brief Check if widths differ between rectangles.
      *
      * @param other Rectangle to compare
      * @return true if widths are different
      */
-[[nodiscard]] constexpr bool widthDiffers(const RectBase<V>& other) const noexcept {
-    return width != other.width;
-}
+    [[nodiscard]] constexpr bool widthDiffers(const RectBase<V>& other) const noexcept {
+        return width != other.width;
+    }
 
-/**
+    /**
      * @brief Check if heights differ between rectangles.
      *
      * @param other Rectangle to compare
      * @return true if heights are different
      */
-[[nodiscard]] constexpr bool heightDiffers(const RectBase<V>& other) const noexcept {
-    return height != other.height;
-}
+    [[nodiscard]] constexpr bool heightDiffers(const RectBase<V>& other) const noexcept {
+        return height != other.height;
+    }
 
-/**
+    /**
      * @brief Check if dimensions differ between rectangles.
      *
      * @param other Rectangle to compare
      * @return true if either width or height differs
      */
-[[nodiscard]] constexpr bool sizeDiffers(const RectBase<V>& other) const noexcept {
-    return widthDiffers(other) || heightDiffers(other);
-}
+    [[nodiscard]] constexpr bool sizeDiffers(const RectBase<V>& other) const noexcept {
+        return widthDiffers(other) || heightDiffers(other);
+    }
 
-/**
+    /**
      * @brief Check if dimensions are the same between rectangles.
      *
      * @param other Rectangle to compare
      * @return true if both width and height are the same
      */
-[[nodiscard]] constexpr bool sizeSame(const RectBase<V>& other) const noexcept {
-    return !widthDiffers(other) && !heightDiffers(other);
-}
+    [[nodiscard]] constexpr bool sizeSame(const RectBase<V>& other) const noexcept {
+        return !widthDiffers(other) && !heightDiffers(other);
+    }
 
-//==============================================================================
-// Subrectangle Operations
-//==============================================================================
+    //==============================================================================
+    // Subrectangle Operations
+    //==============================================================================
 
-/**
+    /**
      * @brief Create a subrectangle from the left side.
      *
      * @param newWidth Width of the subrectangle
      * @return A new rectangle
      */
-[[nodiscard]] constexpr RectBase<V> leftSubrect(int newWidth) const noexcept {
-    return { pos, std::min(newWidth, width), height };
-}
+    [[nodiscard]] constexpr RectBase<V> leftSubrect(int newWidth) const noexcept {
+        return { pos, std::min(newWidth, width), height };
+    }
 
-/**
+    /**
      * @brief Create a subrectangle from the right side.
      *
      * @param newWidth Width of the subrectangle
      * @return A new rectangle
      */
-[[nodiscard]] constexpr RectBase<V> rightSubrect(int newWidth) const noexcept {
-    newWidth = std::min(newWidth, width);
-    return { pos.x + width - newWidth, pos.y, newWidth, height };
-}
+    [[nodiscard]] constexpr RectBase<V> rightSubrect(int newWidth) const noexcept {
+        newWidth = std::min(newWidth, width);
+        return { pos.x + width - newWidth, pos.y, newWidth, height };
+    }
 
-/**
+    /**
      * @brief Create a subrectangle from the top side.
      *
      * @param newHeight Height of the subrectangle
      * @return A new rectangle
      */
-[[nodiscard]] constexpr RectBase<V> topSubrect(int newHeight) const noexcept {
-    return { pos, width, std::min(newHeight, height) };
-}
+    [[nodiscard]] constexpr RectBase<V> topSubrect(int newHeight) const noexcept {
+        return { pos, width, std::min(newHeight, height) };
+    }
 
-/**
+    /**
      * @brief Create a subrectangle from the bottom side.
      *
      * @param newHeight Height of the subrectangle
      * @return A new rectangle
      */
-[[nodiscard]] constexpr RectBase<V> bottomSubrect(int newHeight) const noexcept {
-    newHeight = std::min(newHeight, height);
-    return { pos.x, pos.y + height - newHeight, width, newHeight };
-}
+    [[nodiscard]] constexpr RectBase<V> bottomSubrect(int newHeight) const noexcept {
+        newHeight = std::min(newHeight, height);
+        return { pos.x, pos.y + height - newHeight, width, newHeight };
+    }
 
-/**
+    /**
      * @brief Create an inset subrectangle from the left side.
      *
      * @param newWidth Width of the subrectangle
      * @param inset Amount to inset from edges
      * @return A new rectangle
      */
-[[nodiscard]] constexpr RectBase<V> leftSubrect(int newWidth, int inset) const noexcept {
-    int safeWidth = std::max(0, width - 2 * inset);
-    newWidth = std::min(newWidth, safeWidth);
-    return { pos.x + inset, pos.y + inset, newWidth, std::max(0, height - 2 * inset) };
-}
+    [[nodiscard]] constexpr RectBase<V> leftSubrect(int newWidth, int inset) const noexcept {
+        int safeWidth = std::max(0, width - 2 * inset);
+        newWidth = std::min(newWidth, safeWidth);
+        return { pos.x + inset, pos.y + inset, newWidth, std::max(0, height - 2 * inset) };
+    }
 
-/**
+    /**
      * @brief Create an inset subrectangle from the right side.
      *
      * @param newWidth Width of the subrectangle
      * @param inset Amount to inset from edges
      * @return A new rectangle
      */
-[[nodiscard]] constexpr RectBase<V> rightSubrect(int newWidth, int inset) const noexcept {
-    int safeWidth = std::max(0, width - 2 * inset);
-    newWidth = std::min(newWidth, safeWidth);
-    return { pos.x + width - newWidth - inset, pos.y + inset,
-            newWidth, std::max(0, height - 2 * inset) };
-}
+    [[nodiscard]] constexpr RectBase<V> rightSubrect(int newWidth, int inset) const noexcept {
+        int safeWidth = std::max(0, width - 2 * inset);
+        newWidth = std::min(newWidth, safeWidth);
+        return { pos.x + width - newWidth - inset, pos.y + inset,
+                newWidth, std::max(0, height - 2 * inset) };
+    }
 
-/**
+    /**
      * @brief Create an inset subrectangle from the top side.
      *
      * @param newHeight Height of the subrectangle
      * @param inset Amount to inset from edges
      * @return A new rectangle
      */
-[[nodiscard]] constexpr RectBase<V> topSubrect(int newHeight, int inset) const noexcept {
-    int safeHeight = std::max(0, height - 2 * inset);
-    newHeight = std::min(newHeight, safeHeight);
-    return { pos.x + inset, pos.y + inset, std::max(0, width - 2 * inset), newHeight };
-}
+    [[nodiscard]] constexpr RectBase<V> topSubrect(int newHeight, int inset) const noexcept {
+        int safeHeight = std::max(0, height - 2 * inset);
+        newHeight = std::min(newHeight, safeHeight);
+        return { pos.x + inset, pos.y + inset, std::max(0, width - 2 * inset), newHeight };
+    }
 
-/**
+    /**
      * @brief Create an inset subrectangle from the bottom side.
      *
      * @param newHeight Height of the subrectangle
      * @param inset Amount to inset from edges
      * @return A new rectangle
      */
-[[nodiscard]] constexpr RectBase<V> bottomSubrect(int newHeight, int inset) const noexcept {
-    int safeHeight = std::max(0, height - 2 * inset);
-    newHeight = std::min(newHeight, safeHeight);
-    return { pos.x + inset, pos.y + height - newHeight - inset,
-            std::max(0, width - 2 * inset), newHeight };
-}
+    [[nodiscard]] constexpr RectBase<V> bottomSubrect(int newHeight, int inset) const noexcept {
+        int safeHeight = std::max(0, height - 2 * inset);
+        newHeight = std::min(newHeight, safeHeight);
+        return { pos.x + inset, pos.y + height - newHeight - inset,
+                std::max(0, width - 2 * inset), newHeight };
+    }
 
-//==============================================================================
-// Split Operations
-//==============================================================================
+    [[nodiscard]] constexpr RectBase<V> upperLeftSubrect(int width, int height, int inset) const noexcept {
+        auto corner = upperLeft(inset);
+        return { corner, width, height };
+    }
 
-/**
+    [[nodiscard]] constexpr RectBase<V> lowerLeftSubrect(int width, int height, int inset) const noexcept {
+        auto corner = lowerLeft(inset) + V{width, -height};
+        return { corner, width, height };
+    }
+
+    [[nodiscard]] constexpr RectBase<V> lowerRightSubrect(int width, int height, int inset) const noexcept {
+        auto corner = lowerRight(inset) + V{-width, -height};
+        return { corner, width, height };
+    }
+
+    [[nodiscard]] constexpr RectBase<V> upperRightSubrect(int width, int height, int inset) const noexcept {
+        auto corner = upperRight(inset) + V{-width, height};
+        return { corner, width, height };
+    }
+
+    //==============================================================================
+    // Split Operations
+    //==============================================================================
+
+    /**
      * @brief Split off a rectangle from the left and modify this rectangle.
      *
      * @param leftWidth Width of the rectangle to split off
      * @return A new rectangle from the left side
      */
-[[nodiscard]] constexpr RectBase<V> splitLeft(int leftWidth) noexcept;
+    [[nodiscard]] constexpr RectBase<V> splitLeft(int leftWidth) noexcept;
 
-/**
+    /**
      * @brief Split off a rectangle from the right and modify this rectangle.
      *
      * @param rightWidth Width of the rectangle to split off
      * @return A new rectangle from the right side
      */
-[[nodiscard]] constexpr RectBase<V> splitRight(int rightWidth) noexcept;
+    [[nodiscard]] constexpr RectBase<V> splitRight(int rightWidth) noexcept;
 
-/**
+    /**
      * @brief Split off a rectangle from the top and modify this rectangle.
      *
      * @param topHeight Height of the rectangle to split off
      * @return A new rectangle from the top side
      */
-[[nodiscard]] constexpr RectBase<V> splitTop(int topHeight) noexcept;
+    [[nodiscard]] constexpr RectBase<V> splitTop(int topHeight) noexcept;
 
-/**
+    /**
      * @brief Split off a rectangle from the bottom and modify this rectangle.
      *
      * @param bottomHeight Height of the rectangle to split off
      * @return A new rectangle from the bottom side
      */
-[[nodiscard]] constexpr RectBase<V> splitBottom(int bottomHeight) noexcept;
+    [[nodiscard]] constexpr RectBase<V> splitBottom(int bottomHeight) noexcept;
 
-//==============================================================================
-// Static Utility Methods
-//==============================================================================
+    [[nodiscard]] std::vector<RectBase<V>> hSplit(std::initializer_list<double> ratios);
 
-/**
+    [[nodiscard]] std::vector<RectBase<V>> vSplit(std::initializer_list<double> ratios);
+
+    //==============================================================================
+    // Static Utility Methods
+    //==============================================================================
+
+    /**
      * @brief Calculate the preferred left width when resizing a pair of rectangles.
      *
      * @param leftRect Left rectangle
@@ -1006,12 +1057,12 @@ constexpr RectBase& removeBottom(int amount) noexcept {
      * @param desiredTotalWidth New total width
      * @return Suggested width for the left rectangle
      */
-[[nodiscard]] static constexpr int preferredLeftWidth(
-    const RectBase<V>& leftRect,
-    const RectBase<V>& rightRect,
-    int desiredTotalWidth) noexcept;
+    [[nodiscard]] static constexpr int preferredLeftWidth(
+        const RectBase<V>& leftRect,
+        const RectBase<V>& rightRect,
+        int desiredTotalWidth) noexcept;
 
-/**
+    /**
      * @brief Calculate the preferred top height when resizing a pair of rectangles.
      *
      * @param topRect Top rectangle
@@ -1019,30 +1070,30 @@ constexpr RectBase& removeBottom(int amount) noexcept {
      * @param desiredTotalHeight New total height
      * @return Suggested height for the top rectangle
      */
-[[nodiscard]] static constexpr int preferredTopHeight(
-    const RectBase<V>& topRect,
-    const RectBase<V>& bottomRect,
-    int desiredTotalHeight) noexcept;
+    [[nodiscard]] static constexpr int preferredTopHeight(
+        const RectBase<V>& topRect,
+        const RectBase<V>& bottomRect,
+        int desiredTotalHeight) noexcept;
 
-/**
+    /**
      * @brief Set the width of the left rectangle in a pair, adjusting the right one.
      *
      * @param leftRect Left rectangle to modify
      * @param rightRect Right rectangle to modify
      * @param leftWidth New width for the left rectangle
      */
-static void setLeftWidth(RectBase<V>& leftRect, RectBase<V>& rightRect, int leftWidth);
+    static void setLeftWidth(RectBase<V>& leftRect, RectBase<V>& rightRect, int leftWidth);
 
-/**
+    /**
      * @brief Set the height of the top rectangle in a pair, adjusting the bottom one.
      *
      * @param topRect Top rectangle to modify
      * @param bottomRect Bottom rectangle to modify
      * @param topHeight New height for the top rectangle
      */
-static void setTopHeight(RectBase<V>& topRect, RectBase<V>& bottomRect, int topHeight);
+    static void setTopHeight(RectBase<V>& topRect, RectBase<V>& bottomRect, int topHeight);
 
-/**
+    /**
      * @brief Set the widths of a pair of adjacent rectangles.
      *
      * @param leftRect Left rectangle to modify
@@ -1050,13 +1101,13 @@ static void setTopHeight(RectBase<V>& topRect, RectBase<V>& bottomRect, int topH
      * @param leftWidth New width for the left rectangle
      * @param rightWidth New width for the right rectangle
      */
-static constexpr void setWidths(
-    RectBase<V>& leftRect,
-    RectBase<V>& rightRect,
-    int leftWidth,
-    int rightWidth) noexcept;
+    static constexpr void setWidths(
+        RectBase<V>& leftRect,
+        RectBase<V>& rightRect,
+        int leftWidth,
+        int rightWidth) noexcept;
 
-/**
+    /**
      * @brief Set the heights of a pair of adjacent rectangles.
      *
      * @param topRect Top rectangle to modify
@@ -1064,37 +1115,37 @@ static constexpr void setWidths(
      * @param topHeight New height for the top rectangle
      * @param bottomHeight New height for the bottom rectangle
      */
-static constexpr void setHeights(
-    RectBase<V>& topRect,
-    RectBase<V>& bottomRect,
-    int topHeight,
-    int bottomHeight) noexcept;
+    static constexpr void setHeights(
+        RectBase<V>& topRect,
+        RectBase<V>& bottomRect,
+        int topHeight,
+        int bottomHeight) noexcept;
 
-/**
+    /**
      * @brief Set the position of a horizontal pair of rectangles.
      *
      * @param leftRect Left rectangle to modify
      * @param rightRect Right rectangle to modify
      * @param pos New position for the left rectangle
      */
-static constexpr void setPosHPair(
-    RectBase<V>& leftRect,
-    RectBase<V>& rightRect,
-    const V& pos) noexcept;
+    static constexpr void setPosHPair(
+        RectBase<V>& leftRect,
+        RectBase<V>& rightRect,
+        const V& pos) noexcept;
 
-/**
+    /**
      * @brief Set the position of a vertical pair of rectangles.
      *
      * @param topRect Top rectangle to modify
      * @param bottomRect Bottom rectangle to modify
      * @param pos New position for the top rectangle
      */
-static constexpr void setPosVPair(
-    RectBase<V>& topRect,
-    RectBase<V>& bottomRect,
-    const V& pos) noexcept;
+    static constexpr void setPosVPair(
+        RectBase<V>& topRect,
+        RectBase<V>& bottomRect,
+        const V& pos) noexcept;
 
-/**
+    /**
      * @brief Scale a horizontal pair of rectangles to new dimensions.
      *
      * @param leftRect Left rectangle to modify
@@ -1103,14 +1154,14 @@ static constexpr void setPosVPair(
      * @param newTotalWidth New total width
      * @param newHeight New height for both rectangles
      */
-static constexpr void scaleHorizontalPair(
-    RectBase<V>& leftRect,
-    RectBase<V>& rightRect,
-    const V& newPos,
-    int newTotalWidth,
-    int newHeight) noexcept;
+    static constexpr void scaleHorizontalPair(
+        RectBase<V>& leftRect,
+        RectBase<V>& rightRect,
+        const V& newPos,
+        int newTotalWidth,
+        int newHeight) noexcept;
 
-/**
+    /**
      * @brief Scale a vertical pair of rectangles to new dimensions.
      *
      * @param topRect Top rectangle to modify
@@ -1119,36 +1170,39 @@ static constexpr void scaleHorizontalPair(
      * @param newWidth New width for both rectangles
      * @param newTotalHeight New total height
      */
-static constexpr void scaleVerticalPair(
-    RectBase<V>& topRect,
-    RectBase<V>& bottomRect,
-    const V& newPos,
-    int newWidth,
-    int newTotalHeight) noexcept;
+    static constexpr void scaleVerticalPair(
+        RectBase<V>& topRect,
+        RectBase<V>& bottomRect,
+        const V& newPos,
+        int newWidth,
+        int newTotalHeight) noexcept;
 
-/**
+    /**
      * @brief Set the split point between two horizontal rectangles.
      *
      * @param leftRect Left rectangle to modify
      * @param rightRect Right rectangle to modify
      * @param rightStartX New x-coordinate for the start of the right rectangle
      */
-static void setSplitPointHorizontal(
-    RectBase<V>& leftRect,
-    RectBase<V>& rightRect,
-    int rightStartX);
+    static void setSplitPointHorizontal(
+        RectBase<V>& leftRect,
+        RectBase<V>& rightRect,
+        int rightStartX);
 
-/**
+    /**
      * @brief Set the split point between two vertical rectangles.
      *
      * @param topRect Top rectangle to modify
      * @param bottomRect Bottom rectangle to modify
      * @param bottomStartY New y-coordinate for the start of the bottom rectangle
      */
-static void setSplitPointVertical(
-    RectBase<V>& topRect,
-    RectBase<V>& bottomRect,
-    int bottomStartY);
+    static void setSplitPointVertical(
+        RectBase<V>& topRect,
+        RectBase<V>& bottomRect,
+        int bottomStartY);
+
+
+
 };
 
 //==============================================================================
@@ -1188,6 +1242,8 @@ template<is2dVector V>
 
     return {newLeft, newTop, newRight-newLeft+1, newBottom-newTop+1};
 }
+
+
 
 /**
  * @brief Calculate the union of two rectangles.
@@ -1512,6 +1568,49 @@ void RectBase<V>::setSplitPointVertical(
     bottomRect.height = bottomEndY - bottomStartY;
 }
 
+
+template<is2dVector V>
+std::vector<RectBase<V>> RectBase<V>::hSplit(std::initializer_list<double> ratios)
+{
+    double total = std::accumulate(ratios.begin(), ratios.end(), 0.0);
+
+    std::vector<RectBase<V>> rects;
+
+    V corner{pos};
+
+    for (double r : ratios) {
+        double rWidth = width*r/total;
+        rects.emplace_back(corner, rWidth, height);
+        corner += V{rWidth, 0};
+    }
+
+    double right = pos.x + width;
+    rects.back().width = right - rects.back().pos.x;
+
+    return rects;
+}
+
+template<is2dVector V>
+std::vector<RectBase<V>> RectBase<V>::vSplit(std::initializer_list<double> ratios)
+{
+    double total = std::accumulate(ratios.begin(), ratios.end(), 0.0);
+
+    std::vector<RectBase<V>> rects;
+
+    V corner{pos};
+
+    for (double r : ratios) {
+        double rHeight = height*r/total;
+        rects.emplace_back(corner, width, rHeight);
+        corner += V{0, rHeight};
+    }
+
+    double top = pos.y + height;
+    rects.back().height = top - rects.back().pos.y;
+
+    return rects;
+}
+
 /**
  * @brief Integer-based rectangle type for pixel-perfect layout.
  *
@@ -1519,5 +1618,6 @@ void RectBase<V>::setSplitPointVertical(
  * This is ideal for UI layout where you want pixel-perfect positioning.
  */
 using RectI = RectBase<Vec2i32>;
+using RectD = RectBase<Vec2d>;
 
 #endif // RECTI_H

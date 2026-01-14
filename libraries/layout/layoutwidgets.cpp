@@ -52,10 +52,9 @@ void LayoutLabel::foreachChild(std::function<void(LayoutBase *)> f, bool include
     }
 }
 
-LayoutColor::LayoutColor(Private privateTag, LayoutContext *context, mssm::Color color)
-    : LayoutWithContent{context}, color{color}
+LayoutColor::LayoutColor(Private privateTag, LayoutContext *context, mssm::Color color, SizeBound2d bound)
+    : LayoutWithContent{context}, color{color}, bound{bound}
 {
-    bound.grow(100,50);
     setParentsOfChildren();
 }
 
@@ -975,3 +974,52 @@ SizeBound2d LayoutToggle::getBound(const PropertyBag &parentProps)
     return {SizeBound{20}, SizeBound{20}};
 }
 
+
+LayoutImage::LayoutImage(Private privateTag, LayoutContext *context, mssm::Image img)
+  : LayoutBase{context}, image{img}
+{
+    setName("image");
+    //bound.grow(img.width(),image.height());
+    setParentsOfChildren();
+}
+
+LayoutImage::~LayoutImage()
+{
+
+}
+
+void LayoutImage::updateImage(mssm::Image img)
+{
+    image = img;
+}
+
+void LayoutImage::draw(const PropertyBag &parentProps, mssm::Canvas2d &g)
+{
+    Vec2d pos{thisRect().upperLeft()};
+    g.image(pos, width, height, image);
+}
+
+SizeBound2d LayoutImage::getBound(const PropertyBag &parentProps)
+{
+    return bound;
+}
+
+void LayoutImage::resize(const PropertyBag &parentProps, const RectI &rect)
+{
+    setRect(rect);
+    // contentRect.pos = rect.pos;
+    // contentRect.width = bound.xBound.constrain(rect.width);
+    // contentRect.height = bound.yBound.constrain(rect.height);
+}
+
+void LayoutImage::foreachChild(std::function<void (LayoutBase *)> f, bool includeOverlay, bool includeCollapsed)
+{
+    if (includeOverlay && overlayElement) {
+        f(overlayElement.get());
+    }
+}
+
+LayoutBase::EvtProp LayoutImage::onMouse(const PropertyBag &parentProps, MouseEventReason reason, const MouseEvt &evt)
+{
+    return LayoutBase::EvtProp::propagate;
+}

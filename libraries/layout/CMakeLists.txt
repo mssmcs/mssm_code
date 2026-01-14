@@ -1,5 +1,5 @@
 set(NAME "layout")
-# DEPENDS_ON: vec canvas2d fontinfo svg2 window paths
+# DEPENDS_ON: image vec canvas2d fontinfo svg2 window paths
 
 # include(${PROJECT_SOURCE_DIR}/cmake/StaticAnalyzers.cmake)
 
@@ -25,7 +25,7 @@ propertybag.h propertybag.cpp
 icondrawer.h icondrawer.cpp
 )
 
-target_link_libraries(${NAME} PUBLIC  mssm_paths mssm_window mssm_vec canvas2d mssm_fontinfo svg2)
+target_link_libraries(${NAME} PUBLIC  image_base mssm_paths mssm_window mssm_vec canvas2d mssm_fontinfo svg2)
 
 # target_link_libraries(${NAME} PUBLIC mssm_array mssm_rand mssm_paths mssm_vec print_compat)
 

@@ -118,6 +118,24 @@ std::shared_ptr<LayoutBase> LayoutBase::getLocalRoot()
     return curr->getBasePtr();
 }
 
+LayoutPtr LayoutBase::findByName(std::string nm)
+{
+    if (nm == name) {
+        return shared_from_this();
+    }
+
+    LayoutPtr ptr{};
+
+    this->foreachChild([&ptr,nm](LayoutBase* item) {
+        LayoutPtr p = item->findByName(nm);
+        if (p) {
+            ptr = p;
+        }
+    }, true, true);
+
+    return ptr;
+}
+
 
 
 void LayoutBase::traversePreOrder(std::function<void(LayoutBase *)> f, bool includeOverlay, bool includeCollapsed)
