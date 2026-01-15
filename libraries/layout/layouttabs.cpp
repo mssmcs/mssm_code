@@ -18,9 +18,8 @@ LayoutTabs::LayoutTabs(Private privateTag,
         std::string txt = "Tab";
         buttonSet.buttons.push_back(LayoutButton::make(context,
                                                        LayoutLabel::make(context, txt),
-                                                       LayoutButton::ButtonType::radio,
-                                                       buttonSet,
-                                                       tabIdx));
+                                                       tabIdx, LayoutButton::ButtonType::radio, buttonSet
+                                                       ));
         buttonSet.buttons.back()->style = isHorizontal ? LayoutButton::DrawStyle::tabTop : LayoutButton::DrawStyle::tabLeft;
         if (tabIdx == 0) {
             buttonSet.buttons.back()->setChecked(true);
@@ -90,7 +89,7 @@ void LayoutTabs::setOuterMargins(int left, int right, int top, int bottom)
     margins.bottom = bottom;
 }
 
-void LayoutTabs::foreachChild(std::function<void(LayoutBase *)> f, bool includeOverlay, bool includeCollapsed)
+void LayoutTabs::foreachChild(std::function<void(LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
 {
     f(tabBar.get());
     if (includeCollapsed) {
@@ -152,9 +151,11 @@ void LayoutTabFrame::resize(const PropertyBag& parentProps, const RectI& rect)
     child->resize(parentProps, contentRect);
 }
 
-void LayoutTabFrame::foreachChild(std::function<void (LayoutBase *)> f, bool includeOverlay, bool includeCollapsed)
+void LayoutTabFrame::foreachChild(std::function<void (LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
 {
-    f(child.get());
+    if (child) {
+        f(child.get());
+    }
     if (includeOverlay && overlayElement) {
         f(overlayElement.get());
     }

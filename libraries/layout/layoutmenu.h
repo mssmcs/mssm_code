@@ -38,7 +38,7 @@ public:
     void resize(const PropertyBag& parentProps, const RectI& rect) override;
     SizeBound2d getBound(const PropertyBag& parentProps) override;
     void setOuterMargins(int left, int right, int top, int bottom) override;
-    void foreachChild(std::function<void (LayoutBase *)> f, bool includeOverlay, bool includeCollapsed) override;
+    void foreachChild(std::function<void (LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed) override;
     void openMenu(const PropertyBag &parentProps, LayoutButtonPtr button, int buttonIdx);
 };
 

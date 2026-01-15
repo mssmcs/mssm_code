@@ -17,9 +17,7 @@ LayoutMenu::LayoutMenu(Private privateTag,
         std::string txt = "Menu";
         buttonSet.buttons.push_back(LayoutButton::make(context,
                                                        LayoutLabel::make(context, txt),
-                                                       LayoutButton::ButtonType::radio,
-                                                       buttonSet,
-                                                       tabIdx));
+                                                       tabIdx, LayoutButton::ButtonType::radio, buttonSet));
         buttonSet.buttons.back()->style = LayoutButton::DrawStyle::menu;
         tabIdx++;
     }
@@ -62,7 +60,7 @@ void LayoutMenu::setOuterMargins(int left, int right, int top, int bottom)
     margins.bottom = bottom;
 }
 
-void LayoutMenu::foreachChild(std::function<void(LayoutBase *)> f, bool includeOverlay, bool includeCollapsed)
+void LayoutMenu::foreachChild(std::function<void(LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
 {
     // NOTE: don't iterate over menus, they are overlays not children
     f(tabBar.get());

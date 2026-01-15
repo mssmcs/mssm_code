@@ -26,7 +26,7 @@ LayoutStacked::LayoutStacked(Private privateTag,
 void LayoutStacked::draw(const PropertyBag& parentProps, mssm::Canvas2d& g)
 {
     pushClip(g, thisRect(), false);
-    foreachChild([&g,&parentProps](auto *c) { c->draw(parentProps, g); }, false, false);
+    foreachChild([&g,&parentProps](auto *c) { c->draw(parentProps, g); }, ForeachContext::drawing, false, false);
     popClip(g);
 }
 
@@ -418,7 +418,7 @@ void LayoutSplitter::draw(const PropertyBag& parentProps, mssm::Canvas2d& g)
     }
 
     pushClip(g, thisRect(), false);
-    foreachChild([&g,&parentProps](auto *c) { c->draw(parentProps, g); }, false, false);
+    foreachChild([&g,&parentProps](auto *c) { c->draw(parentProps, g); }, ForeachContext::drawing, false, false);
     popClip(g);
 }
 
@@ -577,7 +577,7 @@ void LayoutGridRow::resize(const PropertyBag& parentProps, const RectI &newRect,
 void LayoutGridRow::draw(const PropertyBag& parentProps, mssm::Canvas2d& g)
 {
     pushClip(g, thisRect(), false);
-    foreachChild([&g,&parentProps](auto *c) { c->draw(parentProps, g); }, false, false);
+    foreachChild([&g,&parentProps](auto *c) { c->draw(parentProps, g); }, ForeachContext::drawing, false, false);
     popClip(g);
 }
 
@@ -618,7 +618,7 @@ LayoutGrid::LayoutGrid(Private privateTag,
 void LayoutGrid::draw(const PropertyBag& parentProps, mssm::Canvas2d& g)
 {
     pushClip(g, thisRect(), false);
-    foreachChild([&g,&parentProps](auto *c) { c->draw(parentProps, g); }, false, false);
+    foreachChild([&g,&parentProps](auto *c) { c->draw(parentProps, g); }, ForeachContext::drawing, false, false);
     popClip(g);
 }
 
@@ -681,6 +681,3 @@ SizeBound2d LayoutGrid::getBound(const PropertyBag& parentProps)
 
     return {widthBound, heightBound};
 }
-
-
-

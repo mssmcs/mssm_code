@@ -64,9 +64,7 @@ void LayoutExpander::draw(const PropertyBag& parentProps, mssm::Canvas2d &g)
     }
 }
 
-void LayoutExpander::foreachChild(std::function<void(LayoutBase *)> f,
-                                  bool includeOverlay,
-                                  bool includeCollapsed)
+void LayoutExpander::foreachChild(std::function<void(LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
 {
     f(header.get());
     if (includeCollapsed || expanded) {

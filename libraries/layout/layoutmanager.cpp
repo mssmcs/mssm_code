@@ -119,6 +119,7 @@ void LayoutManager::draw(mssm::CoreWindow& window, mssm::Canvas2d &g)
 
     context->updateWindowRect(screenRect);
 
+    // TODO: is this just debugging?
     layout->traversePreOrder(
         [&](LayoutBase *element) {
             if (element->getDepth() > 0) {
@@ -132,7 +133,7 @@ void LayoutManager::draw(mssm::CoreWindow& window, mssm::Canvas2d &g)
                 }
             }
         },
-        false, true);
+        LayoutBase::ForeachContext::drawing, false, true);
 
     propagateEvents(parentProps);
 
@@ -153,6 +154,7 @@ void LayoutManager::draw(mssm::CoreWindow& window, mssm::Canvas2d &g)
             std::cout << "Resizing" << std::endl;
             layout->resize(parentProps, screenRect);
             context->clearNeedsResize();
+            layout->updateLayer(0, 0);
         }
 
         g.resetClip();
@@ -176,6 +178,16 @@ void LayoutManager::draw(mssm::CoreWindow& window, mssm::Canvas2d &g)
             g.rect({0, 0}, g.width() - 1, g.height() - 1, mssm::RED);
         }
     }
+
+    int yPos = 25;
+
+    layout->traversePreOrder(
+        [&](LayoutBase *element) {
+            std::string txt = element->getTypeStr() + " " + element->getName();
+            g.text({10*element->getDepth(), yPos}, 20, txt);
+            yPos += 20;
+        },
+        LayoutBase::ForeachContext::drawing, false, true);
 }
 
 LayoutPtr LayoutManager::findByName(std::string name)
@@ -245,36 +257,3 @@ LayoutBase::EvtProp LayoutManager::propagateKey(const PropertyBag &parentProps, 
 
     return res;
 }
-
-// void LayoutManager::updateHoverElement(LayoutPtr newHoverElement, Vec2i32 pos)
-// {
-//     if (newHoverElement != lastHoverElement) {
-
-//         std::cout << "Hover Element Changed:" << std::endl;
-//         if (lastHoverElement) {
-//             std::cout << "  Leaving: " << lastHoverElement->trail() << std::endl;
-
-//             if (lastHoverElement->isShowingTooltip()) {
-//                 lastHoverElement->closeOverlay();
-//             }
-
-//             MouseEvt evt;
-//             evt.action = MouseEvt::Action::exit;
-//             evt.button = mssm::MouseButton::None;
-//             evt.pos = cast<Vec2d>(pos);
-//             MouseEventReason reason = MouseEventReason::exit;
-//             lastHoverElement->onMouse(reason, evt);
-//         }
-//         else {
-//             std::cout << "  Last Hover was Null" << std::endl;
-//         }
-//         if (newHoverElement) {
-//             std::cout << "  Entering: " << newHoverElement->trail() << std::endl;
-//         }
-//         else {
-//             std::cout << "  New Hover was Null" << std::endl;
-//         }
-
-//         lastHoverElement = newHoverElement;
-//     }
-// }

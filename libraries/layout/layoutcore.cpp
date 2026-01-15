@@ -2,6 +2,7 @@
 #include "layoutcalcs.h"
 #include <sstream>
 
+
 std::string to_string(RectRegion region)
 {
     switch (region) {
@@ -34,7 +35,7 @@ void LayoutBase::updateLayer(int newLayer, int newDepth)
     depth = newDepth;
     foreachChild([newLayer, newDepth](LayoutBase* child) {
         child->updateLayer(newLayer, newDepth+1);
-    }, false, true);
+    }, ForeachContext::other, false, true);
 }
 
 void LayoutBase::onSetKeyFocus()
@@ -131,28 +132,28 @@ LayoutPtr LayoutBase::findByName(std::string nm)
         if (p) {
             ptr = p;
         }
-    }, true, true);
+    }, ForeachContext::other, true, true);
 
     return ptr;
 }
 
 
 
-void LayoutBase::traversePreOrder(std::function<void(LayoutBase *)> f, bool includeOverlay, bool includeCollapsed)
+void LayoutBase::traversePreOrder(std::function<void(LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
 {
     f(this);
-    foreachChild([&f, includeOverlay, includeCollapsed](LayoutBase *child) { child->traversePreOrder(f, includeOverlay, includeCollapsed); }, includeOverlay, includeCollapsed);
+    foreachChild([&f, context, includeOverlay, includeCollapsed](LayoutBase *child) { child->traversePreOrder(f, context, includeOverlay, includeCollapsed); }, context, includeOverlay, includeCollapsed);
 }
 
-void LayoutBase::traversePostorder(std::function<void(LayoutBase *)> f, bool includeOverlay, bool includeCollapsed)
+void LayoutBase::traversePostorder(std::function<void(LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
 {
-    foreachChild([&f, includeOverlay, includeCollapsed](LayoutBase *child) { child->traversePostorder(f, includeOverlay, includeCollapsed); }, includeOverlay, includeCollapsed);
+    foreachChild([&f, context, includeOverlay, includeCollapsed](LayoutBase *child) { child->traversePostorder(f, context, includeOverlay, includeCollapsed); }, context, includeOverlay, includeCollapsed);
     f(this);
 }
 
 void LayoutBase::closeOverlayRecursive()
 {
-    foreachChild([](LayoutBase *child) { child->closeOverlayRecursive(); }, false, true);
+    foreachChild([](LayoutBase *child) { child->closeOverlayRecursive(); }, ForeachContext::other, false, true);
     closeOverlay();
 }
 
@@ -200,14 +201,14 @@ void LayoutBase::setCollapsed(bool collapsed)
     isCollapsed = collapsed;
     foreachChild([collapsed](LayoutBase* child) {
         child->setCollapsed(collapsed);
-    }, true, false);
+    }, ForeachContext::other, true, false);
 }
 
 void LayoutBase::setParentsOfChildren()
 {
     foreachChild([this](LayoutBase* child) {
         child->setParent(this);
-    }, false, true);
+    }, ForeachContext::other, false, true);
 }
 
 void LayoutBase::setOuterMargins(int borders)
@@ -222,12 +223,14 @@ void LayoutBase::setOuterMargins(int leftRight, int topBottom)
 
 void LayoutBase::setOuterMargins(int left, int right, int top, int bottom)
 {
-    throw std::logic_error("setOuterMargins not supported on this element");
+    std::cout << "setOuterMargins not supported on this element" << std::endl;
+   // throw std::logic_error("setOuterMargins not supported on this element");
 }
 
 void LayoutBase::setInnerMargins(int hBetween, int vBetween)
 {
-    throw std::logic_error("setInnerMargins not supported on this element");
+    std::cout << "setInnerMargins not supported on this element" << std::endl;
+  // throw std::logic_error("setInnerMargins not supported on this element");
 }
 
 void LayoutBase::setInnerMargins(int between)
@@ -247,14 +250,25 @@ void LayoutBase::releaseKeyboard()
 
 void LayoutBase::grabMouse()
 {
-    //g.cerr << "Grabbing Mouse" << std::endl;
+    std::cout << "Grabbing Mouse: " << getTypeStr() << " " << getName() << std::endl;
     context->setDragFocus(shared_from_this());
 }
 
 void LayoutBase::releaseMouse()
 {
-    //g.cerr << "Releasing Mouse" << std::endl;
+    std::cout << "Releasing Mouse: " << getTypeStr() << " " << getName() << std::endl;
     context->setDragFocus({});
+}
+
+void LayoutBase::localReleaseMouseAndKeyboard()  // on subtree
+{
+    if (isDragFocusElement || containsDragFocusElement) {
+        releaseMouse();
+    }
+
+    if (isKeyFocusElement || containsKeyFocusElement) {
+        releaseKeyboard();
+    }
 }
 
 void LayoutBase::pushClip(mssm::Canvas2d &g, const RectI &rect, bool replace)
@@ -269,6 +283,16 @@ void LayoutBase::popClip(mssm::Canvas2d &g)
 
 LayoutBase::EvtProp LayoutBase::propagateMouse(const PropertyBag& parentProps, EvtProp prop, const RectI &clip, MouseEvt &evt)
 {
+    if (evt.action == MouseEvt::Action::press)
+    {
+        std::cout << "Press: " << getTypeStr() << " " << getName() << std::endl;
+    }
+
+    if (evt.action == MouseEvt::Action::release)
+    {
+        std::cout << "Release: " << getTypeStr() << " " << getName() << std::endl;
+    }
+
     // TODO: hack, just for debugging so we can see type text in debugger more easily
     if (typeStr.empty()) {
         typeStr = getTypeStr();
@@ -340,7 +364,7 @@ LayoutBase::EvtProp LayoutBase::propagateMouse(const PropertyBag& parentProps, E
 
     foreachChild([&evt, &newClip, &prop, &parentProps](LayoutBase* child) {
         prop = child->propagateMouse(parentProps, prop, newClip, evt);
-    }, false, false);
+    }, ForeachContext::events, false, false);
 
     if (prop == EvtProp::defer) {
         prop = onMouseDeferred(parentProps, reason, evt);
@@ -400,7 +424,7 @@ LayoutBase::EvtProp LayoutBase::propagateKey(const PropertyBag& parentProps, con
                 consumed = true;
             }
         }
-    }, false, false);
+    }, ForeachContext::events, false, false);
 
     if (callOnKey && res == EvtProp::defer) {
         res = onKeyDeferred(parentProps, evt);
@@ -435,7 +459,7 @@ void LayoutBase::debugDraw(mssm::Canvas2d &g)
     // }
     foreachChild([&g](LayoutBase* child) {
         child->debugDraw(g);
-    }, false, false);
+    }, ForeachContext::drawing, false, false);
 }
 
 void LayoutBase::setOverlay(LayoutPtr overlay)

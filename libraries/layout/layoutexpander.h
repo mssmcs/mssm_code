@@ -20,9 +20,7 @@ public:
 
 //    EvtProp onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt) override;
     void draw(const PropertyBag& parentProps, mssm::Canvas2d& g) override;
-    void foreachChild(std::function<void(LayoutBase *)> f,
-                      bool includeOverlay,
-                      bool includeCollapsed) override;
+    void foreachChild(std::function<void(LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed) override;
     void resize(const PropertyBag& parentProps, const RectI& rect) override;
 };
 

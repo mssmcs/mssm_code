@@ -9,7 +9,7 @@ class LayoutLeaf : public LayoutBase {
 public:
     LayoutLeaf(LayoutContext* context) : LayoutBase(context) {}
     void resize(const PropertyBag& parentProps, const RectI& rect) override;
-    void foreachChild(std::function<void(LayoutBase*)> f, bool includeOverlay, bool includeCollapsed) override;
+    void foreachChild(std::function<void(LayoutBase*)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed) override;
 };
 
 class LayoutToggle : public LayoutLeaf {
@@ -41,7 +41,7 @@ public:
     void draw(const PropertyBag& parentProps, mssm::Canvas2d& g) override;
     SizeBound2d getBound(const PropertyBag& parentProps) override;
     void resize(const PropertyBag& parentProps, const RectI& rect) override;
-    void foreachChild(std::function<void(LayoutBase*)> f, bool includeOverlay, bool includeCollapsed) override;
+    void foreachChild(std::function<void(LayoutBase*)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed) override;
     EvtProp onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt) override;
 };
 
@@ -58,7 +58,7 @@ public:
     void draw(const PropertyBag& parentProps, mssm::Canvas2d& g) override;
     SizeBound2d getBound(const PropertyBag& parentProps) override;
     void resize(const PropertyBag& parentProps, const RectI& rect) override;
-    void foreachChild(std::function<void(LayoutBase*)> f, bool includeOverlay, bool includeCollapsed) override;
+    void foreachChild(std::function<void(LayoutBase*)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed) override;
     EvtProp onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt) override;
 };
 
@@ -80,7 +80,7 @@ public:
     void draw(const PropertyBag& parentProps, mssm::Canvas2d& g) override;
     SizeBound2d getBound(const PropertyBag& parentProps) override;
     void resize(const PropertyBag& parentProps, const RectI& rect) override;
-    void foreachChild(std::function<void(LayoutBase*)> f, bool includeOverlay, bool includeCollapsed) override;
+    void foreachChild(std::function<void(LayoutBase*)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed) override;
 };
 
 class LayoutButton;
@@ -121,8 +121,28 @@ public:
     SizeBound2d getBound(const PropertyBag& parentProps) override;
     void resize(const PropertyBag& parentProps, const RectI& rect) override;
     void foreachChild(std::function<void(LayoutBase *)> f,
+                      ForeachContext context,
                       bool includeOverlay,
                       bool includeCollapsed) override;
+};
+
+class LayoutModalHolder : public LayoutBase {
+protected:
+    LayoutPtr child;
+    LayoutPtr modal;
+public:
+    LayoutModalHolder(Private privateTag, LayoutContext *context, LayoutPtr child, LayoutPtr modal);
+    static std::shared_ptr<LayoutModalHolder> make(LayoutContext* context, LayoutPtr child, LayoutPtr modal) { return std::make_shared<LayoutModalHolder>(Private{}, context, child, modal); }
+    std::string getTypeStr() const override { return "ModalHolder"; }
+    void draw(const PropertyBag& parentProps, mssm::Canvas2d& g) override;
+    SizeBound2d getBound(const PropertyBag& parentProps) override;
+    void resize(const PropertyBag& parentProps, const RectI& rect) override;
+    void foreachChild(std::function<void(LayoutBase *)> f,
+                      ForeachContext context,
+                      bool includeOverlay,
+                      bool includeCollapsed) override;
+    void setModal(LayoutPtr modal);
+    void clearModal();
 };
 
 class LayoutAdapterPadded : public LayoutAdapter {
@@ -186,6 +206,7 @@ public:
     };
 
     using ButtonCallback = std::function<void(const PropertyBag& parentProps, LayoutButtonPtr button, int buttonId, bool checked)>;
+    using SimpleButtonCallback = std::function<void(int buttonId, bool checked)>;
 protected:
     ButtonCallback callback;
     int buttonId{0};
@@ -195,13 +216,17 @@ public:
     int roundRadius{6};
 public:
     LayoutButton(Private privateTag, LayoutContext* context, LayoutPtr child, ButtonType buttonType = ButtonType::normal, ButtonCallback callback = {}, int buttonId = 0);
-    static LayoutButtonPtr make(LayoutContext* context, LayoutPtr child, ButtonType buttonType = ButtonType::normal, ButtonCallback callback = {}, int buttonId = 0)
+    static LayoutButtonPtr make(LayoutContext* context, LayoutPtr child, int buttonId = 0, ButtonType buttonType = ButtonType::normal, ButtonCallback callback = {})
     { return std::make_shared<LayoutButton>(Private{}, context, child, buttonType, callback, buttonId); }
+    static LayoutButtonPtr make(LayoutContext* context, LayoutPtr child, int buttonId, ButtonType buttonType, SimpleButtonCallback callback)
+    { return std::make_shared<LayoutButton>(Private{}, context, child, buttonType, [callback](const PropertyBag& parentProps, LayoutButtonPtr button, int buttonId, bool checked) {
+            callback(buttonId, checked);
+        }, buttonId); }
     std::string getTypeStr() const override { return "Button"; }
     void draw(const PropertyBag& parentProps, mssm::Canvas2d& g) override;
     SizeBound2d getBound(const PropertyBag& parentProps) override;
     void resize(const PropertyBag& parentProps, const RectI& rect) override;
-    void foreachChild(std::function<void(LayoutBase*)> f, bool includeOverlay, bool includeCollapsed) override;
+    void foreachChild(std::function<void(LayoutBase*)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed) override;
     void onButtonPress(const PropertyBag& parentProps, bool pressValue) override;
     //virtual void setChecked(bool checked);
     void drawCommon(const PropertyBag& parentProps, mssm::Canvas2d& g, mssm::Color color);
@@ -209,6 +234,14 @@ public:
     void drawCheckbox(const PropertyBag& parentProps, mssm::Canvas2d &g, DrawMode mode);
     void drawRadio(const PropertyBag& parentProps, mssm::Canvas2d &g, DrawMode mode);
 
+    void setCallback(ButtonCallback callback) { this->callback = callback; }
+    void setCallback(SimpleButtonCallback callback) {
+        setCallback([callback](const PropertyBag& parentProps, LayoutButtonPtr button, int buttonId, bool checked) {
+            callback(buttonId, checked);
+        });
+    }
+    void setId(int id) { buttonId = id; }
+    int getId() const { return buttonId; }
     //EvtProp onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt) override;
 };
 
@@ -222,7 +255,7 @@ public:
     void draw(const PropertyBag& parentProps, mssm::Canvas2d& g) override;
     SizeBound2d getBound(const PropertyBag& parentProps) override;
     void resize(const PropertyBag& parentProps, const RectI& rect) override;
-    void foreachChild(std::function<void(LayoutBase*)> f, bool includeOverlay, bool includeCollapsed) override;
+    void foreachChild(std::function<void(LayoutBase*)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed) override;
     EvtProp onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt) override;
     EvtProp onKey(const PropertyBag& parentProps, const KeyEvt &key) override;
 };
@@ -247,7 +280,7 @@ public:
     void draw(const PropertyBag& parentProps, mssm::Canvas2d& g) override;
     SizeBound2d getBound(const PropertyBag& parentProps) override;
     void resize(const PropertyBag& parentProps, const RectI& rect) override;
-    void foreachChild(std::function<void(LayoutBase*)> f, bool includeOverlay, bool includeCollapsed) override;
+    void foreachChild(std::function<void(LayoutBase*)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed) override;
 };
 
 class LayoutSlider : public LayoutBase {
@@ -278,7 +311,7 @@ public:
     void draw(const PropertyBag& parentProps, mssm::Canvas2d& g) override;
     SizeBound2d getBound(const PropertyBag& parentProps) override;
     void resize(const PropertyBag& parentProps, const RectI& rect) override;
-    void foreachChild(std::function<void(LayoutBase*)> f, bool includeOverlay, bool includeCollapsed) override;
+    void foreachChild(std::function<void(LayoutBase*)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed) override;
     void stepValue(int count);
     void applyWheel(int count);
     constexpr double posMax() const { return isHorizontal ? (thisRect().width-handleSize) : (thisRect().height-handleSize); }
@@ -314,7 +347,7 @@ public:
     void draw(const PropertyBag& parentProps, mssm::Canvas2d& g) override;
     SizeBound2d getBound(const PropertyBag& parentProps) override;
     void resize(const PropertyBag& parentProps, const RectI& rect) override;
-    void foreachChild(std::function<void (LayoutBase *)> f, bool includeOverlay, bool includeCollapsed) override;
+    void foreachChild(std::function<void (LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed) override;
 };
 
 #endif // LAYOUTWIDGETS_H

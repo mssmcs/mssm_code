@@ -14,10 +14,13 @@ protected:
 protected:
     LayoutWithChildren(LayoutContext* context) : LayoutBase(context) {}
 public:
-    void foreachChild(std::function<void(LayoutBase*)> f, bool includeOverlay, bool includeCollapsed) override;
+    void foreachChild(std::function<void(LayoutBase*)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed) override;
     void setOuterMargins(int left, int right, int top, int bottom) override;
     void setInnerMargins(int hBetween, int vBetween) override;
     int numChildren() const { return children.size(); }
+    void appendChild(CHILD child);
+    void insertChild(CHILD child, int index);
+    void removeChild(int index);
 };
 
 class LayoutSplitter : public LayoutWithChildren<LayoutPtr>
@@ -78,7 +81,7 @@ public:
 
 template<typename CHILD>
 void LayoutWithChildren<CHILD>::foreachChild(std::function<void(LayoutBase *)> f,
-                                             bool includeOverlay, bool includeCollapsed)
+                                             ForeachContext context, bool includeOverlay, bool includeCollapsed)
 {
     for (auto& c : children) {
         f(c.get());
@@ -103,6 +106,26 @@ void LayoutWithChildren<CHILD>::setInnerMargins(int hBetween, int vBetween)
     margins.hBetween = hBetween;
     margins.vBetween = vBetween;
 }
+
+
+template<typename CHILD>
+void LayoutWithChildren<CHILD>::appendChild(CHILD child)
+{
+    children.append(child);
+}
+
+template<typename CHILD>
+void LayoutWithChildren<CHILD>::insertChild(CHILD child, int index)
+{
+    children.insert(children.begin() + index, child);
+}
+
+template<typename CHILD>
+void LayoutWithChildren<CHILD>::removeChild(int index)
+{
+    children.erase(children.begin()+index);
+}
+
 
 
 class LayoutGrid;

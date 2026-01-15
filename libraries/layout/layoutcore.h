@@ -170,6 +170,12 @@ public:
         defer,
         propagate
     };
+    enum class ForeachContext {
+        drawing,
+        events,
+        other
+    };
+
 protected:
     std::string typeStr;
     std::string name;
@@ -231,7 +237,7 @@ public:
 
     std::shared_ptr<LayoutBase> getLocalRoot();
 
-    virtual void foreachChild(std::function<void(LayoutBase*)> f, bool includeOverlay, bool includeCollapsed) = 0;
+    virtual void foreachChild(std::function<void(LayoutBase*)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed) = 0;
 
     inline void foreachAncestor(std::function<void(LayoutBase *)> f)
     {
@@ -244,8 +250,8 @@ public:
 
     LayoutPtr findByName(std::string name);
 
-    void traversePreOrder(std::function<void(LayoutBase*)> f, bool includeOverlay, bool includeCollapsed);
-    void traversePostorder(std::function<void(LayoutBase*)> f, bool includeOverlay, bool includeCollapsed);
+    void traversePreOrder(std::function<void(LayoutBase*)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed);
+    void traversePostorder(std::function<void(LayoutBase*)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed);
     void setParentsOfChildren();
 
     void broadcastRecursive(BroadcastMessage message);
@@ -267,6 +273,8 @@ public:
     void grabMouse();
     void releaseMouse();
 
+    void localReleaseMouseAndKeyboard();
+
     bool isAnyKeyboardFocus() const { return context->isAnyKeyboardFocus(); }
     bool isAnyDragFocus() const { return context->isAnyDragFocus(); }
 
@@ -281,6 +289,7 @@ public:
     virtual EvtProp propagateMouse(const PropertyBag& parentProps, EvtProp prop, const RectI& clip, MouseEvt& evt);
     virtual EvtProp onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt& evt);
     virtual EvtProp onMouseDeferred(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt& evt);
+
     virtual EvtProp propagateKey(const PropertyBag& parentProps, const RectI& clip, KeyEvt& evt);
     virtual EvtProp onKey(const PropertyBag& parentProps, const KeyEvt& evt);
     virtual EvtProp onKeyDeferred(const PropertyBag& parentProps, const KeyEvt& evt);
