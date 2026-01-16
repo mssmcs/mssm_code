@@ -1,6 +1,7 @@
 #include "layoutcontainers.h"
 #include "layoutwidgets.h"
 #include <numeric>
+#include "rectDraw.h"
 
 using namespace mssm;
 
@@ -26,6 +27,7 @@ LayoutStacked::LayoutStacked(Private privateTag,
 void LayoutStacked::draw(const PropertyBag& parentProps, mssm::Canvas2d& g)
 {
     pushClip(g, thisRect(), false);
+    drawRect(g, thisRect(), YELLOW, TRANSPARENT);
     foreachChild([&g,&parentProps](auto *c) { c->draw(parentProps, g); }, ForeachContext::drawing, false, false);
     popClip(g);
 }

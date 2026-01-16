@@ -119,6 +119,15 @@ std::shared_ptr<LayoutBase> LayoutBase::getLocalRoot()
     return curr->getBasePtr();
 }
 
+void LayoutBase::foreachChild(std::function<void (LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
+{
+    foreachChildImpl(f, context, includeOverlay, includeCollapsed);
+
+    if (includeOverlay && overlayElement) {
+        f(overlayElement.get());
+    }
+}
+
 LayoutPtr LayoutBase::findByName(std::string nm)
 {
     if (nm == name) {
@@ -151,26 +160,7 @@ void LayoutBase::traversePostorder(std::function<void(LayoutBase *)> f, ForeachC
     f(this);
 }
 
-void LayoutBase::closeOverlayRecursive()
-{
-    foreachChild([](LayoutBase *child) { child->closeOverlayRecursive(); }, ForeachContext::other, false, true);
-    closeOverlay();
-}
-
 int LayoutBase::nextId{1};
-
-void LayoutBase::closeOverlay()
-{
-    if (overlayElement) {
-        std::cout << "Closing Overlay" << std::endl;
-        showingTooltip = false;
-        overlayElement->closeOverlayRecursive();
-        context->removeOverlay(overlayElement);
-        overlayElement->setParent(nullptr);
-        overlayElement->setCollapsed(true);
-        overlayElement = {};
-    }
-}
 
 void LayoutBase::addToolTip(const PropertyBag& parentProps, Vec2d pos, LayoutPtr tip)
 {
@@ -310,10 +300,6 @@ LayoutBase::EvtProp LayoutBase::propagateMouse(const PropertyBag& parentProps, E
 
     context->updateHoverChain(parentProps, shared_from_this(), isInside, evt.pos);
 
-    if (isCollapsed) {
-        return EvtProp::propagate;
-    }
-
     MouseEventReason reason{};
 
     if (prop == EvtProp::consumed) {
@@ -321,7 +307,7 @@ LayoutBase::EvtProp LayoutBase::propagateMouse(const PropertyBag& parentProps, E
             reason = MouseEventReason::hoverOnly;
         }
         else {
-            return EvtProp::propagate;
+            return EvtProp::consumed;
         }
     }
     else if (isAnyDragFocus()) {
@@ -371,12 +357,6 @@ LayoutBase::EvtProp LayoutBase::propagateMouse(const PropertyBag& parentProps, E
     }
 
     return prop;
-}
-
-LayoutBase::EvtProp LayoutBase::onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt)
-{
-    //context->debugMouse(thisRect(), reason, evt);
-    return EvtProp::propagate;
 }
 
 LayoutBase::EvtProp LayoutBase::propagateKey(const PropertyBag& parentProps, const RectI &clip, KeyEvt &evt)
@@ -443,6 +423,12 @@ LayoutBase::EvtProp LayoutBase::onKeyDeferred(const PropertyBag& parentProps, co
     return EvtProp::propagate;
 }
 
+LayoutBase::EvtProp LayoutBase::onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt)
+{
+    //context->debugMouse(thisRect(), reason, evt);
+    return EvtProp::propagate;
+}
+
 LayoutBase::EvtProp LayoutBase::onMouseDeferred(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt)
 {
     return EvtProp::propagate;
@@ -476,6 +462,27 @@ void LayoutBase::setOverlay(LayoutPtr overlay)
     context->pushOverlay(overlay);
 }
 
+void LayoutBase::closeOverlay()
+{
+    if (overlayElement) {
+        std::cout << "Closing Overlay" << std::endl;
+        showingTooltip = false;
+        overlayElement->closeOverlayRecursive();
+        context->removeOverlay(overlayElement);
+        overlayElement->setParent(nullptr);
+        overlayElement->setCollapsed(true);
+        overlayElement = {};
+    }
+}
+
+void LayoutBase::closeOverlayRecursive()
+{
+    foreachChild([](LayoutBase *child) {
+        child->closeOverlayRecursive();
+    }, ForeachContext::other, false, true);
+    closeOverlay();
+}
+
 void LayoutContext::updateWindowRect(const RectI &wr)
 {
     windowRect = wr;
@@ -507,31 +514,6 @@ void LayoutContext::setDragFocus(LayoutPtr focusElement)
         }
     }
 }
-
-
-// void grow(RectI &rect, const Padding &pad)
-// {
-//     rect.pos.x -= pad.left;
-//     rect.pos.y -= pad.top;
-//     rect.width += pad.left + pad.right;
-//     rect.height += pad.top + pad.bottom;
-// }
-
-// void shrink(RectI &rect, const Padding &pad)
-// {
-//     rect.pos.x += pad.left;
-//     rect.pos.y += pad.top;
-//     rect.width -= pad.left + pad.right;
-//     rect.height -= pad.top + pad.bottom;
-//     if (rect.width < 0) {
-//         rect.pos.x += rect.width / 2;
-//         rect.width = 0;
-//     }
-//     if (rect.height < 0) {
-//         rect.pos.y += rect.height / 2;
-//         rect.height = 0;
-//     }
-// }
 
 void grow(SizeBound2d &bound, const Padding &pad)
 {

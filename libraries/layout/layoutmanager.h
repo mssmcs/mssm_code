@@ -11,8 +11,6 @@ class LayoutManager
     LayoutContext *context;
     LayoutPtr layout;
     Vec2d lastMousePos;
-    LayoutPtr lastHoverElement;
-    // LayoutPtr hoverElement;
 
 public:
     LayoutManager(LayoutContext *context, LayoutPtr layout);

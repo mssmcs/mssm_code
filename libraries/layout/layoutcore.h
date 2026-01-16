@@ -166,7 +166,7 @@ public:
     };
     enum class EvtProp {
         consumed,
-        collapsed,
+       // collapsed,
         defer,
         propagate
     };
@@ -237,7 +237,8 @@ public:
 
     std::shared_ptr<LayoutBase> getLocalRoot();
 
-    virtual void foreachChild(std::function<void(LayoutBase*)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed) = 0;
+    virtual void foreachChild(std::function<void(LayoutBase*)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed);
+    virtual void foreachChildImpl(std::function<void(LayoutBase*)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed) = 0;
 
     inline void foreachAncestor(std::function<void(LayoutBase *)> f)
     {

@@ -179,15 +179,25 @@ void LayoutManager::draw(mssm::CoreWindow& window, mssm::Canvas2d &g)
         }
     }
 
-    int yPos = 25;
+    if (window.isAltKeyPressed()) {
+        int yPos = 25;
 
-    layout->traversePreOrder(
-        [&](LayoutBase *element) {
-            std::string txt = element->getTypeStr() + " " + element->getName();
+        layout->traversePreOrder(
+            [&](LayoutBase *element) {
+                std::string txt = element->getTypeStr() + " " + element->getName() + " " + std::to_string(element->getLayer())+ " " + std::to_string(element->getDepth());
+                g.text({10*element->getDepth(), yPos}, 20, txt);
+                yPos += 20;
+            },
+            LayoutBase::ForeachContext::drawing, true, true);
+
+        yPos += 20;
+
+        context->iterateHoverChain([&](LayoutBase *element) {
+            std::string txt = element->getTypeStr() + " " + element->getName() + " " + std::to_string(element->getLayer())+ " " + std::to_string(element->getDepth());
             g.text({10*element->getDepth(), yPos}, 20, txt);
             yPos += 20;
-        },
-        LayoutBase::ForeachContext::drawing, false, true);
+        });
+    }
 }
 
 LayoutPtr LayoutManager::findByName(std::string name)
@@ -198,8 +208,6 @@ LayoutPtr LayoutManager::findByName(std::string name)
 LayoutBase::EvtProp LayoutManager::propagateMouse(const PropertyBag &parentProps, const RectI &clip, MouseEvt &evt)
 {
     LayoutBase::EvtProp res = LayoutBase::EvtProp::propagate;
-
-    LayoutPtr newHoverElement;
 
     if (!context->overlays.empty()) {
         for (int i = context->overlays.size() - 1; i >= 0; i--) {
@@ -214,7 +222,7 @@ LayoutBase::EvtProp LayoutManager::propagateMouse(const PropertyBag &parentProps
             res = tmp->propagateMouse(parentProps, res, clip, evt);
             if (i >= context->overlays.size() || tmp != context->overlays[i]) {
                 // overlay removed while propagating?
-                std::cout << "WOverlay removed while propagating mouse (handle this in a more "
+                std::cout << "Overlay removed while propagating mouse (handle this in a more "
                              "general way!"
                           << std::endl;
                 break;
@@ -228,8 +236,6 @@ LayoutBase::EvtProp LayoutManager::propagateMouse(const PropertyBag &parentProps
     if (res == LayoutBase::EvtProp::propagate) {
         res = layout->propagateMouse(parentProps, res, clip, evt);
     }
-
-    // updateHoverElement(newHoverElement, cast<Vec2i32>(evt.pos));
 
     return res;
 }

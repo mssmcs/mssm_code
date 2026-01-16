@@ -12,7 +12,7 @@
 //     SizeBound2d getBound(const PropertyBag& parentProps) override;
 //     void resize(const PropertyBag& parentProps, const RectI& rect) override;
 //     void draw(const PropertyBag& parentProps, mssm::Canvas2d& g) override;
-//     void foreachChild(std::function<void (LayoutBase *)> f) override;
+//     void foreachChildImpl(std::function<void (LayoutBase *)> f) override;
 // };
 
 class LayoutMenu : public LayoutBase
@@ -38,7 +38,7 @@ public:
     void resize(const PropertyBag& parentProps, const RectI& rect) override;
     SizeBound2d getBound(const PropertyBag& parentProps) override;
     void setOuterMargins(int left, int right, int top, int bottom) override;
-    void foreachChild(std::function<void (LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed) override;
+    void foreachChildImpl(std::function<void (LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed) override;
     void openMenu(const PropertyBag &parentProps, LayoutButtonPtr button, int buttonIdx);
 };
 

@@ -14,7 +14,7 @@ protected:
 protected:
     LayoutWithChildren(LayoutContext* context) : LayoutBase(context) {}
 public:
-    void foreachChild(std::function<void(LayoutBase*)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed) override;
+    void foreachChildImpl(std::function<void(LayoutBase*)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed) override;
     void setOuterMargins(int left, int right, int top, int bottom) override;
     void setInnerMargins(int hBetween, int vBetween) override;
     int numChildren() const { return children.size(); }
@@ -80,14 +80,11 @@ public:
 
 
 template<typename CHILD>
-void LayoutWithChildren<CHILD>::foreachChild(std::function<void(LayoutBase *)> f,
+void LayoutWithChildren<CHILD>::foreachChildImpl(std::function<void(LayoutBase *)> f,
                                              ForeachContext context, bool includeOverlay, bool includeCollapsed)
 {
     for (auto& c : children) {
         f(c.get());
-    }
-    if (includeOverlay && overlayElement) {
-        f(overlayElement.get());
     }
 }
 

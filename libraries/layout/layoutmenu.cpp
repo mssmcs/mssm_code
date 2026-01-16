@@ -60,13 +60,10 @@ void LayoutMenu::setOuterMargins(int left, int right, int top, int bottom)
     margins.bottom = bottom;
 }
 
-void LayoutMenu::foreachChild(std::function<void(LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
+void LayoutMenu::foreachChildImpl(std::function<void(LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
 {
     // NOTE: don't iterate over menus, they are overlays not children
     f(tabBar.get());
-    if (includeOverlay && overlayElement) {
-        f(overlayElement.get());
-    }
 }
 
 void LayoutMenu::openMenu(const PropertyBag& parentProps, LayoutButtonPtr button, int buttonIdx)

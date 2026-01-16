@@ -72,11 +72,9 @@ public:
 class LayoutContext : public TextMetrics {
     LayoutPtr keyFocus{};
     LayoutPtr dragFocus{};
-    LayoutPtr toolTip{};  // overlay! don't treat as child
     bool needsResize{true};
     RectI windowRect;
     bool debug{false};
-    //HoverChain hoverChain;
     std::vector<LayoutPtr> hoverChain;
 public: // TODO: make private later
     std::vector<LayoutPtr> overlays;
@@ -121,6 +119,8 @@ public:
     void removeOverlay(LayoutPtr overlay);
 
     void updateHoverChain(const PropertyBag &parentProps, LayoutPtr hoverElement, bool isInside, Vec2d pos);
+
+    void iterateHoverChain(std::function<void(LayoutBase*)> f);
 private:
     void sendEnter(const PropertyBag &parentProps, LayoutPtr element, Vec2d pos);
     void sendExit(const PropertyBag& parentProps, LayoutPtr element, Vec2d pos);

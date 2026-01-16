@@ -93,6 +93,17 @@ void LayoutContext::updateHoverChain(const PropertyBag& parentProps, LayoutPtr h
     int depth = hoverElement->getDepth();
 
     if (hoverChain.size() < depth && isInside) {
+        if (hoverChain.size() == 0) {
+            std::cout << "Maybe this is ok" << std::endl;
+            // example of when this happens: button click inside overlay
+            // is seen by button "underneath" the overlay, and the
+            // button handler removes or replaces overlay
+            // which triggers clearing hover chain, but event is still
+            // propagating through the non-overlay tree
+            return;
+        }
+        std::cout << "Hover Chain size: " << hoverChain.size() << std::endl;
+        std::cout << "depth: " << depth << std::endl;
         throw std::logic_error("hoverChain.size() < depth");
     }
 
@@ -130,8 +141,17 @@ void LayoutContext::updateHoverChain(const PropertyBag& parentProps, LayoutPtr h
     }
 }
 
+void LayoutContext::iterateHoverChain(std::function<void (LayoutBase *)> f)
+{
+    for (auto& e : hoverChain) {
+        f(e.get());
+    }
+}
+
 void LayoutContext::truncateHoverChain(const PropertyBag& parentProps, int depth, Vec2d pos)
 {
+    std::cout << "Truncating to: " << depth << std::endl;
+
     while (hoverChain.size() > depth) {
         if (debug) {
             std::cout << "Exiting: " << hoverChain.back()->getTypeStr() << std::endl;

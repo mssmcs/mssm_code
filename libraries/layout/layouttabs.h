@@ -15,7 +15,7 @@ public:
     void draw(const PropertyBag& parentProps, mssm::Canvas2d& g) override;
     SizeBound2d getBound(const PropertyBag& parentProps) override;
     void resize(const PropertyBag& parentProps, const RectI& rect) override;
-    void foreachChild(std::function<void (LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed) override;
+    void foreachChildImpl(std::function<void (LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed) override;
 };
 
 class LayoutTabs : public LayoutBase
@@ -42,7 +42,7 @@ public:
     void resize(const PropertyBag& parentProps, const RectI& rect) override;
     SizeBound2d getBound(const PropertyBag& parentProps) override;
     void setOuterMargins(int left, int right, int top, int bottom) override;
-    void foreachChild(std::function<void (LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed) override;
+    void foreachChildImpl(std::function<void (LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed) override;
     void selectTab(int tabIndex);
 };
 

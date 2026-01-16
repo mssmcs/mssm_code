@@ -89,7 +89,7 @@ void LayoutTabs::setOuterMargins(int left, int right, int top, int bottom)
     margins.bottom = bottom;
 }
 
-void LayoutTabs::foreachChild(std::function<void(LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
+void LayoutTabs::foreachChildImpl(std::function<void(LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
 {
     f(tabBar.get());
     if (includeCollapsed) {
@@ -99,9 +99,6 @@ void LayoutTabs::foreachChild(std::function<void(LayoutBase *)> f, ForeachContex
     }
     else {
         f(tabs[activeTab].get());
-    }
-    if (includeOverlay && overlayElement) {
-        f(overlayElement.get());
     }
 }
 
@@ -151,12 +148,9 @@ void LayoutTabFrame::resize(const PropertyBag& parentProps, const RectI& rect)
     child->resize(parentProps, contentRect);
 }
 
-void LayoutTabFrame::foreachChild(std::function<void (LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
+void LayoutTabFrame::foreachChildImpl(std::function<void (LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
 {
     if (child) {
         f(child.get());
-    }
-    if (includeOverlay && overlayElement) {
-        f(overlayElement.get());
     }
 }

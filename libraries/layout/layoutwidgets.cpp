@@ -45,11 +45,8 @@ void LayoutLabel::resize(const PropertyBag& parentProps, const RectI& rect)
    // ::shrink(contentRect, padding);
 }
 
-void LayoutLabel::foreachChild(std::function<void(LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
+void LayoutLabel::foreachChildImpl(std::function<void(LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
 {
-    if (includeOverlay && overlayElement) {
-        f(overlayElement.get());
-    }
 }
 
 LayoutColor::LayoutColor(Private privateTag, LayoutContext *context, mssm::Color color, SizeBound2d bound)
@@ -81,11 +78,8 @@ void LayoutColor::resize(const PropertyBag& parentProps, const RectI& rect)
     contentRect.height = bound.yBound.constrain(rect.height);
 }
 
-void LayoutColor::foreachChild(std::function<void(LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
+void LayoutColor::foreachChildImpl(std::function<void(LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
 {
-    if (includeOverlay && overlayElement) {
-        f(overlayElement.get());
-    }
 }
 
 LayoutBase::EvtProp LayoutColor::onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt)
@@ -336,13 +330,10 @@ void LayoutButton::resize(const PropertyBag& parentProps, const RectI& rect)
     }
 }
 
-void LayoutButton::foreachChild(std::function<void(LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
+void LayoutButton::foreachChildImpl(std::function<void(LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
 {
     if (child) {
         f(child.get());
-    }
-    if (includeOverlay && overlayElement) {
-        f(overlayElement.get());
     }
 }
 
@@ -440,11 +431,8 @@ void LayoutText::resize(const PropertyBag& parentProps, const RectI& rect)
     editBox.setRect({{contentRect.pos.x, contentRect.pos.y}, contentRect.width, contentRect.height});
 }
 
-void LayoutText::foreachChild(std::function<void(LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
+void LayoutText::foreachChildImpl(std::function<void(LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
 {
-    if (includeOverlay && overlayElement) {
-        f(overlayElement.get());
-    }
 }
 
 LayoutScroll::LayoutScroll(Private privateTag, LayoutContext *context, LayoutPtr child)
@@ -600,7 +588,7 @@ void LayoutScroll::resize(const PropertyBag& parentProps, const RectI& rect)
     child->resize(parentProps, contentRect);
 }
 
-void LayoutScroll::foreachChild(std::function<void(LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
+void LayoutScroll::foreachChildImpl(std::function<void(LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
 {
     if (hScroll) {
         f(hScroll.get());
@@ -610,9 +598,6 @@ void LayoutScroll::foreachChild(std::function<void(LayoutBase *)> f, ForeachCont
     }
     if (child) {
         f(child.get());
-    }
-    if (includeOverlay && overlayElement) {
-        f(overlayElement.get());
     }
 }
 
@@ -703,11 +688,8 @@ void LayoutSlider::resize(const PropertyBag& parentProps, const RectI& rect)
     setRect(rect);
 }
 
-void LayoutSlider::foreachChild(std::function<void(LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
+void LayoutSlider::foreachChildImpl(std::function<void(LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
 {
-    if (includeOverlay && overlayElement) {
-        f(overlayElement.get());
-    }
 }
 
 void LayoutSlider::stepValue(int count)
@@ -799,11 +781,8 @@ void LayoutDragHandle::resize(const PropertyBag& parentProps, const RectI& rect)
     setRect(rect);
 }
 
-void LayoutDragHandle::foreachChild(std::function<void(LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
+void LayoutDragHandle::foreachChildImpl(std::function<void(LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
 {
-    if (includeOverlay && overlayElement) {
-        f(overlayElement.get());
-    }
 }
 
 void HoverTrack::onMouse(LayoutBase* element, const MouseEvt &evt, bool captureOnPress)
@@ -873,15 +852,12 @@ void LayoutAdapter::resize(const PropertyBag& parentProps, const RectI& rect)
     setRect(rect);
 }
 
-void LayoutAdapter::foreachChild(std::function<void(LayoutBase *)> f, ForeachContext context,
+void LayoutAdapter::foreachChildImpl(std::function<void(LayoutBase *)> f, ForeachContext context,
                                  bool includeOverlay,
                                  bool includeCollapsed)
 {
     if (child) {
         f(child.get());
-    }
-    if (includeOverlay && overlayElement) {
-        f(overlayElement.get());
     }
 }
 
@@ -941,7 +917,7 @@ void LayoutLeaf::resize(const PropertyBag &parentProps, const RectI &rect)
     setRect(rect);
 }
 
-void LayoutLeaf::foreachChild(std::function<void(LayoutBase *)> f,
+void LayoutLeaf::foreachChildImpl(std::function<void(LayoutBase *)> f,
                               ForeachContext context,
                               bool includeOverlay,
                               bool includeCollapsed)
@@ -1024,11 +1000,8 @@ void LayoutImage::resize(const PropertyBag &parentProps, const RectI &rect)
     // contentRect.height = bound.yBound.constrain(rect.height);
 }
 
-void LayoutImage::foreachChild(std::function<void (LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
+void LayoutImage::foreachChildImpl(std::function<void (LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
 {
-    if (includeOverlay && overlayElement) {
-        f(overlayElement.get());
-    }
 }
 
 LayoutBase::EvtProp LayoutImage::onMouse(const PropertyBag &parentProps, MouseEventReason reason, const MouseEvt &evt)
@@ -1075,7 +1048,7 @@ void LayoutModalHolder::resize(const PropertyBag &parentProps, const RectI &rect
     setRect(rect);
 }
 
-void LayoutModalHolder::foreachChild(std::function<void (LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
+void LayoutModalHolder::foreachChildImpl(std::function<void (LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed)
 {
     bool traverseChild{false};
     bool traverseModal{false};
@@ -1123,3 +1096,31 @@ void LayoutModalHolder::clearModal()
     modal.reset();
     context->setNeedsResize();
 }
+
+LayoutModalFrame::LayoutModalFrame(Private privateTag, LayoutContext *context, LayoutPtr child)
+    : LayoutAdapter(privateTag, context, child)
+{
+
+}
+
+// LayoutBase::EvtProp LayoutModalFrame::onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt)
+// {
+//     return EvtProp::consumed;
+// }
+
+// LayoutBase::EvtProp LayoutModalFrame::onMouseDeferred(const PropertyBag &parentProps, MouseEventReason reason, const MouseEvt &evt)
+// {
+//     return EvtProp::consumed;
+// }
+
+// LayoutBase::EvtProp LayoutModalFrame::onKey(const PropertyBag &parentProps, const KeyEvt &evt)
+// {
+//     return EvtProp::consumed;
+// }
+
+// LayoutBase::EvtProp LayoutModalFrame::onKeyDeferred(const PropertyBag &parentProps, const KeyEvt &evt)
+// {
+//     return EvtProp::consumed;
+// }
+
+
