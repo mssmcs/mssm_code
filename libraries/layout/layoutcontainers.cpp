@@ -1,7 +1,7 @@
 #include "layoutcontainers.h"
 #include "layoutwidgets.h"
 #include <numeric>
-#include "rectDraw.h"
+#include "rectdraw.h"
 
 using namespace mssm;
 
@@ -357,7 +357,7 @@ void LayoutSplitter::dragSplit(Vec2d pos)
     context->setNeedsResize();
 }
 
-LayoutBase::EvtProp LayoutSplitter::onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt)
+LayoutBase::EvtRes LayoutSplitter::onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt)
 {
     RectI splitHandle = splitHandleRect();
 
@@ -398,7 +398,7 @@ LayoutBase::EvtProp LayoutSplitter::onMouse(const PropertyBag& parentProps, Mous
         break;
     }
 
-    return EvtProp::propagate;
+    return EvtRes::propagate;
 }
 
 void LayoutSplitter::draw(const PropertyBag& parentProps, mssm::Canvas2d& g)

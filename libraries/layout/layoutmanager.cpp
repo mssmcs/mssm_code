@@ -205,9 +205,9 @@ LayoutPtr LayoutManager::findByName(std::string name)
     return layout->findByName(name);
 }
 
-LayoutBase::EvtProp LayoutManager::propagateMouse(const PropertyBag &parentProps, const RectI &clip, MouseEvt &evt)
+void LayoutManager::propagateMouse(const PropertyBag &parentProps, const RectI &clip, MouseEvt &evt)
 {
-    LayoutBase::EvtProp res = LayoutBase::EvtProp::propagate;
+    LayoutBase::EvtProp prop = LayoutBase::EvtProp::normal;
 
     if (!context->overlays.empty()) {
         for (int i = context->overlays.size() - 1; i >= 0; i--) {
@@ -219,7 +219,7 @@ LayoutBase::EvtProp LayoutManager::propagateMouse(const PropertyBag &parentProps
                 break;
             }
             LayoutPtr tmp = context->overlays[i];
-            res = tmp->propagateMouse(parentProps, res, clip, evt);
+            LayoutBase::EvtRes res = tmp->propagateMouse(parentProps, prop, clip, evt);
             if (i >= context->overlays.size() || tmp != context->overlays[i]) {
                 // overlay removed while propagating?
                 std::cout << "Overlay removed while propagating mouse (handle this in a more "
@@ -227,39 +227,31 @@ LayoutBase::EvtProp LayoutManager::propagateMouse(const PropertyBag &parentProps
                           << std::endl;
                 break;
             }
-            if (res != LayoutBase::EvtProp::propagate) {
-                break;
+            if (res != LayoutBase::EvtRes::propagate) {
+                prop = LayoutBase::EvtProp::hover;
             }
         }
     }
 
-    if (res == LayoutBase::EvtProp::propagate) {
-        res = layout->propagateMouse(parentProps, res, clip, evt);
-    }
-
-    return res;
+    layout->propagateMouse(parentProps, prop, clip, evt);
 }
 
-LayoutBase::EvtProp LayoutManager::propagateKey(const PropertyBag &parentProps, const RectI &clip, KeyEvt &evt)
+void LayoutManager::propagateKey(const PropertyBag &parentProps, const RectI &clip, KeyEvt &evt)
 {
     if (evt.key == mssm::Key::Tab) {
         context->setDebug(true);
     }
 
-    LayoutBase::EvtProp res = LayoutBase::EvtProp::propagate;
+    LayoutBase::EvtProp prop = LayoutBase::EvtProp::normal;
 
     if (!context->overlays.empty()) {
         for (int i = context->overlays.size() - 1; i >= 0; i--) {
-            res = context->overlays[i]->propagateKey(parentProps, clip, evt);
-            if (res != LayoutBase::EvtProp::propagate) {
-                break;
+            LayoutBase::EvtRes res = context->overlays[i]->propagateKey(parentProps, prop, clip, evt);
+            if (res != LayoutBase::EvtRes::propagate) {
+                prop = LayoutBase::EvtProp::hover;
             }
         }
     }
 
-    if (res == LayoutBase::EvtProp::propagate) {
-        res = layout->propagateKey(parentProps, clip, evt);
-    }
-
-    return res;
+    layout->propagateKey(parentProps, prop, clip, evt);
 }

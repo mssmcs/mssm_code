@@ -42,7 +42,7 @@ public:
     SizeBound2d getBound(const PropertyBag& parentProps) override;
     void resize(const PropertyBag& parentProps, const RectI& rect) override;
     void foreachChildImpl(std::function<void(LayoutBase*)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed) override;
-    EvtProp onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt) override;
+    EvtRes onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt) override;
 };
 
 
@@ -59,7 +59,7 @@ public:
     SizeBound2d getBound(const PropertyBag& parentProps) override;
     void resize(const PropertyBag& parentProps, const RectI& rect) override;
     void foreachChildImpl(std::function<void(LayoutBase*)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed) override;
-    EvtProp onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt) override;
+    EvtRes onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt) override;
 };
 
 class LayoutLabel : public LayoutWithContent {
@@ -164,7 +164,7 @@ public:
     LayoutAdapterClickable(Private privateTag, LayoutContext *context, LayoutPtr child, Padding padding, std::function<void()> clickCallback);
     static std::shared_ptr<LayoutAdapterClickable> make(LayoutContext* context, LayoutPtr child, Padding padding, std::function<void()> clickCallback) { return std::make_shared<LayoutAdapterClickable>(Private{}, context, child, padding, clickCallback); }
     std::string getTypeStr() const override { return "AdapterClickable"; }
-    EvtProp onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt) override;
+    EvtRes onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt) override;
 };
 
 // intended for use as overlay, just consumes mouse/keyboard events
@@ -203,7 +203,7 @@ public:
     virtual void onButtonPress(const PropertyBag& parentProps, bool pressValue);
     virtual void setChecked(bool checked);
     bool isChecked() const { return checked; }
-    EvtProp onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt) override;
+    EvtRes onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt) override;
 };
 
 
@@ -269,8 +269,8 @@ public:
     SizeBound2d getBound(const PropertyBag& parentProps) override;
     void resize(const PropertyBag& parentProps, const RectI& rect) override;
     void foreachChildImpl(std::function<void(LayoutBase*)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed) override;
-    EvtProp onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt) override;
-    EvtProp onKey(const PropertyBag& parentProps, const KeyEvt &key) override;
+    EvtRes onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt) override;
+    EvtRes onKey(const PropertyBag& parentProps, const KeyEvt &key) override;
 };
 
 class LayoutDragHandle : public LayoutBase {
@@ -289,7 +289,7 @@ public:
     LayoutDragHandle(Private privateTag, LayoutContext* context, DragCallback dragCallback);
     static std::shared_ptr<LayoutDragHandle> make(LayoutContext* context, DragCallback dragCallback) { return std::make_shared<LayoutDragHandle>(Private{}, context, dragCallback); }
     std::string getTypeStr() const override { return "DragHandle"; }
-    EvtProp onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt) override;
+    EvtRes onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt) override;
     void draw(const PropertyBag& parentProps, mssm::Canvas2d& g) override;
     SizeBound2d getBound(const PropertyBag& parentProps) override;
     void resize(const PropertyBag& parentProps, const RectI& rect) override;
@@ -320,7 +320,7 @@ public:
     LayoutSlider(Private privateTag, LayoutContext* context, bool isHorizontal, double minValue, double maxValue, double value);
     static std::shared_ptr<LayoutSlider> make(LayoutContext* context, bool isHorizontal, double minValue, double maxValue, double value) { return std::make_shared<LayoutSlider>(Private{}, context, isHorizontal, minValue, maxValue, value); }
     std::string getTypeStr() const override { return "Slider"; }
-    EvtProp onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt) override;
+    EvtRes onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt) override;
     void draw(const PropertyBag& parentProps, mssm::Canvas2d& g) override;
     SizeBound2d getBound(const PropertyBag& parentProps) override;
     void resize(const PropertyBag& parentProps, const RectI& rect) override;
@@ -355,8 +355,8 @@ public:
     LayoutScroll(Private privateTag, LayoutContext* context, LayoutPtr child);
     static std::shared_ptr<LayoutScroll> make(LayoutContext* context, LayoutPtr child) { return std::make_shared<LayoutScroll>(Private{}, context, child); }
     std::string getTypeStr() const override { return "Scroll"; }
-    EvtProp onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt) override;
-    EvtProp onMouseDeferred(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt) override;
+    EvtRes onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt) override;
+    EvtRes onMouseDeferred(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt) override;
     void draw(const PropertyBag& parentProps, mssm::Canvas2d& g) override;
     SizeBound2d getBound(const PropertyBag& parentProps) override;
     void resize(const PropertyBag& parentProps, const RectI& rect) override;

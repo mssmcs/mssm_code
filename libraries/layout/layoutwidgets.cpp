@@ -82,16 +82,16 @@ void LayoutColor::foreachChildImpl(std::function<void(LayoutBase *)> f, ForeachC
 {
 }
 
-LayoutBase::EvtProp LayoutColor::onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt)
+LayoutBase::EvtRes LayoutColor::onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt)
 {
     if (evt.action == MouseEvt::Action::press) {
         auto label = LayoutLabel::make(context, "ToolTip Example");
         label->backgroundColor = mssm::BLACK;
         label->borderColor = mssm::GREY;
         addToolTip(parentProps, evt.pos, label);
-        return LayoutBase::EvtProp::consumed;
+        return LayoutBase::EvtRes::consumed;
     }
-    return LayoutBase::EvtProp::propagate;
+    return LayoutBase::EvtRes::propagate;
 }
 
 LayoutButtonBase::LayoutButtonBase(Private privateTag, LayoutContext *context, ButtonType buttonType)
@@ -112,8 +112,7 @@ void LayoutButtonBase::setChecked(bool newChecked)
     checked = newChecked;
 }
 
-
-LayoutBase::EvtProp LayoutButtonBase::onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt)
+LayoutBase::EvtRes LayoutButtonBase::onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt)
 {
     switch (evt.action) {
     case MouseEvt::Action::none:
@@ -162,7 +161,7 @@ LayoutBase::EvtProp LayoutButtonBase::onMouse(const PropertyBag& parentProps, Mo
         break;
     }
 
-    return EvtProp::propagate;
+    return EvtRes::propagate;
 }
 
 LayoutButton::LayoutButton(Private privateTag,
@@ -344,7 +343,7 @@ LayoutText::LayoutText(Private privateTag, LayoutContext *context, std::string t
     setParentsOfChildren();
 }
 
-LayoutBase::EvtProp LayoutText::onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt)
+LayoutBase::EvtRes LayoutText::onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt)
 {
     switch (evt.action) {
     case MouseEvt::Action::none:
@@ -374,10 +373,10 @@ LayoutBase::EvtProp LayoutText::onMouse(const PropertyBag& parentProps, MouseEve
         break;
     }
 
-    return EvtProp::propagate;
+    return EvtRes::propagate;
 }
 
-LayoutBase::EvtProp LayoutText::onKey(const PropertyBag &parentProps, const KeyEvt &key)
+LayoutBase::EvtRes LayoutText::onKey(const PropertyBag &parentProps, const KeyEvt &key)
 {
     switch (key.action) {
     case KeyEvt::Action::press:
@@ -385,7 +384,7 @@ LayoutBase::EvtProp LayoutText::onKey(const PropertyBag &parentProps, const KeyE
         if (hasKeyFocus()) {
             if (std::isprint(key.key)) {
                 editBox.addChar(key.key, key.hasShift());
-                return EvtProp::consumed;
+                return EvtRes::consumed;
             }
             else {
                 switch (key.key) {
@@ -408,7 +407,7 @@ LayoutBase::EvtProp LayoutText::onKey(const PropertyBag &parentProps, const KeyE
     case KeyEvt::Action::release:
         break;
     }
-    return EvtProp::propagate;
+    return EvtRes::propagate;
 }
 
 void LayoutText::draw(const PropertyBag& parentProps, mssm::Canvas2d& g)
@@ -443,8 +442,8 @@ LayoutScroll::LayoutScroll(Private privateTag, LayoutContext *context, LayoutPtr
     setParentsOfChildren();
 }
 
-LayoutBase::EvtProp LayoutScroll::onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt)
-{
+LayoutBase::EvtRes LayoutScroll::onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt)
+{/*
     switch (evt.action) {
     case MouseEvt::Action::none:
     case MouseEvt::Action::move:
@@ -461,12 +460,12 @@ LayoutBase::EvtProp LayoutScroll::onMouse(const PropertyBag& parentProps, MouseE
         //     context->setNeedsResize();
         // }
         break;
-    }
+    }*/
 
-    return EvtProp::propagate;
+    return EvtRes::propagate;
 }
 
-LayoutBase::EvtProp LayoutScroll::onMouseDeferred(const PropertyBag &parentProps, MouseEventReason reason, const MouseEvt &evt)
+LayoutBase::EvtRes LayoutScroll::onMouseDeferred(const PropertyBag &parentProps, MouseEventReason reason, const MouseEvt &evt)
 {
     switch (evt.action) {
     case MouseEvt::Action::none:
@@ -483,12 +482,12 @@ LayoutBase::EvtProp LayoutScroll::onMouseDeferred(const PropertyBag &parentProps
             vScroll->applyWheel(evt.dragDelta.y);
             context->setNeedsResize();
             std::cout << "scrolling" << std::endl;
-            return EvtProp::consumed;
+            return EvtRes::consumed;
         }
         break;
     }
 
-    return EvtProp::propagate;
+    return EvtRes::propagate;
 }
 
 void LayoutScroll::draw(const PropertyBag& parentProps, mssm::Canvas2d& g)
@@ -612,7 +611,7 @@ LayoutSlider::LayoutSlider(Private privateTag,
     setParentsOfChildren();
 }
 
-LayoutBase::EvtProp LayoutSlider::onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt)
+LayoutBase::EvtRes LayoutSlider::onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt)
 {
     const int dragThreshold = 10;
 
@@ -625,7 +624,7 @@ LayoutBase::EvtProp LayoutSlider::onMouse(const PropertyBag& parentProps, MouseE
         std::cout << "scrolling2" << std::endl;
 
         context->setNeedsResize();
-        return EvtProp::consumed;
+        return EvtRes::consumed;
     case MouseEvt::Action::move:
         hovering = true;
         break;
@@ -659,7 +658,7 @@ LayoutBase::EvtProp LayoutSlider::onMouse(const PropertyBag& parentProps, MouseE
         break;
     }
 
-    return EvtProp::propagate;
+    return EvtRes::propagate;
 }
 
 void LayoutSlider::draw(const PropertyBag& parentProps, mssm::Canvas2d& g)
@@ -724,7 +723,7 @@ LayoutDragHandle::LayoutDragHandle(Private privateTag, LayoutContext *context, s
 {
 }
 
-LayoutBase::EvtProp LayoutDragHandle::onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt)
+LayoutBase::EvtRes LayoutDragHandle::onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt)
 {
     const int dragThreshold = 10;
 
@@ -763,7 +762,7 @@ LayoutBase::EvtProp LayoutDragHandle::onMouse(const PropertyBag& parentProps, Mo
         break;
     }
 
-    return EvtProp::propagate;
+    return EvtRes::propagate;
 }
 
 void LayoutDragHandle::draw(const PropertyBag& parentProps, mssm::Canvas2d& g)
@@ -893,7 +892,7 @@ LayoutAdapterClickable::LayoutAdapterClickable(Private privateTag,
 
 }
 
-LayoutBase::EvtProp LayoutAdapterClickable::onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt)
+LayoutBase::EvtRes LayoutAdapterClickable::onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt)
 {
     switch (evt.action) {
     case MouseEvt::Action::none:
@@ -909,7 +908,7 @@ LayoutBase::EvtProp LayoutAdapterClickable::onMouse(const PropertyBag& parentPro
         break;
     }
 
-    return EvtProp::consumed;
+    return EvtRes::consumed;
 }
 
 void LayoutLeaf::resize(const PropertyBag &parentProps, const RectI &rect)
@@ -1004,9 +1003,9 @@ void LayoutImage::foreachChildImpl(std::function<void (LayoutBase *)> f, Foreach
 {
 }
 
-LayoutBase::EvtProp LayoutImage::onMouse(const PropertyBag &parentProps, MouseEventReason reason, const MouseEvt &evt)
+LayoutBase::EvtRes LayoutImage::onMouse(const PropertyBag &parentProps, MouseEventReason reason, const MouseEvt &evt)
 {
-    return LayoutBase::EvtProp::propagate;
+    return LayoutBase::EvtRes::propagate;
 }
 
 LayoutModalHolder::LayoutModalHolder(Private privateTag, LayoutContext *context, LayoutPtr child, LayoutPtr modal)

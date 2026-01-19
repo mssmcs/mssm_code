@@ -165,9 +165,12 @@ public:
         closeTooltip
     };
     enum class EvtProp {
+        normal,
+        hover,
+    };
+    enum class EvtRes {
         consumed,
-       // collapsed,
-        defer,
+        hover,
         propagate
     };
     enum class ForeachContext {
@@ -287,13 +290,13 @@ public:
     void pushClip(mssm::Canvas2d& g, const RectI& rect, bool replace);
     void popClip(mssm::Canvas2d& g);
 
-    virtual EvtProp propagateMouse(const PropertyBag& parentProps, EvtProp prop, const RectI& clip, MouseEvt& evt);
-    virtual EvtProp onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt& evt);
-    virtual EvtProp onMouseDeferred(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt& evt);
+    virtual EvtRes propagateMouse(const PropertyBag& parentProps, EvtProp prop, const RectI& clip, MouseEvt& evt);
+    virtual EvtRes onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt& evt);
+    virtual EvtRes onMouseDeferred(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt& evt);
 
-    virtual EvtProp propagateKey(const PropertyBag& parentProps, const RectI& clip, KeyEvt& evt);
-    virtual EvtProp onKey(const PropertyBag& parentProps, const KeyEvt& evt);
-    virtual EvtProp onKeyDeferred(const PropertyBag& parentProps, const KeyEvt& evt);
+    virtual EvtRes propagateKey(const PropertyBag& parentProps, EvtProp prop, const RectI& clip, KeyEvt& evt);
+    virtual EvtRes onKey(const PropertyBag& parentProps, const KeyEvt& evt);
+    virtual EvtRes onKeyDeferred(const PropertyBag& parentProps, const KeyEvt& evt);
 
     virtual void debugDraw(mssm::Canvas2d& g);
 

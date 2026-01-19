@@ -30,8 +30,8 @@ public:
         return nullptr;
     }
 
-    LayoutBase::EvtProp propagateMouse(const PropertyBag &parentProps, const RectI& clip, MouseEvt& evt);
-    LayoutBase::EvtProp propagateKey(const PropertyBag &parentProps, const RectI& clip, KeyEvt& evt);
+    void propagateMouse(const PropertyBag &parentProps, const RectI& clip, MouseEvt& evt);
+    void propagateKey(const PropertyBag &parentProps, const RectI& clip, KeyEvt& evt);
 
 protected:
    // void updateHoverElement(LayoutPtr newHoverElement, Vec2i32 pos);

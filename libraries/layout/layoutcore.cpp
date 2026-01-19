@@ -271,17 +271,17 @@ void LayoutBase::popClip(mssm::Canvas2d &g)
     g.popClip();
 }
 
-LayoutBase::EvtProp LayoutBase::propagateMouse(const PropertyBag& parentProps, EvtProp prop, const RectI &clip, MouseEvt &evt)
+LayoutBase::EvtRes LayoutBase::propagateMouse(const PropertyBag& parentProps, EvtProp prop, const RectI &clip, MouseEvt &evt)
 {
-    if (evt.action == MouseEvt::Action::press)
-    {
-        std::cout << "Press: " << getTypeStr() << " " << getName() << std::endl;
-    }
+    // if (evt.action == MouseEvt::Action::press)
+    // {
+    //     std::cout << "Press: " << getTypeStr() << " " << getName() << std::endl;
+    // }
 
-    if (evt.action == MouseEvt::Action::release)
-    {
-        std::cout << "Release: " << getTypeStr() << " " << getName() << std::endl;
-    }
+    // if (evt.action == MouseEvt::Action::release)
+    // {
+    //     std::cout << "Release: " << getTypeStr() << " " << getName() << std::endl;
+    // }
 
     // TODO: hack, just for debugging so we can see type text in debugger more easily
     if (typeStr.empty()) {
@@ -289,7 +289,7 @@ LayoutBase::EvtProp LayoutBase::propagateMouse(const PropertyBag& parentProps, E
     }
 
     if (isCollapsed) {
-        return EvtProp::propagate;
+        return EvtRes::propagate;
     }
 
     auto newClip = ::intersect(clip, thisRect());
@@ -302,12 +302,12 @@ LayoutBase::EvtProp LayoutBase::propagateMouse(const PropertyBag& parentProps, E
 
     MouseEventReason reason{};
 
-    if (prop == EvtProp::consumed) {
+    if (prop == EvtProp::hover) {
         if (isInside) {
             reason = MouseEventReason::hoverOnly;
         }
         else {
-            return EvtProp::consumed;
+            return EvtRes::hover;
         }
     }
     else if (isAnyDragFocus()) {
@@ -321,7 +321,9 @@ LayoutBase::EvtProp LayoutBase::propagateMouse(const PropertyBag& parentProps, E
             reason = MouseEventReason::hoverOnly;
         }
         else {
-            return EvtProp::propagate;
+            // someone else has drag focus
+            // don't pass down to children
+            return EvtRes::propagate;
         }
     }
     else if (isInside) {
@@ -329,7 +331,9 @@ LayoutBase::EvtProp LayoutBase::propagateMouse(const PropertyBag& parentProps, E
         reason = MouseEventReason::within;
     }
     else {
-        return EvtProp::propagate;
+        // mouse pointer not in this element
+        // don't pass down to children
+        return EvtRes::propagate;
     }
 
     // if we got here, mouse is either:
@@ -339,27 +343,37 @@ LayoutBase::EvtProp LayoutBase::propagateMouse(const PropertyBag& parentProps, E
 
     // if reason == hoverOnly, we only are tracking enter/exit of the mouse
 
-
+    EvtRes res = EvtRes::propagate;
 
     if (reason != MouseEventReason::hoverOnly) {
-        if (evt.action == MouseEvt::Action::scroll) {
-            std::cout << "Scrolling: " << getTypeStr() << std::endl;
-        }
-        prop = onMouse(parentProps, reason, evt);
+        res = onMouse(parentProps, reason, evt);
+    }
+
+    switch (res) {
+    case LayoutBase::EvtRes::consumed:
+    case LayoutBase::EvtRes::hover:
+        prop = EvtProp::hover;
+        break;
+    case LayoutBase::EvtRes::propagate:
+        break;
+
     }
 
     foreachChild([&evt, &newClip, &prop, &parentProps](LayoutBase* child) {
-        prop = child->propagateMouse(parentProps, prop, newClip, evt);
+        EvtRes res = child->propagateMouse(parentProps, prop, newClip, evt);
+        if (res != EvtRes::propagate) {
+            prop = EvtProp::hover;
+        }
     }, ForeachContext::events, false, false);
 
-    if (prop == EvtProp::defer) {
-        prop = onMouseDeferred(parentProps, reason, evt);
+    if (reason != MouseEventReason::hoverOnly) {
+        res = onMouseDeferred(parentProps, reason, evt);
     }
 
-    return prop;
+    return res;
 }
 
-LayoutBase::EvtProp LayoutBase::propagateKey(const PropertyBag& parentProps, const RectI &clip, KeyEvt &evt)
+LayoutBase::EvtRes LayoutBase::propagateKey(const PropertyBag& parentProps, EvtProp prop, const RectI &clip, KeyEvt &evt)
 {
     auto newClip = ::intersect(clip, thisRect());
 
@@ -377,61 +391,61 @@ LayoutBase::EvtProp LayoutBase::propagateKey(const PropertyBag& parentProps, con
             callOnKey = false;
         }
         else {
-            return EvtProp::propagate;
+            return EvtRes::propagate;
         }
     }
     else {
         callOnKey = true;
     }
 
-    EvtProp res{EvtProp::propagate};
+    EvtRes res{EvtRes::propagate};
 
     if (callOnKey) {
         res = onKey(parentProps, evt);
     }
 
-    if (res == EvtProp::consumed) {
+    if (res == EvtRes::consumed) {
         return res;
     }
 
     bool consumed = false;
 
-    foreachChild([&consumed, &evt, &newClip, &parentProps](LayoutBase* child) {
+    foreachChild([&consumed, &evt, &newClip, &parentProps, prop](LayoutBase* child) {
         if (!consumed) {
             auto childClip = ::intersect(newClip, child->thisRect());
-            EvtProp res = child->propagateKey(parentProps, childClip, evt);
-            if (res == EvtProp::consumed) {
+            EvtRes res = child->propagateKey(parentProps, prop, childClip, evt);
+            if (res == EvtRes::consumed) {
                 consumed = true;
             }
         }
     }, ForeachContext::events, false, false);
 
-    if (callOnKey && res == EvtProp::defer) {
+    if (callOnKey) {
         res = onKeyDeferred(parentProps, evt);
     }
 
     return res;
 }
 
-LayoutBase::EvtProp LayoutBase::onKey(const PropertyBag& parentProps, const KeyEvt &evt)
+LayoutBase::EvtRes LayoutBase::onKey(const PropertyBag& parentProps, const KeyEvt &evt)
 {
-    return EvtProp::propagate;
+    return EvtRes::propagate;
 }
 
-LayoutBase::EvtProp LayoutBase::onKeyDeferred(const PropertyBag& parentProps, const KeyEvt &evt)
+LayoutBase::EvtRes LayoutBase::onKeyDeferred(const PropertyBag& parentProps, const KeyEvt &evt)
 {
-    return EvtProp::propagate;
+    return EvtRes::propagate;
 }
 
-LayoutBase::EvtProp LayoutBase::onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt)
+LayoutBase::EvtRes LayoutBase::onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt)
 {
     //context->debugMouse(thisRect(), reason, evt);
-    return EvtProp::propagate;
+    return EvtRes::propagate;
 }
 
-LayoutBase::EvtProp LayoutBase::onMouseDeferred(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt)
+LayoutBase::EvtRes LayoutBase::onMouseDeferred(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt)
 {
-    return EvtProp::propagate;
+    return EvtRes::propagate;
 }
 
 void LayoutBase::debugDraw(mssm::Canvas2d &g)

@@ -37,7 +37,7 @@ public:
     SizeBound2d getBound(const PropertyBag& parentProps) override;
     void resize(const PropertyBag& parentProps, const RectI& rect) override;
     void dragSplit(Vec2d pos);
-    EvtProp onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt) override;
+    EvtRes onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt) override;
     void draw(const PropertyBag& parentProps, mssm::Canvas2d& g) override;
     int getSplitPos() const { return splitPos; }
     RectI splitHandleRect() const;
