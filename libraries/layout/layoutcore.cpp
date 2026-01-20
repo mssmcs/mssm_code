@@ -164,12 +164,6 @@ int LayoutBase::nextId{1};
 
 void LayoutBase::addToolTip(const PropertyBag& parentProps, Vec2d pos, LayoutPtr tip)
 {
-    auto bound = tip->getBound(parentProps);
-    int tipWidth = std::max(bound.xBound.minSize, 20);
-    int tipHeight = std::max(bound.yBound.minSize, 20);
-    RectI tipRect = {{pos.x, pos.y}, tipWidth, tipHeight};
-    tipRect = positionOverlay(context->getWindowRect(), thisRect(), cast<Vec2i32>(pos), tipRect, OverlayStyle::tooltip);
-    tip->resize(parentProps, tipRect);
     showingTooltip = true;
     setOverlay(tip);
 }

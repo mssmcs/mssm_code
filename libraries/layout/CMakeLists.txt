@@ -23,6 +23,17 @@ layoutflyout.h layoutflyout.cpp
 layoutexpander.h layoutexpander.cpp
 propertybag.h propertybag.cpp
 icondrawer.h icondrawer.cpp
+layoutbutton.h layoutbutton.cpp
+layoutdraghandle.cpp layoutdraghandle.h
+layoutslider.cpp layoutslider.h
+layoutscroll.cpp layoutscroll.h
+layoutadapter.cpp layoutadapter.h
+layouttext.cpp layouttext.h
+layoutmodalframe.cpp layoutmodalframe.h
+layouttooltipanchor.cpp layouttooltipanchor.h
+layoutlabel.cpp layoutlabel.h
+layoutimage.cpp layoutimage.h
+layouttoggle.cpp layouttoggle.h
 )
 
 target_link_libraries(${NAME} PUBLIC  image_base mssm_paths mssm_window mssm_vec canvas2d mssm_fontinfo svg2)

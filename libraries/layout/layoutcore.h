@@ -109,12 +109,6 @@ template<is2dVector V>
     return ret;
 }
 
-
-// void grow(RectI& rect, const Padding& pad);
-// void shrink(RectI& rect, const Padding& pad);
-// [[nodiscard]] RectI grown(const RectI& rect, const Padding& pad);
-// [[nodiscard]] RectI shrunk(const RectI& rect, const Padding& pad);
-
 void grow(SizeBound2d& bound, const Padding& pad);
 void grow(SizeBound2d& bound, const Margins& margins, int hBetweenCount, int vBetweenCount);
 
@@ -314,14 +308,6 @@ public:
 
     void setCollapsed(bool collapsed);
     bool getCollapsed() const { return isCollapsed; }
-};
-
-// TODO: what is the point of this class?
-class LayoutWithContent : public LayoutBase {
-protected:
-    RectI contentRect;
-    LayoutWithContent(LayoutContext* context) : LayoutBase(context) {}
-public:
 };
 
 std::string to_string(RectRegion region);

@@ -112,7 +112,6 @@ void LayoutManager::propagateEvents(const PropertyBag &parentProps)
 
 void LayoutManager::draw(mssm::CoreWindow& window, mssm::Canvas2d &g)
 {
-
     PropertyBag parentProps;
 
     RectI screenRect{{0, 0}, g.width(), g.height()};
@@ -151,10 +150,7 @@ void LayoutManager::draw(mssm::CoreWindow& window, mssm::Canvas2d &g)
 
     if (!collapsed) {
         if (context->getNeedsResize()) {
-            std::cout << "Resizing" << std::endl;
-            layout->resize(parentProps, screenRect);
-            context->clearNeedsResize();
-            layout->updateLayer(0, 0);
+            resize(parentProps, screenRect);
         }
 
         g.resetClip();
@@ -254,4 +250,14 @@ void LayoutManager::propagateKey(const PropertyBag &parentProps, const RectI &cl
     }
 
     layout->propagateKey(parentProps, prop, clip, evt);
+}
+
+void LayoutManager::resize(const PropertyBag &parentProps, const RectI &rect)
+{
+    std::cout << "Resizing" << std::endl;
+    context->resizeOverlays(parentProps, rect);
+    layout->resize(parentProps, rect);
+    context->clearNeedsResize();
+    layout->updateLayer(0, 0);
+
 }

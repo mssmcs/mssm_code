@@ -27,6 +27,7 @@ void LayoutContext::pushOverlay(LayoutPtr overlay)
 {
     overlay->updateLayer(overlays.size()+1, 0);
     overlays.push_back(overlay);
+    this->setNeedsResize();
 }
 
 void LayoutContext::removeOverlay(LayoutPtr overlay)
@@ -161,6 +162,14 @@ void LayoutContext::truncateHoverChain(const PropertyBag& parentProps, int depth
     }
 }
 
+void LayoutContext::resizeOverlays(const PropertyBag &parentProps, const RectI &rect)
+{
+    for (int i = 0; i < overlays.size(); i++) {
+        overlays[i]->resize(parentProps, rect);
+        overlays[i]->updateLayer(i+1, 0);
+    }
+}
+
 void LayoutContext::sendEnter(const PropertyBag& parentProps, LayoutPtr element, Vec2d pos)
 {
     std::cout << "  Entering: " << element->trail() << std::endl;
@@ -192,11 +201,17 @@ void LayoutContext::sendExit(const PropertyBag &parentProps, LayoutPtr element, 
     }
 
     MouseEvt evt;
-    evt.action = MouseEvt::Action::exit;
     evt.button = mssm::MouseButton::None;
     evt.pos = pos;
-    MouseEventReason reason = MouseEventReason::exit;
-    element->onMouse(parentProps, reason, evt);
+
+    if (element->hasOverlay()) {
+        evt.action = MouseEvt::Action::exitOverlayParent;
+        element->getOverlay()->onMouse(parentProps, MouseEventReason::exitOverlay, evt);
+    }
+
+    evt.action = MouseEvt::Action::exit;
+
+    element->onMouse(parentProps, MouseEventReason::exit, evt);
 }
 
 void HoverChain::onRemove(LayoutPtr ptr)

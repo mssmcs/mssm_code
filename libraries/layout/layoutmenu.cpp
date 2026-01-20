@@ -2,6 +2,30 @@
 #include "layoutcontainers.h"
 #include "layoutcalcs.h"
 
+LayoutMenuItem::LayoutMenuItem(Private privateTag, LayoutContext *context, LayoutPtr child, LayoutButton *button, bool isHorizontal)
+    : LayoutAdapter(privateTag, context, child), button{button}, isHorizontal{isHorizontal}
+{
+}
+
+SizeBound2d LayoutMenuItem::getBound(const PropertyBag &parentProps)
+{
+    auto bound = child->getBound(parentProps);
+    return bound;
+}
+
+void LayoutMenuItem::resize(const PropertyBag &parentProps, const RectI &rect)
+{
+    auto bound = getBound(parentProps);
+
+    int menuWidth = std::max(bound.xBound.minSize, 20);
+    int menuHeight = std::max(bound.yBound.minSize, 20);
+    RectI menuRect = {{pos.x, pos.y}, menuWidth, menuHeight};
+    menuRect = positionOverlay(context->getWindowRect(), button->thisRect(), isHorizontal ? button->thisRect().bottomCenter() : button->thisRect().rightCenter(), menuRect, OverlayStyle::menu);
+
+    child->resize(parentProps, menuRect);
+    setRect(*child);
+}
+
 LayoutMenu::LayoutMenu(Private privateTag,
                        LayoutContext *context,
                        bool isHorizontal,
@@ -12,19 +36,29 @@ LayoutMenu::LayoutMenu(Private privateTag,
 {
     int tabIdx{0};
     for (auto &c : children) {
-        menus.push_back(c);
-        c->setParent(this);
+
         std::string txt = "Menu";
-        buttonSet.buttons.push_back(LayoutButton::make(context,
-                                                       LayoutLabel::make(context, txt),
-                                                       tabIdx, LayoutButton::ButtonType::radio, buttonSet));
+
+        LayoutButtonPtr menuItemButton = LayoutButton::make(context,
+                                                            LayoutLabel::make(context, txt),
+                                                            tabIdx, LayoutButton::ButtonType::radio, buttonSet);
+
+        auto menuItem = LayoutMenuItem::make(context, c, menuItemButton.get(), isHorizontal);
+
+        menus.push_back(menuItem);
+        menuItem->setParent(this);
+
+
+        buttonSet.buttons.push_back(menuItemButton);
         buttonSet.buttons.back()->style = LayoutButton::DrawStyle::menu;
         tabIdx++;
     }
+
     std::vector<LayoutPtr> buttons;
     for (auto &b : buttonSet.buttons) {
         buttons.push_back(b);
     }
+
     tabBar = LayoutStacked::make(context,
                                  isHorizontal,
                                  Justify::begin,
@@ -72,12 +106,12 @@ void LayoutMenu::openMenu(const PropertyBag& parentProps, LayoutButtonPtr button
 
     auto& menu = menus[buttonIdx];
 
-    auto bound = menu->getBound(parentProps);
-    int menuWidth = std::max(bound.xBound.minSize, 20);
-    int menuHeight = std::max(bound.yBound.minSize, 20);
-    RectI menuRect = {{pos.x, pos.y}, menuWidth, menuHeight};
-    menuRect = positionOverlay(context->getWindowRect(), button->thisRect(),isHorizontal ? button->thisRect().bottomCenter() : button->thisRect().rightCenter(), menuRect, OverlayStyle::menu);
-    menu->resize(parentProps, menuRect);
+    // auto bound = menu->getBound(parentProps);
+    // int menuWidth = std::max(bound.xBound.minSize, 20);
+    // int menuHeight = std::max(bound.yBound.minSize, 20);
+    // RectI menuRect = {{pos.x, pos.y}, menuWidth, menuHeight};
+    // menuRect = positionOverlay(context->getWindowRect(), button->thisRect(),isHorizontal ? button->thisRect().bottomCenter() : button->thisRect().rightCenter(), menuRect, OverlayStyle::menu);
+    // menu->resize(parentProps, menuRect);
     setOverlay(menu);
 }
 

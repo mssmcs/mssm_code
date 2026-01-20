@@ -24,7 +24,8 @@ public:
         drag,
         press,
         release,
-        scroll
+        scroll,
+        exitOverlayParent // mouse exited parent of this overlay
     };
     Action action{};
     mssm::MouseButton button{mssm::MouseButton::Left};
@@ -57,6 +58,7 @@ public:
 enum class MouseEventReason {
     debug,
     exit,
+    exitOverlay,
     within,
     containsGrab,
     isGrab,
@@ -119,12 +121,16 @@ public:
     void removeOverlay(LayoutPtr overlay);
 
     void updateHoverChain(const PropertyBag &parentProps, LayoutPtr hoverElement, bool isInside, Vec2d pos);
-
     void iterateHoverChain(std::function<void(LayoutBase*)> f);
+
+    virtual void resizeOverlays(const PropertyBag& parentProps, const RectI& rect);
+
 private:
     void sendEnter(const PropertyBag &parentProps, LayoutPtr element, Vec2d pos);
     void sendExit(const PropertyBag& parentProps, LayoutPtr element, Vec2d pos);
     void truncateHoverChain(const PropertyBag &parentProps, int depth, Vec2d pos);
+
+
 };
 
 #endif // LAYOUTCONTEXT_H

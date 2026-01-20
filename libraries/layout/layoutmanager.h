@@ -35,6 +35,8 @@ public:
 
 protected:
    // void updateHoverElement(LayoutPtr newHoverElement, Vec2i32 pos);
+    virtual void resize(const PropertyBag& parentProps, const RectI& rect);
+
 };
 
 #endif // LAYOUTMANAGER_H

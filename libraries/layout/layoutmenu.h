@@ -2,18 +2,21 @@
 #define LAYOUTMENU_H
 
 #include "layoutcore.h"
-#include "layoutwidgets.h"
+#include "layoutadapter.h"
+#include "layoutbutton.h"
 
-// class LayoutMenuItem : public LayoutBase {
-//     std::shared_ptr<LayoutLabel> label;
-// public:
-//     LayoutMenuItem(Private privateTag, LayoutContext* context);
-//     static std::shared_ptr<LayoutMenu> make(LayoutContext* context) { return std::make_shared<LayoutMenuItem>(Private{}, context); }
-//     SizeBound2d getBound(const PropertyBag& parentProps) override;
-//     void resize(const PropertyBag& parentProps, const RectI& rect) override;
-//     void draw(const PropertyBag& parentProps, mssm::Canvas2d& g) override;
-//     void foreachChildImpl(std::function<void (LayoutBase *)> f) override;
-// };
+class LayoutMenuItem : public LayoutAdapter {
+protected:
+    bool isHorizontal{true};
+    LayoutButton* button;
+public:
+    LayoutMenuItem(Private privateTag, LayoutContext *context, LayoutPtr child, LayoutButton* button, bool isHorizontal);
+    static std::shared_ptr<LayoutMenuItem> make(LayoutContext* context, LayoutPtr child, LayoutButton* button, bool isHorizontal) { return std::make_shared<LayoutMenuItem>(Private{}, context, child, button, isHorizontal); }
+    std::string getTypeStr() const override { return "LayoutMenuItem"; }
+
+    SizeBound2d getBound(const PropertyBag &parentProps) override;
+    void resize(const PropertyBag &parentProps, const RectI &rect) override;
+};
 
 class LayoutMenu : public LayoutBase
 {

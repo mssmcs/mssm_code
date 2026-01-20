@@ -396,6 +396,8 @@ LayoutBase::EvtRes LayoutSplitter::onMouse(const PropertyBag& parentProps, Mouse
             hovering = false;
         }
         break;
+    case MouseEvt::Action::exitOverlayParent:
+        break;
     }
 
     return EvtRes::propagate;
