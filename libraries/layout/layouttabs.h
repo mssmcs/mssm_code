@@ -20,23 +20,23 @@ public:
 
 class LayoutTabs : public LayoutBase
 {
-    class TabButtonSet : public ButtonSet {
-        LayoutTabs* host;
+public:
+    class Tab {
     public:
-        TabButtonSet(LayoutTabs* host) : ButtonSet{true}, host{host} {}
-        void onButtonPress(const PropertyBag& parentProps, LayoutButtonPtr button, int buttonIndex, bool checked) override;
+        std::string label;
+        LayoutPtr content;
     };
-
+private:
+    ButtonSet2 buttonSet;
     LayoutPtr tabBar;
-    TabButtonSet buttonSet;
     std::vector<LayoutPtr> tabs;
     bool isHorizontal{true};
     int activeTab{0};
     int headerSize{30};
     Margins margins;
 public:
-    LayoutTabs(Private privateTag, LayoutContext* context, bool isHorizontal, std::vector<LayoutPtr> children);
-    static std::shared_ptr<LayoutTabs> make(LayoutContext* context, bool isHorizontal, std::vector<LayoutPtr> children) { return std::make_shared<LayoutTabs>(Private{}, context, isHorizontal, children); }
+    LayoutTabs(Private privateTag, LayoutContext* context, bool isHorizontal, std::vector<Tab> children);
+    static std::shared_ptr<LayoutTabs> make(LayoutContext* context, bool isHorizontal, std::vector<Tab> children) { return std::make_shared<LayoutTabs>(Private{}, context, isHorizontal, children); }
     std::string getTypeStr() const override { return "Tabs"; }
     void draw(const PropertyBag& parentProps, mssm::Canvas2d& g) override;
     void resize(const PropertyBag& parentProps, const RectI& rect) override;

@@ -20,29 +20,29 @@ public:
 
 class LayoutMenu : public LayoutBase
 {
-    class MenuButtonSet : public ButtonSet {
-        LayoutMenu* host;
+public:
+    class Item {
     public:
-        MenuButtonSet(LayoutMenu* host) : ButtonSet{true}, host{host} {}
-        void onButtonPress(const PropertyBag &parentProps, LayoutButtonPtr button, int buttonIndex, bool checked) override;
+        std::string label;
+        LayoutPtr content;
     };
-
+protected:
     LayoutPtr tabBar;
-    MenuButtonSet buttonSet;
+    ButtonSet2 buttonSet;
     std::vector<LayoutPtr> menus;  // OVERLAYS NOT CHILDREN
     int openedMenuIdx{-1};
     bool isHorizontal{true};
     Margins margins;
 public:
-    LayoutMenu(Private privateTag, LayoutContext* context, bool isHorizontal, std::vector<LayoutPtr> children);
-    static std::shared_ptr<LayoutMenu> make(LayoutContext* context, bool isHorizontal, std::vector<LayoutPtr> children) { return std::make_shared<LayoutMenu>(Private{}, context, isHorizontal, children); }
+    LayoutMenu(Private privateTag, LayoutContext* context, bool isHorizontal, std::vector<Item> children);
+    static std::shared_ptr<LayoutMenu> make(LayoutContext* context, bool isHorizontal, std::vector<Item> children) { return std::make_shared<LayoutMenu>(Private{}, context, isHorizontal, children); }
     std::string getTypeStr() const override { return "Menu"; }
     void draw(const PropertyBag& parentProps, mssm::Canvas2d& g) override;
     void resize(const PropertyBag& parentProps, const RectI& rect) override;
     SizeBound2d getBound(const PropertyBag& parentProps) override;
     void setOuterMargins(int left, int right, int top, int bottom) override;
     void foreachChildImpl(std::function<void (LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed) override;
-    void openMenu(const PropertyBag &parentProps, LayoutButtonPtr button, int buttonIdx);
+    void openMenu(int buttonIdx);
 };
 
 

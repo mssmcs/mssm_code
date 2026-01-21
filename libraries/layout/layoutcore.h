@@ -310,6 +310,19 @@ public:
     bool getCollapsed() const { return isCollapsed; }
 };
 
+
+class HoverTrack {
+public:
+    enum class DrawMode {
+        normal,
+        hover,
+        pressing,
+    };
+    DrawMode mode;
+    DrawMode onMouse(LayoutBase *element, const MouseEvt &evt, bool captureOnPress);
+    operator DrawMode() const { return mode; }
+};
+
 std::string to_string(RectRegion region);
 
 #endif // LAYOUTCORE_H

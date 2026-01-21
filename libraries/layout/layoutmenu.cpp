@@ -29,34 +29,43 @@ void LayoutMenuItem::resize(const PropertyBag &parentProps, const RectI &rect)
 LayoutMenu::LayoutMenu(Private privateTag,
                        LayoutContext *context,
                        bool isHorizontal,
-                       std::vector<LayoutPtr> children)
+                       std::vector<Item> children)
     : LayoutBase{context}
-    , buttonSet{this}
+    , buttonSet{true}
     , isHorizontal{isHorizontal}
 {
     int tabIdx{0};
+
+    std::vector<LayoutPtr> buttons;
+
+    LayoutButton::SimpleButtonCallback onTabClick = [this](int buttonIdx, bool checked) {
+        openMenu(buttonIdx);
+    };
+
+    buttonSet.setCallback(onTabClick);
+
     for (auto &c : children) {
 
-        std::string txt = "Menu";
+        std::string txt = c.label;
 
         LayoutButtonPtr menuItemButton = LayoutButton::make(context,
                                                             LayoutLabel::make(context, txt),
-                                                            tabIdx, LayoutButton::ButtonType::radio, buttonSet);
+                                                            LayoutButton::ButtonType::radio,
+                                                            &buttonSet);
 
-        auto menuItem = LayoutMenuItem::make(context, c, menuItemButton.get(), isHorizontal);
+
+      //  menuItemButton->setCallback(buttonSet.createCallback(menuItemButton));
+
+        menuItemButton->style  = LayoutButton::DrawStyle::menu;
+
+        auto menuItem = LayoutMenuItem::make(context, c.content, menuItemButton.get(), isHorizontal);
 
         menus.push_back(menuItem);
         menuItem->setParent(this);
 
+        buttons.push_back(menuItemButton);
 
-        buttonSet.buttons.push_back(menuItemButton);
-        buttonSet.buttons.back()->style = LayoutButton::DrawStyle::menu;
         tabIdx++;
-    }
-
-    std::vector<LayoutPtr> buttons;
-    for (auto &b : buttonSet.buttons) {
-        buttons.push_back(b);
     }
 
     tabBar = LayoutStacked::make(context,
@@ -100,7 +109,7 @@ void LayoutMenu::foreachChildImpl(std::function<void(LayoutBase *)> f, ForeachCo
     f(tabBar.get());
 }
 
-void LayoutMenu::openMenu(const PropertyBag& parentProps, LayoutButtonPtr button, int buttonIdx)
+void LayoutMenu::openMenu(int buttonIdx)
 {
     openedMenuIdx = buttonIdx;
 
@@ -115,8 +124,8 @@ void LayoutMenu::openMenu(const PropertyBag& parentProps, LayoutButtonPtr button
     setOverlay(menu);
 }
 
-void LayoutMenu::MenuButtonSet::onButtonPress(const PropertyBag& parentProps, LayoutButtonPtr button, int buttonIndex, bool checked)
-{
-    ButtonSet::onButtonPress(parentProps, button, buttonIndex, checked);
-    host->openMenu(parentProps, button, buttonIndex);
-}
+// void LayoutMenu::MenuButtonSet::onButtonPress(const PropertyBag& parentProps, LayoutButtonPtr button, int buttonIndex, bool checked)
+// {
+//     ButtonSet2::onButtonPress(parentProps, button, buttonIndex, checked);
+//     host->openMenu(parentProps, button, buttonIndex);
+// }

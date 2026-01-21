@@ -75,37 +75,23 @@ Builder operator/(Wrapper aw, Wrapper bw) {
     };
 }
 
-HTabs::operator Builder() const
+Tabs::operator Builder() const
 {
     auto tmp = children;
     auto config = this->config;
+    bool isHorizontal = this->isHorizontal;
 
-    return [tmp, config](LayoutContext* context) {
-        std::vector<LayoutPtr> kids;
+    return [isHorizontal, tmp, config](LayoutContext* context) {
+        std::vector<LayoutTabs::Tab> kids;
         for (auto& c : tmp) {
-            kids.push_back(c(context));
+            kids.push_back({c.label, c.content(context)});
         }
-        auto widget = LayoutTabs::make(context, true, kids);
+        auto widget = LayoutTabs::make(context, isHorizontal, kids);
         config.applyTo(widget);
         return widget;
     };
 }
 
-VTabs::operator Builder() const
-{
-    auto tmp = children;
-    auto config = this->config;
-
-    return [tmp, config](LayoutContext* context) {
-        std::vector<LayoutPtr> kids;
-        for (auto& c : tmp) {
-            kids.push_back(c(context));
-        }
-        auto widget = LayoutTabs::make(context, false, kids);
-        config.applyTo(widget);
-        return widget;
-    };
-}
 
 HSplit::operator Builder() const
 {
@@ -190,32 +176,18 @@ ImagePanel::operator Builder() const
     };
 }
 
-HMenu::operator Builder() const
+Menu::operator Builder() const
 {
     auto tmp = children;
     auto config = this->config;
+    bool isHorizontal = this->isHorizontal;
 
-    return [tmp, config](LayoutContext* context) {
-        std::vector<LayoutPtr> kids;
+    return [isHorizontal, tmp, config](LayoutContext* context) {
+        std::vector<LayoutMenu::Item> kids;
         for (auto& c : tmp) {
-            kids.push_back(c(context));
+            kids.push_back({c.label, c.content(context)});
         }
-        auto widget = LayoutMenu::make(context, true, kids);
-        config.applyTo(widget);
-        return widget;
-    };
-}
-
-VMenu::operator Builder() const {
-    auto tmp = children;
-    auto config = this->config;
-
-    return [tmp, config](LayoutContext* context) {
-        std::vector<LayoutPtr> kids;
-        for (auto& c : tmp) {
-            kids.push_back(c(context));
-        }
-        auto widget = LayoutMenu::make(context, false, kids);
+        auto widget = LayoutMenu::make(context, isHorizontal, kids);
         config.applyTo(widget);
         return widget;
     };

@@ -222,77 +222,139 @@ public:
 Builder operator|(Wrapper aw, Wrapper bw);
 Builder operator/(Wrapper aw, Wrapper bw);
 
+class Tabs : BuilderBase<LayoutTabs>  {
+protected:
+    class Tab {
+    public:
+        std::string label;
+        Builder content;
+    };
 
-class HTabs : BuilderBase<LayoutTabs>  {
-private:
-    std::vector<Builder> children;
+    class TabWrapper {
+    public:
+        std::string label;
+        Wrapper content;
+        operator Tab() const { return { label, content }; }
+    };
+
+    std::vector<Tab> children;
+    bool isHorizontal;
 public:
-    HTabs(LayoutConfig<LayoutTabs> config, std::initializer_list<Wrapper> kids) : BuilderBase{config} {
+    Tabs(LayoutConfig<LayoutTabs> config, bool isHorizontal, std::initializer_list<TabWrapper> kids)
+        : BuilderBase{config}, isHorizontal{isHorizontal}
+    {
         for(auto& c : kids) {
             children.push_back(c);
         }
     }
-    HTabs(std::initializer_list<Wrapper> kids) {
+
+    Tabs(bool isHorizontal, std::initializer_list<TabWrapper> kids)
+        : isHorizontal{isHorizontal}
+    {
         for(auto& c : kids) {
             children.push_back(c);
         }
     }
+
     operator Builder() const;
     operator Wrapper() const { return static_cast<Builder>(*this); }
 };
 
-class VTabs : BuilderBase<LayoutTabs>  {
-private:
-    std::vector<Builder> children;
+
+class HTabs : public Tabs  {
 public:
-    VTabs(LayoutConfig<LayoutTabs> config, std::initializer_list<Wrapper> kids) : BuilderBase{config} {
+    HTabs(LayoutConfig<LayoutTabs> config, std::initializer_list<TabWrapper> kids)
+        : Tabs(config, true, kids)
+    {
+    }
+
+    HTabs(std::initializer_list<TabWrapper> kids)
+        : Tabs(true, kids)
+    {
+    }
+};
+
+class VTabs : public Tabs  {
+public:
+    VTabs(LayoutConfig<LayoutTabs> config, std::initializer_list<TabWrapper> kids)
+        : Tabs(config, false, kids)
+    {
+    }
+
+    VTabs(std::initializer_list<TabWrapper> kids)
+        : Tabs(false, kids)
+    {
+    }
+};
+
+
+
+
+class Menu : BuilderBase<LayoutMenu>  {
+protected:
+    class Item {
+    public:
+        std::string label;
+        Builder content;
+    };
+
+    class ItemWrapper {
+    public:
+        std::string label;
+        Wrapper content;
+        operator Item() const { return { label, content }; }
+    };
+
+    std::vector<Item> children;
+
+    bool isHorizontal;
+public:
+    Menu(LayoutConfig<LayoutMenu> config, bool isHorizontal, std::initializer_list<ItemWrapper> kids)
+        : BuilderBase{config}, isHorizontal{isHorizontal}
+    {
         for(auto& c : kids) {
             children.push_back(c);
         }
     }
-    VTabs(std::initializer_list<Wrapper> kids) {
+
+    Menu(bool isHorizontal, std::initializer_list<ItemWrapper> kids)
+        : isHorizontal{isHorizontal}
+    {
         for(auto& c : kids) {
             children.push_back(c);
         }
     }
+
     operator Builder() const;
     operator Wrapper() const { return static_cast<Builder>(*this); }
 };
 
-class HMenu : BuilderBase<LayoutMenu>  {
-private:
-    std::vector<Builder> children;
+
+
+class HMenu : public Menu  {
 public:
-    HMenu(LayoutConfig<LayoutMenu> config, std::initializer_list<Wrapper> kids) : BuilderBase{config} {
-        for(auto& c : kids) {
-            children.push_back(c);
-        }
+    HMenu(LayoutConfig<LayoutMenu> config, std::initializer_list<ItemWrapper> kids)
+        : Menu(config, true, kids)
+    {
     }
-    HMenu(std::initializer_list<Wrapper> kids) {
-        for(auto& c : kids) {
-            children.push_back(c);
-        }
+
+    HMenu(std::initializer_list<ItemWrapper> kids)
+        : Menu(true, kids)
+    {
     }
-    operator Builder() const;
-    operator Wrapper() const { return static_cast<Builder>(*this); }
 };
 
-class VMenu : BuilderBase<LayoutMenu>  {
-private:
-    std::vector<Builder> children;
+class VMenu : public Menu  {
 public:
-    VMenu(LayoutConfig<LayoutMenu> config, std::initializer_list<Wrapper> kids) : BuilderBase{config} {
-        for(auto& c : kids) {
-            children.push_back(c);
-        }
+    VMenu(LayoutConfig<LayoutMenu> config, std::initializer_list<ItemWrapper> kids)
+        : Menu(config, false, kids)
+    {
     }
-    VMenu(std::initializer_list<Wrapper> kids) {
-        for(auto& c : kids) {
-            children.push_back(c);
-        }
+
+    VMenu(std::initializer_list<ItemWrapper> kids)
+        : Menu(false, kids)
+    {
     }
-    operator Builder() const;
-    operator Wrapper() const { return static_cast<Builder>(*this); }
 };
 
 class Flyout : BuilderBase<LayoutFlyout>  {

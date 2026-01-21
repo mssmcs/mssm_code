@@ -32,17 +32,7 @@ public:
     void resize(const PropertyBag& parentProps, const RectI& rect) override;
 };
 
-class HoverTrack {
-    enum class DrawMode {
-        normal,
-        hover,
-        pressing,
-    };
-    DrawMode mode;
-    void onMouse(LayoutBase *element, const MouseEvt &evt, bool captureOnPress);
-public:
-    operator DrawMode() const { return mode; }
-};
+
 
 class LayoutAdapterClickable : public LayoutAdapterPadded {
 protected:

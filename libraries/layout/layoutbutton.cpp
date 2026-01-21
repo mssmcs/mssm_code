@@ -4,17 +4,147 @@
 
 using namespace mssm;
 
+
+LayoutButtonBase::LayoutButtonBase(Private privateTag, LayoutContext *context, ButtonType buttonType, ButtonSet2 *buttonSet)
+    : LayoutBase{context}, type{buttonType}, buttonSet2{buttonSet}
+{
+    if (buttonSet) {
+        buttonSet->add(this);
+    }
+}
+
+LayoutButtonBase::~LayoutButtonBase()
+{
+    if (buttonSet2) {
+        buttonSet2->remove(this);
+    }
+}
+
+void LayoutButtonBase::onButtonPress(const PropertyBag& parentProps, bool pressValue)
+{
+    if (buttonSet2) {
+        buttonSet2->onButtonPress(parentProps, this, pressValue);
+    }
+}
+
+void LayoutButtonBase::setChecked(bool newChecked)
+{
+    if (checked == newChecked) {
+        return;
+    }
+    checked = newChecked;
+}
+
+LayoutBase::EvtRes LayoutButtonBase::onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt)
+{
+    mode = hoverTrack.onMouse(this, evt, true);
+
+    // switch (evt.action) {
+    // case MouseEvt::Action::none:
+    // case MouseEvt::Action::scroll:
+    // case MouseEvt::Action::enter:
+    // case MouseEvt::Action::move:
+    // case MouseEvt::Action::drag:
+    //     break;
+    // case MouseEvt::Action::press:
+    //     mode = DrawMode::pressing;
+    //     grabMouse();
+    //     if (type == ButtonType::checkbox) {
+    //         checked = !checked;
+    //         onButtonPress(parentProps, checked);
+    //     }
+    //     else if (type == ButtonType::radio) {
+    //         checked = true;
+    //         onButtonPress(parentProps, checked);
+    //     }
+    //     break;
+    // case MouseEvt::Action::release:
+    //     if (evt.insideElement) {
+    //         if (hasDragFocus() && type == ButtonType::normal) {
+    //             onButtonPress(parentProps, true);
+    //         }
+    //         mode = DrawMode::hover;
+    //     }
+    //     else {
+    //         mode = DrawMode::normal;
+    //     }
+    //     if (hasDragFocus()) {
+    //         releaseMouse();
+    //     }
+    //     break;
+    // case MouseEvt::Action::exit:
+    //     mode = DrawMode::normal;
+    //     break;
+    // case MouseEvt::Action::exitOverlayParent:
+    //     break;
+    // }
+
+    switch (evt.action) {
+    case MouseEvt::Action::none:
+    case MouseEvt::Action::scroll:
+    case MouseEvt::Action::enter:
+    case MouseEvt::Action::move:
+    case MouseEvt::Action::drag:
+    case MouseEvt::Action::exit:
+    case MouseEvt::Action::exitOverlayParent:
+        break;
+    case MouseEvt::Action::press:
+        if (type == ButtonType::checkbox) {
+            checked = !checked;
+            onButtonPress(parentProps, checked);
+        }
+        else if (type == ButtonType::radio) {
+            checked = true;
+            onButtonPress(parentProps, checked);
+        }
+        break;
+    case MouseEvt::Action::release:
+        if (evt.insideElement) {
+            if (hasDragFocus() && type == ButtonType::normal) {
+                onButtonPress(parentProps, true);
+            }
+        }
+        break;
+    }
+
+    return EvtRes::propagate;
+}
+
+// void ButtonSet::onButtonPress(const PropertyBag &parentProps, LayoutButtonPtr button, int buttonIndex, bool checked)
+// {
+//     if (isRadio) {
+//         for (int i = 0; i < buttons.size(); ++i) {
+//             if (i != buttonIndex) {
+//                 buttons[i]->setChecked(false);
+//             }
+//         }
+//     }
+// }
+
+
+
 LayoutButton::LayoutButton(Private privateTag,
                            LayoutContext *context,
                            LayoutPtr child,
                            LayoutButton::ButtonType buttonType,
-                           ButtonCallback callback, int buttonId)
-    : LayoutButtonBase{privateTag, context, buttonType},
+                           ButtonCallback callback,
+                           int buttonId)
+    : LayoutButtonBase{privateTag, context, buttonType, {}},
     child{child},
     callback{callback},
     buttonId{buttonId}
 {
     setParentsOfChildren();
+}
+
+LayoutButton::LayoutButton(Private privateTag, LayoutContext *context, LayoutPtr child, ButtonType buttonType, ButtonSet2 *buttonSet)
+    : LayoutButtonBase{privateTag, context, buttonType, buttonSet},
+    child{child},
+    callback{},
+    buttonId{0}
+{
+     setCallback(buttonSet->createCallback());
+     setParentsOfChildren();
 }
 
 void LayoutButton::onButtonPress(const PropertyBag& parentProps, bool pressValue)
@@ -23,6 +153,8 @@ void LayoutButton::onButtonPress(const PropertyBag& parentProps, bool pressValue
         callback(parentProps, std::static_pointer_cast<LayoutButton>(shared_from_this()), buttonId, pressValue);
     }
 }
+
+
 
 void LayoutButton::draw(const PropertyBag& parentProps, mssm::Canvas2d& g)
 {
@@ -171,5 +303,58 @@ void LayoutButton::foreachChildImpl(std::function<void(LayoutBase *)> f, Foreach
 {
     if (child) {
         f(child.get());
+    }
+}
+
+
+
+ButtonSet2::ButtonSet2(bool isRadio, std::function<void (int, bool)> onPress)
+    : isRadio{isRadio}, onPress{onPress}
+{
+
+}
+
+void ButtonSet2::setCallback(std::function<void (int, bool)> onPress)
+{
+    this->onPress = onPress;
+}
+
+LayoutButtonBase *ButtonSet2::add(LayoutButtonBase *button)
+{
+    buttons.push_back(button);
+    return buttons.back();
+}
+
+void ButtonSet2::remove(LayoutButtonBase *button)
+{
+    buttons.erase(std::remove(buttons.begin(), buttons.end(), button), buttons.end());
+}
+
+std::function<void (const PropertyBag &, LayoutButtonPtr, int, bool)> ButtonSet2::createCallback()
+{
+    return [this] (const PropertyBag &parentProps, LayoutButtonPtr button, int id, bool pressValue) {
+        onButtonPress(parentProps, button.get(), pressValue);
+    };
+}
+
+void ButtonSet2::onButtonPress(const PropertyBag &parentProps, LayoutButtonBase *button, bool pressValue)
+{
+    for (int i = 0; i < buttons.size(); ++i) {
+        if (buttons[i] == button) {
+            onButtonPress(parentProps, button, i, pressValue);
+        }
+        else {
+            // other button
+            if (isRadio && pressValue) {
+                buttons[i]->setChecked(false);
+            }
+        }
+    }
+}
+
+void ButtonSet2::onButtonPress(const PropertyBag &parentProps, LayoutButtonBase *button, int buttonIndex, bool pressValue)
+{
+    if (onPress) {
+        onPress(buttonIndex, pressValue);
     }
 }

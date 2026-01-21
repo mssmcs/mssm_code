@@ -580,3 +580,56 @@ RectI shrunk(const RectI &rect, const Padding &pad)
     shrink(ret, pad);
     return ret;
 }
+
+
+
+
+HoverTrack::DrawMode HoverTrack::onMouse(LayoutBase* element, const MouseEvt &evt, bool captureOnPress)
+{
+    switch (evt.action) {
+    case MouseEvt::Action::none:
+    case MouseEvt::Action::scroll:
+    case MouseEvt::Action::enter:
+        break;
+    case MouseEvt::Action::move:
+        mode = DrawMode::hover;
+        break;
+    case MouseEvt::Action::drag:
+        if (evt.insideElement) {
+            mode = DrawMode::pressing;
+        }
+        else {
+            mode = DrawMode::normal;
+        }
+        break;
+    case MouseEvt::Action::press:
+        mode = DrawMode::pressing;
+        if (captureOnPress) {
+            element->grabMouse();
+        }
+        break;
+    case MouseEvt::Action::release:
+        if (evt.insideElement) {
+            // if (type == ButtonType::normal) {
+            //     onButtonPress(true);
+            // }
+            mode = DrawMode::hover;
+        }
+        else {
+            mode = DrawMode::normal;
+        }
+        if (element->hasDragFocus()) {
+            element->releaseMouse();
+        }
+        break;
+    case MouseEvt::Action::exit:
+        mode = DrawMode::normal;
+        break;
+    case MouseEvt::Action::exitOverlayParent:
+        break;
+    }
+
+    return mode;
+}
+
+

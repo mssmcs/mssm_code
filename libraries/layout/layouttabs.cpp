@@ -5,31 +5,41 @@
 LayoutTabs::LayoutTabs(Private privateTag,
                        LayoutContext *context,
                        bool isHorizontal,
-                       std::vector<LayoutPtr> children)
+                       std::vector<Tab> children)
     : LayoutBase{context}
-    , buttonSet{this}
+    , buttonSet{true}
     , isHorizontal{isHorizontal}
 {
     int tabIdx{0};
+
+    buttonSet.setCallback([this](int buttonIdx, bool checked) { selectTab(buttonIdx); } );
+
+    std::vector<LayoutPtr> buttons;
+
     for (auto &c : children) {
-        auto frame = LayoutTabFrame::make(context, c);
+        auto frame = LayoutTabFrame::make(context, c.content);
         tabs.push_back(frame);
         frame->setParent(this);
-        std::string txt = "Tab";
-        buttonSet.buttons.push_back(LayoutButton::make(context,
-                                                       LayoutLabel::make(context, txt),
-                                                       tabIdx, LayoutButton::ButtonType::radio, buttonSet
-                                                       ));
-        buttonSet.buttons.back()->style = isHorizontal ? LayoutButton::DrawStyle::tabTop : LayoutButton::DrawStyle::tabLeft;
+
+        auto button = LayoutButton::make(context,
+                                         LayoutLabel::make(context, c.label),
+                                         LayoutButton::ButtonType::radio,
+                                         &buttonSet
+                                         );
+
+        //button->setCallback(buttonSet.createCallback(button));
+
+        button->style = isHorizontal ? LayoutButton::DrawStyle::tabTop : LayoutButton::DrawStyle::tabLeft;
+
         if (tabIdx == 0) {
-            buttonSet.buttons.back()->setChecked(true);
+            button->setChecked(true);
         }
+
+        buttons.push_back(button);
+
         tabIdx++;
     }
-    std::vector<LayoutPtr> buttons;
-    for (auto &b : buttonSet.buttons) {
-        buttons.push_back(b);
-    }
+
     tabBar = LayoutStacked::make(context,
                                  isHorizontal,
                                  Justify::begin,
@@ -114,11 +124,7 @@ void LayoutTabs::selectTab(int tabIndex)
     context->setNeedsResize();
 }
 
-void LayoutTabs::TabButtonSet::onButtonPress(const PropertyBag &parentProps, LayoutButtonPtr button, int buttonIndex, bool checked)
-{
-    ButtonSet::onButtonPress(parentProps, button, buttonIndex, checked);
-    host->selectTab(buttonIndex);
-}
+
 
 LayoutTabFrame::LayoutTabFrame(Private privateTag, LayoutContext *context, const LayoutPtr &child) : LayoutBase(context),
     child(child)
@@ -154,3 +160,5 @@ void LayoutTabFrame::foreachChildImpl(std::function<void (LayoutBase *)> f, Fore
         f(child.get());
     }
 }
+
+
