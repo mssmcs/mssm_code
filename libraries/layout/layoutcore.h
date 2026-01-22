@@ -150,6 +150,142 @@ void grow(SizeBound2d& bound, const Margins& margins, int hBetweenCount, int vBe
 // Secondary iteration mechanism for overlays?
 // does each element have a link to potential overlay?  wasteful?
 
+// TODO: need a clearly defined and consistently used process
+// for when items are added and removed from the tree.  See closeOverlay
+// for some of the cleanup needed (for example, if element or subtree removed
+// from tree has grabbed keyboard or mouse, we must release it)
+// Making layoutBase have a container for children and methods that enforce
+// those variants might be helpful, rather than the current approach
+// where adapter elements with a single child are treated differntly than
+// elements with multiple children
+
+
+// NOTE: This class is a start at addressing issues above, it isn't yet in use
+template <typename N>
+class LayoutNode {
+private:
+    N* parent{};
+    std::vector<std::shared_ptr<N>> children;
+    std::shared_ptr<N> overlayElement{};
+    int layer{0};  // 0 is base layer, 1+ are overlays
+    int depth{0};  // 0 for base layer root or for roots of overlays
+protected:
+    void addChild(std::shared_ptr<N> child);
+    void addChildren(std::vector<std::shared_ptr<N>> children);
+    void setOverlay(int layer, std::shared_ptr<N> overlay);
+    void clearOverlay();
+    void removeChild(int idx);
+    void removeChild(std::shared_ptr<N> child);
+    void setChild(int idx, std::shared_ptr<N> child);
+private:
+    void updateLayers(int layer, int depth);
+    void updateOverlayLayer(int layer);
+    void onRemoveFromTree();
+public:
+    int getLayer() const { return layer; }
+    int getDepth() const { return depth; }
+    void setAsRoot();
+    bool isOverlayRoot() const { return layer > 0 && depth == 0; }
+    bool hasOverlay() const { return overlayElement != nullptr; }
+    std::shared_ptr<N> getOverlay() const { return overlayElement; }
+};
+
+template<typename N>
+void LayoutNode<N>::setAsRoot()
+{
+    updateLayers(0, 0);
+}
+
+
+template<typename N>
+void LayoutNode<N>::onRemoveFromTree()
+{
+    updateLayers(-1, 0);
+    parent = {};
+}
+
+template<typename N>
+void LayoutNode<N>::addChild(std::shared_ptr<N> child)
+{
+    if (child->parent) {
+        throw std::logic_error("LayoutNode<N>::addChild already has parent");
+    }
+    children.push_back(child);
+    child->parent = this;
+    child->updateLayers(layer, depth+1);
+}
+
+template<typename N>
+void LayoutNode<N>::addChildren(std::vector<std::shared_ptr<N> > newChildren)
+{
+    for (auto child : newChildren) {
+        addChild(child);
+    }
+}
+
+template<typename N>
+void LayoutNode<N>::setOverlay(int layer, std::shared_ptr<N> overlay)
+{
+    if (overlayElement) {
+        overlayElement->onRemoveFromTree();
+    }
+    overlayElement = overlay;
+    overlayElement->parent = this;
+    overlayElement->updateLayers(layer, 0);
+}
+
+template<typename N>
+void LayoutNode<N>::clearOverlay()
+{
+    if (overlayElement) {
+        overlayElement->onRemoveFromTree();
+    }
+    overlayElement = {};
+}
+
+template<typename N>
+void LayoutNode<N>::removeChild(int idx)
+{
+    children[idx]->onRemoveFromTree();
+    children.erase(children.begin()+idx);
+}
+
+template<typename N>
+inline void LayoutNode<N>::removeChild(std::shared_ptr<N> child)
+{
+    child->onRemoveFromTree();
+    children.erase(std::remove(children.begin(), children.end(), child), children.end());
+}
+
+template<typename N>
+void LayoutNode<N>::setChild(int idx, std::shared_ptr<N> child)
+{
+    if (idx < 0 || idx >= children.size()) {
+        throw std::logic_error("Index out of range in LayoutNode<N>::setChild ");
+    }
+    children[idx] = child;
+    child->updateLayers(layer, depth+1);
+    child->parent = this;
+}
+
+template<typename N>
+inline void LayoutNode<N>::updateLayers(int layer, int depth)
+{
+    this->layer = layer;
+    this->depth = depth;
+    for (auto& element : children) {
+        element->updateLayers(layer, depth+1);
+    }
+}
+
+template<typename N>
+inline void LayoutNode<N>::updateOverlayLayer(int layer)
+{
+    this->layer = layer;
+    for (auto& element : children) {
+        element->updateOverlayLayer(layer);
+    }
+}
 
 class LayoutBase : public RectI, public std::enable_shared_from_this<LayoutBase> {
 protected:
@@ -308,7 +444,6 @@ public:
     void setOverlay(LayoutPtr overlay);
     void closeOverlay(); // if this element hosts an overlay, close it
     void closeOverlayRecursive();  // close any overlays on this element or any descendents
-    void closeOverlayFromDescendant(); // traverse upwards to find overlay ancestor and close it
 
     void addToolTip(const PropertyBag &parentProps, Vec2d pos, LayoutPtr tip);
 
@@ -324,7 +459,6 @@ public:
     double getHoverTime() const;
 };
 
-
 class HoverTrack {
 public:
     enum class DrawMode {
@@ -333,7 +467,8 @@ public:
         pressing,
     };
     DrawMode mode;
-    DrawMode onMouse(LayoutBase *element, const MouseEvt &evt, bool captureOnPress);
+    DrawMode preProcMouse(LayoutBase *element, const MouseEvt &evt, bool captureOnPress);
+    DrawMode postProcMouse(LayoutBase *element, const MouseEvt &evt, bool captureOnPress);
     operator DrawMode() const { return mode; }
 };
 

@@ -535,14 +535,7 @@ void LayoutBase::closeOverlayRecursive()
     closeOverlay();
 }
 
-void LayoutBase::closeOverlayFromDescendant()
-{
-    auto curr = this;
-    while (!curr->hasOverlay() && curr->hasParent()) {
-        curr = curr->parent;
-    }
-    curr->closeOverlay();
-}
+
 
 void LayoutContext::updateWindowRect(const RectI &wr)
 {
@@ -637,12 +630,15 @@ RectI shrunk(const RectI &rect, const Padding &pad)
 
 
 
-HoverTrack::DrawMode HoverTrack::onMouse(LayoutBase* element, const MouseEvt &evt, bool captureOnPress)
+HoverTrack::DrawMode HoverTrack::preProcMouse(LayoutBase* element, const MouseEvt &evt, bool captureOnPress)
 {
     switch (evt.action) {
     case MouseEvt::Action::none:
     case MouseEvt::Action::scroll:
     case MouseEvt::Action::enter:
+    case MouseEvt::Action::release:
+    case MouseEvt::Action::exit:
+    case MouseEvt::Action::exitOverlayParent:
         break;
     case MouseEvt::Action::move:
         mode = DrawMode::hover;
@@ -661,6 +657,22 @@ HoverTrack::DrawMode HoverTrack::onMouse(LayoutBase* element, const MouseEvt &ev
             element->grabMouse();
         }
         break;
+    }
+
+    return mode;
+}
+
+HoverTrack::DrawMode HoverTrack::postProcMouse(LayoutBase* element, const MouseEvt &evt, bool captureOnPress)
+{
+    switch (evt.action) {
+    case MouseEvt::Action::none:
+    case MouseEvt::Action::scroll:
+    case MouseEvt::Action::enter:
+    case MouseEvt::Action::move:
+    case MouseEvt::Action::drag:
+    case MouseEvt::Action::press:
+    case MouseEvt::Action::exitOverlayParent:
+        break;
     case MouseEvt::Action::release:
         if (evt.insideElement) {
             // if (type == ButtonType::normal) {
@@ -678,11 +690,7 @@ HoverTrack::DrawMode HoverTrack::onMouse(LayoutBase* element, const MouseEvt &ev
     case MouseEvt::Action::exit:
         mode = DrawMode::normal;
         break;
-    case MouseEvt::Action::exitOverlayParent:
-        break;
     }
 
     return mode;
 }
-
-

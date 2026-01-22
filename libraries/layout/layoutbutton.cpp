@@ -37,7 +37,7 @@ void LayoutButtonBase::setChecked(bool newChecked)
 
 LayoutBase::EvtRes LayoutButtonBase::onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt)
 {
-    mode = hoverTrack.onMouse(this, evt, true);
+    mode = hoverTrack.preProcMouse(this, evt, true);
 
     // switch (evt.action) {
     // case MouseEvt::Action::none:
@@ -106,6 +106,8 @@ LayoutBase::EvtRes LayoutButtonBase::onMouse(const PropertyBag& parentProps, Mou
         }
         break;
     }
+
+    mode = hoverTrack.postProcMouse(this, evt, true);
 
     return EvtRes::propagate;
 }
