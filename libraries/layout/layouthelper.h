@@ -77,31 +77,31 @@ protected:
     using ConfigFunc = Configurator<T>;
 public:
     BuilderBase(LayoutConfig<T> config = {}) : config{config} {}
+    virtual operator Builder() const = 0;
+    operator Wrapper() const { return static_cast<Builder>(*this); }
 };
 
-class HSplit : BuilderBase<LayoutSplitter> {
+class HSplit : public BuilderBase<LayoutSplitter> {
 private:
     Builder left;
     Builder right;
 public:
     HSplit(LayoutConfig<LayoutSplitter> config, Wrapper a, Wrapper b) : BuilderBase{config}, left{a}, right{b} {}
     HSplit(Wrapper a, Wrapper b) : left{a}, right{b} {}
-    operator Builder() const;
-    operator Wrapper() const { return static_cast<Builder>(*this); }
+    operator Builder() const override;
 };
 
-class VSplit : BuilderBase<LayoutSplitter>  {
+class VSplit : public BuilderBase<LayoutSplitter>  {
 private:
     Builder top;
     Builder bottom;
 public:
     VSplit(LayoutConfig<LayoutSplitter> config, Wrapper a, Wrapper b) : BuilderBase{config}, top{a}, bottom{b} {}
     VSplit(Wrapper a, Wrapper b) : top{a}, bottom{b} {}
-    operator Builder() const;
-    operator Wrapper() const { return static_cast<Builder>(*this); }
+    operator Builder() const override;
 };
 
-class HStack : BuilderBase<LayoutStacked>  {
+class HStack : public BuilderBase<LayoutStacked>  {
 private:
     std::vector<Builder> children;
 public:
@@ -115,11 +115,10 @@ public:
             children.push_back(c);
         }
     }
-    operator Builder() const;
-    operator Wrapper() const { return static_cast<Builder>(*this); }
+    operator Builder() const override;
 };
 
-class VStack : BuilderBase<LayoutStacked>  {
+class VStack : public BuilderBase<LayoutStacked>  {
 private:
     std::vector<Builder> children;
 public:
@@ -133,8 +132,7 @@ public:
             children.push_back(c);
         }
     }
-    operator Builder() const;
-    operator Wrapper() const { return static_cast<Builder>(*this); }
+    operator Builder() const override;
 };
 
 class GridRowWrapper {
@@ -149,7 +147,7 @@ public:
     operator GridRowBuilder() const;
 };
 
-class Grid : BuilderBase<LayoutGrid>  {
+class Grid : public BuilderBase<LayoutGrid>  {
 private:
     std::vector<GridRowBuilder> children;
 public:
@@ -163,43 +161,53 @@ public:
             children.push_back(c);
         }
     }
-    operator Builder() const;
-    operator Wrapper() const { return static_cast<Builder>(*this); }
+    operator Builder() const override;
 };
 
-class Button : BuilderBase<LayoutButton>  {
+class Button : public BuilderBase<LayoutButton>  {
 private:
     std::string label;
+    LayoutButton::SimpleButtonCallback callback{};
 public:
     Button(LayoutConfig<LayoutButton> config, std::string label) : BuilderBase{config}, label{label} {}
     Button(std::string label) : label{label} {}
-    operator Builder() const;
-    operator Wrapper() const { return static_cast<Builder>(*this); }
+    Button(std::string label, LayoutButton::SimpleButtonCallback callback) : label{label}, callback{callback} {}
+
+    operator Builder() const override;
 };
 
+class CheckBox : public BuilderBase<LayoutButton>  {
+private:
+    std::string label;
+    LayoutButton::SimpleButtonCallback callback{};
+public:
+    CheckBox(LayoutConfig<LayoutButton> config, std::string label) : BuilderBase{config}, label{label} {}
+    CheckBox(std::string label) : label{label} {}
+    CheckBox(std::string label, LayoutButton::SimpleButtonCallback callback) : label{label}, callback{callback} {}
 
-class Panel : BuilderBase<LayoutColor>  {
+    operator Builder() const override;
+};
+
+class Panel : public BuilderBase<LayoutColor>  {
 private:
     mssm::Color color;
     SizeBound2d bound;
 public:
     Panel(LayoutConfig<LayoutColor> config, mssm::Color color, SizeBound2d bound = {200,200,50,50}) : BuilderBase{config}, color{color}, bound{bound} {}
     Panel(mssm::Color color, SizeBound2d bound = {200,200,50,50}) : color{color}, bound{bound} {}
-    operator Builder() const;
-    operator Wrapper() const { return static_cast<Builder>(*this); }
+    operator Builder() const override;
 };
 
-class ImagePanel : BuilderBase<LayoutImage> {
+class ImagePanel : public BuilderBase<LayoutImage> {
 private:
     mssm::Image image;
 public:
     ImagePanel(LayoutConfig<LayoutImage> config, mssm::Image image) : BuilderBase{config}, image{image} {}
     ImagePanel(mssm::Image image) : image{image} {}
-    operator Builder() const;
-    operator Wrapper() const { return static_cast<Builder>(*this); }
+    operator Builder() const override;
 };
 
-class Slider : BuilderBase<LayoutSlider>  {
+class Slider : public BuilderBase<LayoutSlider>  {
 private:
     bool isHorizontal{true};
     double minValue{0};
@@ -208,24 +216,22 @@ private:
 public:
     Slider(LayoutConfig<LayoutSlider> config, bool isHorizontal) : BuilderBase{config}, isHorizontal{isHorizontal}  {}
     Slider(bool isHorizontal) : isHorizontal{isHorizontal}  {}
-    operator Builder() const;
-    operator Wrapper() const { return static_cast<Builder>(*this); }
+    operator Builder() const override;
 };
 
-class Scroll : BuilderBase<LayoutScroll>  {
+class Scroll : public BuilderBase<LayoutScroll>  {
 private:
     Builder child;
 public:
     Scroll(LayoutConfig<LayoutScroll> config, Wrapper child) : BuilderBase{config}, child{child} {}
     Scroll(Wrapper child) : child{child} {}
-    operator Builder() const;
-    operator Wrapper() const { return static_cast<Builder>(*this); }
+    operator Builder() const override;
 };
 
 Builder operator|(Wrapper aw, Wrapper bw);
 Builder operator/(Wrapper aw, Wrapper bw);
 
-class Tabs : BuilderBase<LayoutTabs>  {
+class Tabs : public BuilderBase<LayoutTabs>  {
 protected:
     class Tab {
     public:
@@ -259,8 +265,7 @@ public:
         }
     }
 
-    operator Builder() const;
-    operator Wrapper() const { return static_cast<Builder>(*this); }
+    operator Builder() const override;
 };
 
 
@@ -293,7 +298,7 @@ public:
 
 
 
-class Menu : BuilderBase<LayoutMenu>  {
+class Menu : public BuilderBase<LayoutMenu>  {
 protected:
     class Item {
     public:
@@ -336,8 +341,7 @@ public:
         }
     }
 
-    operator Builder() const;
-    operator Wrapper() const { return static_cast<Builder>(*this); }
+    operator Builder() const override;
 };
 
 
@@ -368,7 +372,7 @@ public:
     }
 };
 
-class Flyout : BuilderBase<LayoutFlyout>  {
+class Flyout : public BuilderBase<LayoutFlyout>  {
 private:
     std::vector<Builder> children;
 public:
@@ -382,11 +386,10 @@ public:
             children.push_back(c);
         }
     }
-    operator Builder() const;
-    operator Wrapper() const { return static_cast<Builder>(*this); }
+    operator Builder() const override;
 };
 
-class Expander : BuilderBase<LayoutExpander>  {
+class Expander : public BuilderBase<LayoutExpander>  {
 private:
     std::vector<Builder> children;
 public:
@@ -400,8 +403,7 @@ public:
             children.push_back(c);
         }
     }
-    operator Builder() const;
-    operator Wrapper() const { return static_cast<Builder>(*this); }
+    operator Builder() const override;
 };
 
 } // namespace LayoutHelper

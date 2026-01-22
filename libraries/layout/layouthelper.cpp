@@ -58,6 +58,8 @@ LayoutHelper::Grid::operator LayoutHelper::Builder() const
 }
 
 namespace LayoutHelper {
+
+
 Builder operator|(Wrapper aw, Wrapper bw) {
     Builder a = aw;
     Builder b = bw;
@@ -121,9 +123,31 @@ Button::operator Builder() const
 {
     std::string txt = label;
     auto config = this->config;
-    return [txt, config](LayoutContext *context) {
+    auto callback = this->callback;
+
+    return [txt, config, callback](LayoutContext *context) {
         auto widget = LayoutButton::make(context, LayoutLabel::make(context, txt));
         config.applyTo(widget);
+        if (callback) {
+            widget->setCallback(callback);
+        }
+        return widget;
+    };
+}
+
+
+CheckBox::operator Builder() const
+{
+    std::string txt = label;
+    auto config = this->config;
+    auto callback = this->callback;
+
+    return [txt, config, callback](LayoutContext *context) {
+        auto widget = LayoutButton::make(context, LayoutLabel::make(context, txt), 0, LayoutButton::ButtonType::checkbox);
+        config.applyTo(widget);
+        if (callback) {
+            widget->setCallback(callback);
+        }
         return widget;
     };
 }
