@@ -188,11 +188,54 @@ void LayoutBase::setCollapsed(bool collapsed)
     }, ForeachContext::other, true, false);
 }
 
+double LayoutBase::getHoverTime() const
+{
+    return context->getHoverTime(this);
+}
+
 void LayoutBase::setParentsOfChildren()
 {
     foreachChild([this](LayoutBase* child) {
         child->setParent(this);
     }, ForeachContext::other, false, true);
+}
+
+void LayoutBase::broadcastRecursive(BroadcastMessage message, bool includeSelf, bool includeOverlay)
+{
+    if (includeSelf && (includeOverlay || !overlayElement)) {
+        onBroadcast(message);
+    }
+
+    foreachChild([message, includeOverlay](LayoutBase* child) {
+        child->broadcastRecursive(message, true, includeOverlay);
+    }, ForeachContext::other, includeOverlay, true);
+}
+
+void LayoutBase::onBroadcast(BroadcastMessage message)
+{
+    // ignore by default
+}
+
+void LayoutBase::bubbleMessage(BubbleMessage message, bool includeSelf)
+{
+    if (includeSelf) {
+        if (!onBubbleMessage(message)) {
+            return;
+        }
+    }
+
+    auto curr = parent;
+    while (curr) {
+        if (!curr->onBubbleMessage(message)) {
+            return;
+        }
+        curr = curr->parent;
+    }
+}
+
+bool LayoutBase::onBubbleMessage(BubbleMessage message)
+{
+    return true; // bubble up by default
 }
 
 void LayoutBase::setOuterMargins(int borders)
@@ -474,6 +517,7 @@ void LayoutBase::closeOverlay()
 {
     if (overlayElement) {
         std::cout << "Closing Overlay" << std::endl;
+        overlayElement->localReleaseMouseAndKeyboard();
         showingTooltip = false;
         overlayElement->closeOverlayRecursive();
         context->removeOverlay(overlayElement);
@@ -489,6 +533,15 @@ void LayoutBase::closeOverlayRecursive()
         child->closeOverlayRecursive();
     }, ForeachContext::other, false, true);
     closeOverlay();
+}
+
+void LayoutBase::closeOverlayFromDescendant()
+{
+    auto curr = this;
+    while (!curr->hasOverlay() && curr->hasParent()) {
+        curr = curr->parent;
+    }
+    curr->closeOverlay();
 }
 
 void LayoutContext::updateWindowRect(const RectI &wr)

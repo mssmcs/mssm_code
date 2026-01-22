@@ -5,11 +5,11 @@
 using namespace mssm;
 
 
-LayoutButtonBase::LayoutButtonBase(Private privateTag, LayoutContext *context, ButtonType buttonType, ButtonSet2 *buttonSet)
+LayoutButtonBase::LayoutButtonBase(Private privateTag, LayoutContext *context, ButtonType buttonType, ButtonSet2 *buttonSet, double autoPressHoverTime)
     : LayoutBase{context}, type{buttonType}, buttonSet2{buttonSet}
 {
     if (buttonSet) {
-        buttonSet->add(this);
+        buttonSet->add(this, autoPressHoverTime);
     }
 }
 
@@ -137,8 +137,8 @@ LayoutButton::LayoutButton(Private privateTag,
     setParentsOfChildren();
 }
 
-LayoutButton::LayoutButton(Private privateTag, LayoutContext *context, LayoutPtr child, ButtonType buttonType, ButtonSet2 *buttonSet)
-    : LayoutButtonBase{privateTag, context, buttonType, buttonSet},
+LayoutButton::LayoutButton(Private privateTag, LayoutContext *context, LayoutPtr child, ButtonType buttonType, ButtonSet2 *buttonSet, double autoPressHoverTime)
+    : LayoutButtonBase{privateTag, context, buttonType, buttonSet, autoPressHoverTime},
     child{child},
     callback{},
     buttonId{0}
@@ -206,7 +206,7 @@ void LayoutButton::drawCommon(const PropertyBag &parentProps, mssm::Canvas2d &g,
         break;
     }
     
-    drawRect(g, buttonRect, RED, TRANSPARENT);
+    //drawRect(g, buttonRect, RED, TRANSPARENT);
 }
 
 void LayoutButton::drawMomentary(const PropertyBag &parentProps, mssm::Canvas2d &g, DrawMode mode)
@@ -319,15 +319,15 @@ void ButtonSet2::setCallback(std::function<void (int, bool)> onPress)
     this->onPress = onPress;
 }
 
-LayoutButtonBase *ButtonSet2::add(LayoutButtonBase *button)
+LayoutButtonBase *ButtonSet2::add(LayoutButtonBase *button, double autoClickTime)
 {
-    buttons.push_back(button);
-    return buttons.back();
+    buttons.push_back({ button, autoClickTime });
+    return buttons.back().button;
 }
 
 void ButtonSet2::remove(LayoutButtonBase *button)
 {
-    buttons.erase(std::remove(buttons.begin(), buttons.end(), button), buttons.end());
+    buttons.erase(std::remove_if(buttons.begin(), buttons.end(), [button](auto& b) { return button == b.button; }), buttons.end());
 }
 
 std::function<void (const PropertyBag &, LayoutButtonPtr, int, bool)> ButtonSet2::createCallback()
@@ -340,13 +340,13 @@ std::function<void (const PropertyBag &, LayoutButtonPtr, int, bool)> ButtonSet2
 void ButtonSet2::onButtonPress(const PropertyBag &parentProps, LayoutButtonBase *button, bool pressValue)
 {
     for (int i = 0; i < buttons.size(); ++i) {
-        if (buttons[i] == button) {
+        if (buttons[i].button == button) {
             onButtonPress(parentProps, button, i, pressValue);
         }
         else {
             // other button
             if (isRadio && pressValue) {
-                buttons[i]->setChecked(false);
+                buttons[i].button->setChecked(false);
             }
         }
     }
@@ -356,5 +356,17 @@ void ButtonSet2::onButtonPress(const PropertyBag &parentProps, LayoutButtonBase 
 {
     if (onPress) {
         onPress(buttonIndex, pressValue);
+    }
+}
+
+void ButtonSet2::checkClickOnHover(const PropertyBag &parentProps)
+{
+    for (int i = 0; i < buttons.size(); ++i) {
+        auto& b = *buttons[i].button;
+        double hoverTime = buttons[i].autoClickTime;
+        if (hoverTime != 0 && !b.isChecked() && b.getHoverTime() > hoverTime) {
+            b.onButtonPress(parentProps, true);
+            b.setChecked(true);
+        }
     }
 }

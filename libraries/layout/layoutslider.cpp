@@ -20,6 +20,8 @@ LayoutBase::EvtRes LayoutSlider::onMouse(const PropertyBag& parentProps, MouseEv
     const int dragThreshold = 10;
     
     switch (evt.action) {
+    case MouseEvt::Action::exitOverlayParent:
+        break;
     case MouseEvt::Action::none:
     case MouseEvt::Action::enter:
         break;

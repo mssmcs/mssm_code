@@ -34,7 +34,7 @@ void LayoutContext::removeOverlay(LayoutPtr overlay)
 {
     //hoverChain.onRemove(overlay);
 
-    if (hoverChain.size() > 0 && hoverChain[0] == overlay) {
+    if (hoverChain.size() > 0 && hoverChain[0].element == overlay) {
         std::cout << "Erasing hover chain in removeOverlay" << std::endl;
         // for (int i = hoverChain.size()-1; i >= 0; i--) {
         //     sendExit(hoverChain[i], {0,0});
@@ -64,7 +64,7 @@ void LayoutContext::updateHoverChain(const PropertyBag& parentProps, LayoutPtr h
         // is hoverElement in a higher overlay than the hoverChain?
 
         int elementLayer = hoverElement->getLayer(); // getOverlayLevel(hoverRoot);
-        int chainLayer =  hoverChain[0]->getLayer();
+        int chainLayer =  hoverChain[0].element->getLayer();
 
         if (elementLayer < chainLayer) {
             // ignore?
@@ -80,7 +80,7 @@ void LayoutContext::updateHoverChain(const PropertyBag& parentProps, LayoutPtr h
                 std::cout << "When inside element: " << hoverElement->trail() << std::endl;
                 truncateHoverChain(parentProps, 0, pos);
                 if (!hoverElement->getCollapsed()) {
-                    hoverChain.push_back(hoverElement);
+                    hoverChain.push_back({hoverElement, 0.0});
                     sendEnter(parentProps, hoverElement, pos);
                 }
             }
@@ -114,11 +114,11 @@ void LayoutContext::updateHoverChain(const PropertyBag& parentProps, LayoutPtr h
         assertm(hoverChain.size() >= depth, "hoverChain.size() >= depth");
 
         if (hoverChain.size() == depth) {
-            hoverChain.push_back(hoverElement);
+            hoverChain.push_back({hoverElement, 0.0});
             sendEnter(parentProps, hoverElement, pos);
             return;
         }
-        else if (hoverChain[depth] == hoverElement) {
+        else if (hoverChain[depth].element == hoverElement) {
             // we were inside, and we're still inside, nothing to do
             return;
         }
@@ -126,14 +126,14 @@ void LayoutContext::updateHoverChain(const PropertyBag& parentProps, LayoutPtr h
             std::cout << "This place: " << std::endl;
 
             truncateHoverChain(parentProps, depth, pos);
-            hoverChain.push_back(hoverElement);
+            hoverChain.push_back({hoverElement, 0.0});
             sendEnter(parentProps, hoverElement, pos);
             return;
         }
     }
     else {
         // not inside
-        if (depth < hoverChain.size() && hoverChain[depth] == hoverElement) {
+        if (depth < hoverChain.size() && hoverChain[depth].element == hoverElement) {
             // we _were_ inside, so truncate
             std::cout << "This place2: " << std::endl;
             truncateHoverChain(parentProps, depth, pos);
@@ -145,8 +145,32 @@ void LayoutContext::updateHoverChain(const PropertyBag& parentProps, LayoutPtr h
 void LayoutContext::iterateHoverChain(std::function<void (LayoutBase *)> f)
 {
     for (auto& e : hoverChain) {
-        f(e.get());
+        f(e.element.get());
     }
+}
+
+void LayoutContext::iterateHoverChain(std::function<void (LayoutBase *, double)> f)
+{
+    for (auto& e : hoverChain) {
+        f(e.element.get(), e.hoverTime);
+    }
+}
+
+void LayoutContext::updateHoverTimes(double elapsedTimeS)
+{
+    for (auto& e : hoverChain) {
+        e.hoverTime += elapsedTimeS;
+    }
+}
+
+double LayoutContext::getHoverTime(const LayoutBase *element) const
+{
+    for (auto& e : hoverChain) {
+        if (e.element.get() == element) {
+            return e.hoverTime;
+        }
+    }
+    return 0.0;
 }
 
 void LayoutContext::truncateHoverChain(const PropertyBag& parentProps, int depth, Vec2d pos)
@@ -155,9 +179,9 @@ void LayoutContext::truncateHoverChain(const PropertyBag& parentProps, int depth
 
     while (hoverChain.size() > depth) {
         if (debug) {
-            std::cout << "Exiting: " << hoverChain.back()->getTypeStr() << std::endl;
+            std::cout << "Exiting: " << hoverChain.back().element->getTypeStr() << std::endl;
         }
-        sendExit(parentProps, hoverChain.back(), pos);
+        sendExit(parentProps, hoverChain.back().element, pos);
         hoverChain.pop_back();
     }
 }

@@ -14,6 +14,8 @@ LayoutBase::EvtRes LayoutDragHandle::onMouse(const PropertyBag& parentProps, Mou
     const int dragThreshold = 10;
     
     switch (evt.action) {
+    case MouseEvt::Action::exitOverlayParent:
+        break;
     case MouseEvt::Action::none:
     case MouseEvt::Action::scroll:
     case MouseEvt::Action::enter:

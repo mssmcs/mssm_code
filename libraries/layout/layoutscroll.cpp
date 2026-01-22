@@ -35,6 +35,8 @@ LayoutBase::EvtRes LayoutScroll::onMouse(const PropertyBag& parentProps, MouseEv
 LayoutBase::EvtRes LayoutScroll::onMouseDeferred(const PropertyBag &parentProps, MouseEventReason reason, const MouseEvt &evt)
 {
     switch (evt.action) {
+    case MouseEvt::Action::exitOverlayParent:
+        break;
     case MouseEvt::Action::none:
     case MouseEvt::Action::move:
     case MouseEvt::Action::drag:

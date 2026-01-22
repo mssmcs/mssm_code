@@ -156,8 +156,14 @@ protected:
     class Private {};
 public:
     enum class BroadcastMessage {
-        closeTooltip
+        closeTooltip,
+        isUnderMenu
     };
+
+    enum class BubbleMessage {
+        closeMenu
+    };
+
     enum class EvtProp {
         normal,
         hover,
@@ -225,6 +231,8 @@ public:
 
     std::shared_ptr<LayoutBase> getBasePtr() { return shared_from_this();}
 
+    bool hasParent() const { return parent; }
+
     std::shared_ptr<LayoutBase> getParentPtr() {
         if (parent) {
             return parent->getBasePtr();
@@ -252,7 +260,10 @@ public:
     void traversePostorder(std::function<void(LayoutBase*)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed);
     void setParentsOfChildren();
 
-    void broadcastRecursive(BroadcastMessage message);
+    void broadcastRecursive(BroadcastMessage message, bool includeSelf, bool includeOverlay);
+    virtual void onBroadcast(BroadcastMessage message);
+    void bubbleMessage(BubbleMessage message, bool includeSelf);
+    virtual bool onBubbleMessage(BubbleMessage message); // return true to keep bubbling
 
     virtual void setOuterMargins(int borders);
     virtual void setOuterMargins(int leftRight, int topBottom);
@@ -297,6 +308,7 @@ public:
     void setOverlay(LayoutPtr overlay);
     void closeOverlay(); // if this element hosts an overlay, close it
     void closeOverlayRecursive();  // close any overlays on this element or any descendents
+    void closeOverlayFromDescendant(); // traverse upwards to find overlay ancestor and close it
 
     void addToolTip(const PropertyBag &parentProps, Vec2d pos, LayoutPtr tip);
 
@@ -308,6 +320,8 @@ public:
 
     void setCollapsed(bool collapsed);
     bool getCollapsed() const { return isCollapsed; }
+
+    double getHoverTime() const;
 };
 
 

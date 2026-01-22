@@ -72,12 +72,18 @@ public:
 };
 
 class LayoutContext : public TextMetrics {
+    class HoverItem {
+    public:
+        LayoutPtr element;
+        double hoverTime{};
+    };
+
     LayoutPtr keyFocus{};
     LayoutPtr dragFocus{};
     bool needsResize{true};
     RectI windowRect;
     bool debug{false};
-    std::vector<LayoutPtr> hoverChain;
+    std::vector<HoverItem> hoverChain;
 public: // TODO: make private later
     std::vector<LayoutPtr> overlays;
 public:
@@ -122,6 +128,9 @@ public:
 
     void updateHoverChain(const PropertyBag &parentProps, LayoutPtr hoverElement, bool isInside, Vec2d pos);
     void iterateHoverChain(std::function<void(LayoutBase*)> f);
+    void iterateHoverChain(std::function<void(LayoutBase*,double)> f); // passes hoverTime as second parameter
+    void updateHoverTimes(double elapsedTimeS);
+    double getHoverTime(const LayoutBase *element) const;
 
     virtual void resizeOverlays(const PropertyBag& parentProps, const RectI& rect);
 

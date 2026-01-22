@@ -185,7 +185,15 @@ Menu::operator Builder() const
     return [isHorizontal, tmp, config](LayoutContext* context) {
         std::vector<LayoutMenu::Item> kids;
         for (auto& c : tmp) {
-            kids.push_back({c.label, c.content(context)});
+            if (c.callback) {
+                kids.push_back({c.label, {}, c.callback});
+            }
+            else if (c.content) {
+                kids.push_back({c.label, c.content(context), {}});
+            }
+            else {
+                throw std::logic_error("Should have either callback or content!");
+            }
         }
         auto widget = LayoutMenu::make(context, isHorizontal, kids);
         config.applyTo(widget);
@@ -215,6 +223,36 @@ Expander::operator Builder() const
         config.applyTo(widget);
         return widget;
     };
+}
+
+Menu::Item::Item(std::string label, Builder content)
+    : label{label}, content{content}
+{
+}
+
+Menu::Item::Item(std::string label, std::function<void (std::string, int)> callback)
+    : label{label}, callback{callback}
+{
+}
+
+Menu::ItemWrapper::ItemWrapper(std::string label, Wrapper content)
+    : label{label}, content{content}
+{
+}
+
+Menu::ItemWrapper::ItemWrapper(std::string label, std::function<void (std::string, int)> callback)
+    : label{label}, callback{callback}
+{
+}
+
+Menu::ItemWrapper::operator Item() const
+{
+    if (content) {
+        return Item{label, content};
+    }
+    else {
+        return Item{label, callback};
+    }
 }
 
 }

@@ -15,9 +15,11 @@ LayoutManager::LayoutManager(LayoutContext *context, LayoutHelper::Builder build
     : LayoutManager(context, builder(context))
 {}
 
-void LayoutManager::propagateEvents(const PropertyBag &parentProps)
+void LayoutManager::propagateEvents(const PropertyBag &parentProps, double elapsedTimeS)
 {
     //mssm::CoreWindow &g{*context->getWindow()};
+
+    context->updateHoverTimes(elapsedTimeS);
 
     MouseEvt evt;
     KeyEvt keyEvt;
@@ -108,6 +110,8 @@ void LayoutManager::propagateEvents(const PropertyBag &parentProps)
         evt.button = mssm::MouseButton::Left;
         propagateMouse(parentProps, screenRect, evt);
     }
+
+
 }
 
 void LayoutManager::draw(mssm::CoreWindow& window, mssm::Canvas2d &g)
@@ -134,7 +138,7 @@ void LayoutManager::draw(mssm::CoreWindow& window, mssm::Canvas2d &g)
         },
         LayoutBase::ForeachContext::drawing, false, true);
 
-    propagateEvents(parentProps);
+    propagateEvents(parentProps, window.elapsedSeconds());
 
     bool collapsed = g.width() == 0 || g.height() == 0;
 
@@ -178,18 +182,18 @@ void LayoutManager::draw(mssm::CoreWindow& window, mssm::Canvas2d &g)
     if (window.isAltKeyPressed()) {
         int yPos = 25;
 
-        layout->traversePreOrder(
-            [&](LayoutBase *element) {
-                std::string txt = element->getTypeStr() + " " + element->getName() + " " + std::to_string(element->getLayer())+ " " + std::to_string(element->getDepth());
-                g.text({10*element->getDepth(), yPos}, 20, txt);
-                yPos += 20;
-            },
-            LayoutBase::ForeachContext::drawing, true, true);
+        // layout->traversePreOrder(
+        //     [&](LayoutBase *element) {
+        //         std::string txt = element->getTypeStr() + " " + element->getName() + " " + std::to_string(element->getLayer())+ " " + std::to_string(element->getDepth());
+        //         g.text({10*element->getDepth(), yPos}, 20, txt);
+        //         yPos += 20;
+        //     },
+        //     LayoutBase::ForeachContext::drawing, true, true);
 
-        yPos += 20;
+        // yPos += 20;
 
-        context->iterateHoverChain([&](LayoutBase *element) {
-            std::string txt = element->getTypeStr() + " " + element->getName() + " " + std::to_string(element->getLayer())+ " " + std::to_string(element->getDepth());
+        context->iterateHoverChain([&](LayoutBase *element, double t) {
+            std::string txt = element->getTypeStr() + " " + element->getName() + " " + std::to_string(element->getLayer())+ " " + std::to_string(element->getDepth()) + " " + std::to_string(t);
             g.text({10*element->getDepth(), yPos}, 20, txt);
             yPos += 20;
         });

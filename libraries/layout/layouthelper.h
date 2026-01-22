@@ -43,7 +43,9 @@ public:
 class Wrapper {
 private:
     Builder layout{};
+    bool initialized{true};
 public:
+    Wrapper() : initialized{false} { layout = [](LayoutContext*) { return LayoutPtr{}; }; }
     Wrapper(Builder layout) : layout{layout}
     {
     }
@@ -65,6 +67,7 @@ public:
     }
 
     operator Builder() const { return layout; }
+    operator bool() const { return initialized; }
 };
 
 template <typename T>
@@ -296,13 +299,21 @@ protected:
     public:
         std::string label;
         Builder content;
+        std::function<void(std::string label, int idx)> callback;
+    public:
+        Item(std::string label, Builder content);
+        Item(std::string label, std::function<void(std::string label, int idx)> callback);
     };
 
     class ItemWrapper {
     public:
         std::string label;
         Wrapper content;
-        operator Item() const { return { label, content }; }
+        std::function<void(std::string label, int idx)> callback;
+    public:
+        ItemWrapper(std::string label, Wrapper content);
+        ItemWrapper(std::string label, std::function<void(std::string label, int idx)> callback);
+        operator Item() const;
     };
 
     std::vector<Item> children;

@@ -16,6 +16,8 @@ public:
 
     SizeBound2d getBound(const PropertyBag &parentProps) override;
     void resize(const PropertyBag &parentProps, const RectI &rect) override;
+
+    EvtRes onMouse(const PropertyBag &parentProps, MouseEventReason reason, const MouseEvt &evt) override;
 };
 
 class LayoutMenu : public LayoutBase
@@ -25,14 +27,16 @@ public:
     public:
         std::string label;
         LayoutPtr content;
+        std::function<void(std::string label, int idx)> callback{};
     };
 protected:
     LayoutPtr tabBar;
     ButtonSet2 buttonSet;
-    std::vector<LayoutPtr> menus;  // OVERLAYS NOT CHILDREN
+    std::vector<Item> items;  // note, content will have wrapper applied
     int openedMenuIdx{-1};
     bool isHorizontal{true};
     Margins margins;
+    bool isSubMenu{false};
 public:
     LayoutMenu(Private privateTag, LayoutContext* context, bool isHorizontal, std::vector<Item> children);
     static std::shared_ptr<LayoutMenu> make(LayoutContext* context, bool isHorizontal, std::vector<Item> children) { return std::make_shared<LayoutMenu>(Private{}, context, isHorizontal, children); }
@@ -43,6 +47,9 @@ public:
     void setOuterMargins(int left, int right, int top, int bottom) override;
     void foreachChildImpl(std::function<void (LayoutBase *)> f, ForeachContext context, bool includeOverlay, bool includeCollapsed) override;
     void openMenu(int buttonIdx);
+
+    void onBroadcast(BroadcastMessage message) override;
+    bool onBubbleMessage(BubbleMessage message) override;
 };
 
 

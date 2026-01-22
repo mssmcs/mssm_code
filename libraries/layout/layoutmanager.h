@@ -16,7 +16,7 @@ public:
     LayoutManager(LayoutContext *context, LayoutPtr layout);
     LayoutManager(LayoutContext *context, LayoutHelper::Builder builder);
 
-    void propagateEvents(const PropertyBag &parentProps);
+    void propagateEvents(const PropertyBag &parentProps, double elapsedTimeS);
     void draw(mssm::CoreWindow &window, mssm::Canvas2d &g);
 
     LayoutPtr findByName(std::string name);

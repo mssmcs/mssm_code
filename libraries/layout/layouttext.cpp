@@ -12,6 +12,8 @@ LayoutText::LayoutText(Private privateTag, LayoutContext *context, std::string t
 LayoutBase::EvtRes LayoutText::onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt)
 {
     switch (evt.action) {
+    case MouseEvt::Action::exitOverlayParent:
+        break;
     case MouseEvt::Action::none:
     case MouseEvt::Action::enter:
         break;
