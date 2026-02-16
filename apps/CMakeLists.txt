@@ -11,6 +11,7 @@ homework1-hamling
 Quickhouse3
 sample_project
 mssm_cmd
+stack-hamling
 )
 
 # Not your situation, but in case you have a different linker
@@ -56,81 +57,100 @@ else()
     message("QT Not Found") 
 endif()
 
+# Top-level directories under apps/
+file(GLOB TOP_LEVEL_DIRS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} */)
 
-# Find and add subdirectories
-file(GLOB SUBDIRECTORIES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} */)
-
-# message("Subdirectories: ${SUBDIRECTORIES}")
-
-message("CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
-
-set(ALL_LIBRARIES "")
 set(PROJECT_FOLDERS "")
+set(ALL_LIBRARIES "")
 
-# first scan subdirectories (assumed to be projects) for their dependencies
-foreach(subdir ${SUBDIRECTORIES})
+foreach(topdir ${TOP_LEVEL_DIRS})
 
-    if ("${subdir}" IN_LIST EXCLUDE_SUBDIRS)
-        message("skipping project (because it appears in EXCLUDE_SUBDIRS): ${subdir}")
+    if ("${topdir}" IN_LIST EXCLUDE_SUBDIRS)
+        message("Skipping excluded dir: ${topdir}")
         continue()
     endif()
 
-    set(FULLSUBDIR "${CMAKE_CURRENT_SOURCE_DIR}/${subdir}")
-    if(IS_DIRECTORY ${FULLSUBDIR})
-        # Extract the name of the directory
-        get_filename_component(dirname ${FULLSUBDIR} NAME)
+    set(TOPDIR_PATH "${CMAKE_CURRENT_SOURCE_DIR}/${topdir}")
+    if(NOT IS_DIRECTORY "${TOPDIR_PATH}")
+        continue()
+    endif()
 
-        if (dirname STREQUAL "build" OR dirname STREQUAL "cmake" OR dirname STREQUAL "visualstudiosln")
+    # ------------------------------------------------------------
+    # Case 1: apps/SomeProject/CMakeLists.txt
+    # ------------------------------------------------------------
+    if (EXISTS "${TOPDIR_PATH}/CMakeLists.txt")
+        set(CANDIDATE_DIR "${TOPDIR_PATH}")
+
+        set(PROJECT_DIRS "${CANDIDATE_DIR}")
+    else()
+        # ------------------------------------------------------------
+        # Case 2: apps/assignment/student/CMakeLists.txt
+        # ------------------------------------------------------------
+        file(GLOB SECOND_LEVEL_DIRS RELATIVE "${TOPDIR_PATH}" "${TOPDIR_PATH}/*/")
+
+        set(PROJECT_DIRS "")
+        foreach(subdir ${SECOND_LEVEL_DIRS})
+            set(FULLSUBDIR "${TOPDIR_PATH}/${subdir}")
+
+            if (EXISTS "${FULLSUBDIR}/CMakeLists.txt")
+                list(APPEND PROJECT_DIRS "${FULLSUBDIR}")
+            endif()
+        endforeach()
+    endif()
+
+    # ------------------------------------------------------------
+    # Process discovered projects
+    # ------------------------------------------------------------
+    foreach(PROJ_PATH ${PROJECT_DIRS})
+
+        get_filename_component(dirname "${PROJ_PATH}" NAME)
+        if (dirname STREQUAL "build" OR dirname STREQUAL "cmake")
             continue()
         endif()
 
-        # Construct the full path to the CMakeLists.txt file
-        set(cmake_file "${FULLSUBDIR}/CMakeLists.txt")
-
-        # message("Looking for cmake file: ${cmake_file}")
-
-        if(NOT EXISTS "${cmake_file}")
-            # message("No CMakeLists.txt file found in: ${FULLSUBDIR}")
-            continue()
-        endif()
+        set(cmake_file "${PROJ_PATH}/CMakeLists.txt")
 
         check_supports_os("${cmake_file}" SUPPORTS_OS)
         if (NOT SUPPORTS_OS)
-            message("OS not supported, skipping project: ${subdir}")
+            message("OS not supported, skipping: ${PROJ_PATH}")
             continue()
         endif()
 
-        if (NOT QT_FOUND) 
-           check_uses_qt("${cmake_file}" USES_QT)
-           if (USES_QT)
-                message("QT not found, skipping QT project: ${subdir}")
+        if (NOT QT_FOUND)
+            check_uses_qt("${cmake_file}" USES_QT)
+            if (USES_QT)
+                message("QT not found, skipping QT project: ${PROJ_PATH}")
                 continue()
             endif()
         endif()
 
+        message(STATUS "Discovered project: ${PROJ_PATH}")
 
-        
-        message(STATUS "Getting referenced libraries: ${subdir}")            
-        get_library_list("${FULLSUBDIR}" LIBRARY_LIST)
-        message("Library list: ${LIBRARY_LIST}")
-
-
-
+        get_library_list("${PROJ_PATH}" LIBRARY_LIST)
         list(APPEND ALL_LIBRARIES ${LIBRARY_LIST})
 
-        list(APPEND PROJECT_FOLDERS ${subdir})
-    else()
-        # message("Not a directory: ${FULLSUBDIR}")
-    endif()
+        file(RELATIVE_PATH REL_PATH "${CMAKE_CURRENT_SOURCE_DIR}" "${PROJ_PATH}")
+        list(APPEND PROJECT_FOLDERS "${REL_PATH}")
+
+    endforeach()
 endforeach()
+
 
 message("All libraries: ${ALL_LIBRARIES}")
 
-set(LIBRARY_RELATIVE_PATH ../libraries/)
+# Ensure the library relative path is set correctly
+# Update the library relative path to point to the correct location
+set(LIBRARY_RELATIVE_PATH ${CMAKE_SOURCE_DIR}/../libraries)
 
-get_filename_component(LIBRARY_ABSOLUTE_PATH ${LIBRARY_RELATIVE_PATH} ABSOLUTE BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+# Debugging: Print the resolved library path
+message("Resolved Library Relative Path: ${LIBRARY_RELATIVE_PATH}")
 
-message("Library absolute path: ${LIBRARY_ABSOLUTE_PATH}")
+# Get the absolute path of the libraries directory and set it in the cache
+get_filename_component(LIBRARY_ABSOLUTE_PATH_TEMP ${LIBRARY_RELATIVE_PATH} ABSOLUTE)
+set(LIBRARY_ABSOLUTE_PATH ${LIBRARY_ABSOLUTE_PATH_TEMP} CACHE STRING "Absolute path to the libraries directory")
+
+# Debugging: Print the resolved absolute path
+message("Resolved Library Absolute Path: ${LIBRARY_ABSOLUTE_PATH}")
 
 get_filename_component(APP_TEMPLATE_ABSOLUTE_PATH ../app_template ABSOLUTE BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
@@ -158,7 +178,15 @@ message("*************** DONE LOADING LIBRARIES ****************")
 # now add subdirectories for the projects
 foreach(subdir ${PROJECT_FOLDERS})
     message("-------- Adding subdirectory: ${subdir} ----------------")
-    add_subdirectory(${subdir})
+    # Create a short, stable binary directory per project
+    get_filename_component(PROJ_NAME "${subdir}" NAME)
+    string(REPLACE "-" "_" PROJ_NAME "${PROJ_NAME}")
+    message("--------Using Projdir: ${PROJ_NAME} ----------------")
+
+    add_subdirectory(
+        "${subdir}"
+        "students/${PROJ_NAME}"
+    )
 endforeach()
 
 

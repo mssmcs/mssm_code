@@ -1,10 +1,5 @@
-
-# specify sub folders containing libraries to be loaded from LIBRARY_RELATIVE_PATH
-set(LIBRARY_RELATIVE_PATH ../../libraries/)
-
-# message("$$$$$$$$$$$$$$$$$ ${CMAKE_CURRENT_SOURCE_DIR} $$$$$$$$$$$$$$$$$")
-
-get_filename_component(LIBRARY_ABSOLUTE_PATH ${LIBRARY_RELATIVE_PATH} ABSOLUTE BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+# LIBRARY_ABSOLUTE_PATH is now expected to be in the cache, set by the top-level apps/CMakeLists.txt
+message("[DEBUG] Using LIBRARY_ABSOLUTE_PATH from cache: ${LIBRARY_ABSOLUTE_PATH}")
 
 include(${CMAKE_SOURCE_DIR}/../libraries/cmake/util.cmake)
 

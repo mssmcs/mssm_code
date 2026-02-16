@@ -62,6 +62,10 @@ function(get_library_dependencies cmake_filename output_variable)
         return()        
     endif()
 
+    # Add logging to trace library path issues
+    message("[DEBUG] Checking library dependencies for: ${cmake_filename}")
+    message("[DEBUG] Library absolute path: ${LIBRARY_ABSOLUTE_PATH}")
+
     file(STRINGS "${cmake_filename}/CMakeLists.txt" THIS_FILE)
 
     # message("CMAKE_HOST_SYSTEM_NAME: ${CMAKE_HOST_SYSTEM_NAME}")
