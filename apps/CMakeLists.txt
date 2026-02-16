@@ -178,14 +178,16 @@ message("*************** DONE LOADING LIBRARIES ****************")
 # now add subdirectories for the projects
 foreach(subdir ${PROJECT_FOLDERS})
     message("-------- Adding subdirectory: ${subdir} ----------------")
-    # Create a short, stable binary directory per project
-    get_filename_component(PROJ_NAME "${subdir}" NAME)
-    string(REPLACE "-" "_" PROJ_NAME "${PROJ_NAME}")
+    # Create a unique-but-short binary directory name from a hash of the relative path
+    string(MD5 PROJ_NAME_HASH "${subdir}")
+    set(PROJ_NAME "p_${PROJ_NAME_HASH}") # p for project
     message("--------Using Projdir: ${PROJ_NAME} ----------------")
+
+    set(PROJECT_ID ${PROJ_NAME})
 
     add_subdirectory(
         "${subdir}"
-        "students/${PROJ_NAME}"
+        "s/${PROJ_NAME}" # s for students
     )
 endforeach()
 
