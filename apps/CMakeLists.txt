@@ -178,17 +178,42 @@ message("*************** DONE LOADING LIBRARIES ****************")
 # now add subdirectories for the projects
 foreach(subdir ${PROJECT_FOLDERS})
     message("-------- Adding subdirectory: ${subdir} ----------------")
-    # Create a unique-but-short binary directory name from a hash of the relative path
-    string(MD5 PROJ_NAME_HASH "${subdir}")
-    set(PROJ_NAME "p_${PROJ_NAME_HASH}") # p for project
-    message("--------Using Projdir: ${PROJ_NAME} ----------------")
 
-    set(PROJECT_ID ${PROJ_NAME})
+    # -------- Short unique build folder (Windows safe) --------
+    string(MD5 fullhash "${subdir}")
+    string(SUBSTRING "${fullhash}" 0 6 build_id)
+
+    # -------- Friendly readable project id (for Qt) --------
+    get_filename_component(base "${subdir}" NAME)
+    string(REPLACE " " "_" base "${base}")
+    string(MAKE_C_IDENTIFIER "${base}" base)
+
+    # Short stable disambiguator
+    string(SUBSTRING "${fullhash}" 0 4 shorttag)
+
+    # Keep base reasonably short
+    set(MAX_BASE_LEN 24)
+    string(LENGTH "${base}" base_len)
+    if(base_len GREATER MAX_BASE_LEN)
+        string(SUBSTRING "${base}" 0 ${MAX_BASE_LEN} base)
+    endif()
+
+
+    get_filename_component(base "${subdir}" NAME)
+
+    set(PROJECT_OUTPUT_NAME "${base}")        # pretty exe filename
+
+    # Final friendly project id
+    set(PROJECT_ID "${base}_${shorttag}")
+
+    message("  Qt Project ID: ${PROJECT_ID}")
+    message("  Build folder : s/${build_id}")
 
     add_subdirectory(
         "${subdir}"
-        "s/${PROJ_NAME}" # s for students
+        "s/${build_id}"
     )
 endforeach()
+
 
 
