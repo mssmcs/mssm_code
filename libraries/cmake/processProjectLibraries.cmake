@@ -14,7 +14,7 @@ resolve_library_dependencies("${LIBRARIES}" LIBRARIES)
 # add each library to the project and add them as link libraries to the main executable
 foreach (LIBRARY ${LIBRARIES})
     string(STRIP "${LIBRARY}" LIBRARY)
-    get_library_target(${LIBRARY_ABSOLUTE_PATH}/${LIBRARY} LIB_TARG_NAME)
+    get_library_target("${LIBRARY_ABSOLUTE_PATH}/${LIBRARY}" LIB_TARG_NAME)
     string(TOUPPER "HASLIB_${LIBRARY}" LIBCOMPDEF)
     add_compile_definitions(${LIBCOMPDEF})
     message(">>>> Library ${LIBRARY} Target Name: ${LIB_TARG_NAME}  #define: ${LIBCOMPDEF}")

@@ -215,5 +215,23 @@ foreach(subdir ${PROJECT_FOLDERS})
     )
 endforeach()
 
+# Package each app independently from the aggregate build tree.
+include(${CMAKE_SOURCE_DIR}/../libraries/cmake/PerAppCPackTargets.cmake)
+
+# Optional fallback to keep the old single monolithic package behavior.
+option(MSSM_ENABLE_AGGREGATE_CPACK "Enable one package containing all apps." OFF)
+if(MSSM_ENABLE_AGGREGATE_CPACK)
+  get_filename_component(MSSM_CODE_ROOT "${CMAKE_SOURCE_DIR}/.." ABSOLUTE)
+  set(APPS_ICONS_SOURCE_FOLDER "${MSSM_CODE_ROOT}/assets/icons")
+
+  set(SHARED_CPACK_CONFIG_FILE ${CMAKE_SOURCE_DIR}/../shared/packaging/CPackConfig.cmake)
+  if(EXISTS ${SHARED_CPACK_CONFIG_FILE})
+    set(SHARED_PACKAGING_DIR ${CMAKE_SOURCE_DIR}/../shared/packaging)
+    include(${SHARED_CPACK_CONFIG_FILE})
+  endif()
+endif()
+
+
+
 
 

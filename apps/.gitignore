@@ -1,11 +1,6 @@
-# Ignore everything
+# Ignore everything under apps/ by default.
 /*
 
-# But not these files...
-!.gitignore
-!CMakeLists.txt
-!run-cmake-linux.sh
-
-# And these folders
-!sample_project
-!create_app
+# Keep the top-level aggregator files tracked.
+!/.gitignore
+!/CMakeLists.txt

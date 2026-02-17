@@ -41,7 +41,7 @@ function(get_library_target cmake_filename output_variable)
     # looks for the NAME variable being set in the CMakeLists.txt file, and returns the value
     # set(NAME "mssm_paths")
 
-    file(STRINGS ${cmake_filename}/CMakeLists.txt THIS_FILE)
+    file(STRINGS "${cmake_filename}/CMakeLists.txt" THIS_FILE)
 
     while(THIS_FILE)
         list(POP_FRONT THIS_FILE LINE)
@@ -111,13 +111,13 @@ endfunction()
 
 function(get_library_list cmake_filename output_variable)
     # Ensure the input is a valid file or directory
-    if(IS_DIRECTORY ${cmake_filename})
+    if(IS_DIRECTORY "${cmake_filename}")
         set(cmake_filename "${cmake_filename}/CMakeLists.txt")
     endif()
 
     # Read the contents of the CMakeLists.txt file
-    if(EXISTS ${cmake_filename})
-        file(STRINGS ${cmake_filename} THIS_FILE)
+    if(EXISTS "${cmake_filename}")
+        file(STRINGS "${cmake_filename}" THIS_FILE)
     else()
         message(FATAL_ERROR "CMakeLists.txt file not found: ${cmake_filename}")
         return()

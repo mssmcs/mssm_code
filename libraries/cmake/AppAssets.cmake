@@ -14,12 +14,14 @@ message("PROJECT_SOURCE_DIR: ${PROJECT_SOURCE_DIR}")
 message("CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}")
 message("CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
 
+get_filename_component(MSSM_CODE_ROOT "${CMAKE_SOURCE_DIR}/.." ABSOLUTE)
+
 if(EXISTS "${PROJECT_SOURCE_DIR}/assets")
     # look for project level assets
     set(ASSETS_SOURCE_FOLDER "${PROJECT_SOURCE_DIR}/assets")
 else()
     # revert to mssm_code assets
-    set(ASSETS_SOURCE_FOLDER "${CMAKE_SOURCE_DIR}/../assets")
+    set(ASSETS_SOURCE_FOLDER "${MSSM_CODE_ROOT}/assets")
 endif()
 
 if(EXISTS "${PROJECT_SOURCE_DIR}/assets/vulkan")
@@ -28,8 +30,8 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/assets/vulkan")
     set(ASSETS_VULKAN_PARENT_FOLDER "${PROJECT_SOURCE_DIR}/assets")
 else()
     # revert to mssm_code assets
-    set(ASSETS_VULKAN_SOURCE_FOLDER "${CMAKE_SOURCE_DIR}/../assets/vulkan")
-    set(ASSETS_VULKAN_PARENT_FOLDER "${CMAKE_SOURCE_DIR}/../assets")
+    set(ASSETS_VULKAN_SOURCE_FOLDER "${MSSM_CODE_ROOT}/assets/vulkan")
+    set(ASSETS_VULKAN_PARENT_FOLDER "${MSSM_CODE_ROOT}/assets")
 endif()
 
 if(EXISTS "${PROJECT_SOURCE_DIR}/assets/icons")
@@ -37,7 +39,7 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/assets/icons")
     set(ASSETS_ICONS_SOURCE_FOLDER "${PROJECT_SOURCE_DIR}/assets/icons")
 else()
     # revert to mssm_code icons
-    set(ASSETS_ICONS_SOURCE_FOLDER "${CMAKE_SOURCE_DIR}/../assets/icons")
+    set(ASSETS_ICONS_SOURCE_FOLDER "${MSSM_CODE_ROOT}/assets/icons")
 endif()
 
 if(EXISTS "${PROJECT_SOURCE_DIR}/packaging")
@@ -45,7 +47,7 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/packaging")
     set(PROJECT_PACKAGING_SOURCE_FOLDER "${PROJECT_SOURCE_DIR}/packaging")
 else()
     # revert to mssm_code packaging info
-    set(PROJECT_PACKAGING_SOURCE_FOLDER "${CMAKE_SOURCE_DIR}/../packaging")
+    set(PROJECT_PACKAGING_SOURCE_FOLDER "${MSSM_CODE_ROOT}/packaging")
 endif()
 
 # Set up the directory structure based on platform
@@ -88,48 +90,58 @@ endif ()
 
 if(EXISTS "${ASSETS_SOURCE_FOLDER}")
 
-    # build list of assets
-    file(GLOB_RECURSE ASSETS "${ASSETS_SOURCE_FOLDER}/*")
-    filter_regex(EXCLUDE "\\.DS_Store" ASSETS ${ASSETS})
+    # --- Packaging Step ---
+    # Install the entire assets directory for the package/installer.
+    # This is the robust way to handle directory copying for CPack.
+    # The trailing slash on the source folder is important - it copies contents.
+    install(
+        DIRECTORY ${ASSETS_SOURCE_FOLDER}/
+        DESTINATION "assets"
+        COMPONENT ${PROJECT_NAME}
+    )
 
+    # --- Local Build / IDE Step ---
+    # The following logic ensures assets are copied to the build directory
+    # so the application can be run directly from the IDE.
+
+    # Build a list of all individual asset files
+    file(GLOB_RECURSE ALL_ASSET_PATHS "${ASSETS_SOURCE_FOLDER}/*")
+    filter_regex(EXCLUDE "\\.DS_Store" ALL_ASSET_PATHS ${ALL_ASSET_PATHS})
+
+    # Filter out directories from the list, keeping only files
+    set(ASSETS "")
+    foreach(path ${ALL_ASSET_PATHS})
+        if(NOT IS_DIRECTORY "${path}")
+            list(APPEND ASSETS "${path}")
+        endif()
+    endforeach()
+
+    # Add asset files to the project for visibility in the IDE
     foreach (FILE ${ASSETS})
         # make sure these files don't actually get compiled
         # (wavefront obj mesh files were being treated as compiled files to be linked)
         set_source_files_properties(${FILE} PROPERTIES HEADER_FILE_ONLY TRUE)
     endforeach ()
-
     target_sources(${PROJECT_NAME} PUBLIC ${ASSETS})
 
-    # loop over assets and make sure they get copied to the executable location
+    # Loop over asset files and set up copy commands for local build
     foreach (FILE ${ASSETS})
-
-        # message("Procesing file: ${FILE}")
-
         # Get the relative path from the data-folder to the particular file.
         file(RELATIVE_PATH NEW_FILE "${ASSETS_SOURCE_FOLDER}" ${FILE})
 
         # Get the relative path to the file.
         get_filename_component(NEW_FILE_PATH ${NEW_FILE} DIRECTORY)
 
-        # MAC:  Set it's location inside the app package (under Resources).
+        # MAC:  Set its location inside the app package (under Resources).
         set_property(SOURCE ${FILE} PROPERTY MACOSX_PACKAGE_LOCATION "Resources/${NEW_FILE_PATH}")
 
-        install(FILES ${FILE} DESTINATION ${CMAKE_INSTALL_BINDIR}/assets/${NEW_FILE_PATH})
-
-        message("NEWFILE PATH: ${NEW_FILE_PATH}")
-
+        # This custom command copies files for local runs (non-Apple)
         if(NOT APPLE)
             if(WIN32)
-                # Create a unique and valid identifier for each file (no special chars)
-                string(MAKE_C_IDENTIFIER "${NEW_FILE}" SAFE_FILE_ID)
-
-                # Create the directory for the file
                 add_custom_command(
                     TARGET ${PROJECT_NAME} PRE_BUILD
                     COMMAND ${CMAKE_COMMAND} -E make_directory "${TARGET_ASSET_DIR}/${NEW_FILE_PATH}"
                 )
-
-                # Copy the file - use direct file path to avoid batch script escaping issues
                 add_custom_command(
                     TARGET ${PROJECT_NAME} POST_BUILD
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${FILE}" "${TARGET_ASSET_DIR}/${NEW_FILE}"
@@ -148,7 +160,6 @@ if(EXISTS "${ASSETS_SOURCE_FOLDER}")
             endif()
         endif()
 
-        message("Assets/${NEW_FILE} FILE ${FILE}")
         # Make sure it shows up in the IDE Assets folder
         source_group("Assets/${NEW_FILE_PATH}" FILES "${FILE}")
 
@@ -181,7 +192,7 @@ if ("vulkan" IN_LIST LIBRARIES)
         # MAC:  Set it's location inside the app package (under Resources).
         set_property(SOURCE ${FILE} PROPERTY MACOSX_PACKAGE_LOCATION "Resources/${NEW_FILE_PATH}")
 
-        install(FILES ${FILE} DESTINATION ${CMAKE_INSTALL_BINDIR}/assets/${NEW_FILE_PATH})
+        install(FILES ${FILE} DESTINATION ${CMAKE_INSTALL_BINDIR}/assets/${NEW_FILE_PATH} COMPONENT ${PROJECT_NAME})
 
     #    message("Setting property")
 
