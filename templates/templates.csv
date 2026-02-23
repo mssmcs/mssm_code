@@ -1,0 +1,3 @@
+id,source,location,branch,subdir,description
+cmd_app,git,https://github.com/mssmcs/cmd_app.git,main,,Command-line starter app
+graphics_app,git,https://github.com/mssmcs/graphics_app.git,main,,Graphics starter app

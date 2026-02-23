@@ -4,3 +4,7 @@
 # Keep the top-level aggregator files tracked.
 !/.gitignore
 !/CMakeLists.txt
+!/README.md
+!/new_app.ps1
+!/new_app.sh
+!/new_app.bat
