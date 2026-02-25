@@ -49,6 +49,10 @@ bool tryReadInt(int &value);
 bool tryReadDouble(double &value);
 void delay(int milliseconds);
 
+namespace mssm {
+void installCrashHandlers();
+}
+
 #define main safemain
 
 #endif // MSSM_H

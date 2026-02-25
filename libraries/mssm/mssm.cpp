@@ -1,11 +1,57 @@
+#include <csignal>
+#include <cstdio>
+#include <cstdlib>
+#include <exception>
 #include <thread>
-
 
 #include "mssm.h"
 
 #undef main
 
 int safemain();
+
+namespace {
+void onFatalSignal(int sig)
+{
+    std::fprintf(stderr, "\nFatal signal %d received. The program will exit.\n", sig);
+    std::fflush(stderr);
+    std::_Exit(128 + sig);
+}
+}
+
+namespace mssm {
+void installCrashHandlers()
+{
+    static bool installed = false;
+    if (installed) {
+        return;
+    }
+    installed = true;
+
+    std::set_terminate([]() {
+        std::fprintf(stderr, "\nUnhandled exception caused program termination.\n");
+        auto ex = std::current_exception();
+        if (ex) {
+            try {
+                std::rethrow_exception(ex);
+            }
+            catch (const std::exception& e) {
+                std::fprintf(stderr, "Exception: %s\n", e.what());
+            }
+            catch (...) {
+                std::fprintf(stderr, "Exception: unknown\n");
+            }
+        }
+        std::fflush(stderr);
+        std::abort();
+    });
+
+    std::signal(SIGABRT, onFatalSignal);
+    std::signal(SIGFPE, onFatalSignal);
+    std::signal(SIGILL, onFatalSignal);
+    std::signal(SIGSEGV, onFatalSignal);
+}
+}
 
 bool wantEatWhiteSpace = false; // nasty global variable to make the read functions behave a little more intuitively for
                             // new programmers who shouldn't have to worry about the idiosyncracies of stream input
@@ -131,6 +177,7 @@ void delay(int milliseconds)
 
 int main()
 {
+    mssm::installCrashHandlers();
     try {
         int result = safemain();
         println("");

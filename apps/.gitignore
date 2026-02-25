@@ -8,3 +8,7 @@
 !/new_app.ps1
 !/new_app.sh
 !/new_app.bat
+
+# Keep a tracked OpenCV reference app.
+!/opencv_demo/
+!/opencv_demo/**
