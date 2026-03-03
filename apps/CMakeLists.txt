@@ -7,11 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # add subdirectories that should be excluded from the build
 set(EXCLUDE_SUBDIRS
-homework1-hamling
-Quickhouse3
-sample_project
-mssm_cmd
-stack-hamling
+
 )
 
 # Not your situation, but in case you have a different linker
@@ -152,10 +148,6 @@ set(LIBRARY_ABSOLUTE_PATH ${LIBRARY_ABSOLUTE_PATH_TEMP} CACHE STRING "Absolute p
 # Debugging: Print the resolved absolute path
 message("Resolved Library Absolute Path: ${LIBRARY_ABSOLUTE_PATH}")
 
-get_filename_component(APP_TEMPLATE_ABSOLUTE_PATH ../app_template ABSOLUTE BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
-
-message("Application Template path: ${APP_TEMPLATE_ABSOLUTE_PATH}")
-
 resolve_library_dependencies("${ALL_LIBRARIES}" ALL_LIBRARIES)
 
 
@@ -230,8 +222,5 @@ if(MSSM_ENABLE_AGGREGATE_CPACK)
     include(${SHARED_CPACK_CONFIG_FILE})
   endif()
 endif()
-
-
-
 
 
