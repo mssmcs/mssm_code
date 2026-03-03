@@ -27,9 +27,6 @@ LayoutBase::EvtRes LayoutSlider::onMouse(const PropertyBag& parentProps, MouseEv
         break;
     case MouseEvt::Action::scroll:
         applyWheel(evt.dragDelta.y);
-        std::cout << "scrolling2" << std::endl;
-        
-        context->setNeedsResize();
         return EvtRes::consumed;
     case MouseEvt::Action::move:
         hovering = true;
@@ -41,7 +38,6 @@ LayoutBase::EvtRes LayoutSlider::onMouse(const PropertyBag& parentProps, MouseEv
             auto origPos = posFromValue(dragStartValue);
             auto newPos = origPos + dragDistPixels;
             value = valueFromPos(newPos);
-            context->setNeedsResize();
         }
         break;
     case MouseEvt::Action::press:

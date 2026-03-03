@@ -40,7 +40,9 @@ void LayoutManager::propagateEvents(const PropertyBag &parentProps, double elaps
 
     bool sent{false};
 
+    context->beginEventDispatch();
     for (auto &e : context->events()) {
+        stats.eventsProcessed++;
         switch (e.evtType) {
         case mssm::EvtType::MousePress:
             evt.action = MouseEvt::Action::press;
@@ -110,12 +112,19 @@ void LayoutManager::propagateEvents(const PropertyBag &parentProps, double elaps
         evt.button = mssm::MouseButton::Left;
         propagateMouse(parentProps, screenRect, evt);
     }
+    context->endEventDispatch();
 
 
 }
 
 void LayoutManager::draw(mssm::CoreWindow& window, mssm::Canvas2d &g)
 {
+    stats.frameIndex++;
+    stats.nodesVisited = 0;
+    stats.eventsProcessed = 0;
+    stats.overlayCount = context->overlays.size();
+    stats.resizedThisFrame = false;
+
     PropertyBag parentProps;
 
     RectI screenRect{{0, 0}, g.width(), g.height()};
@@ -125,6 +134,7 @@ void LayoutManager::draw(mssm::CoreWindow& window, mssm::Canvas2d &g)
     // TODO: is this just debugging?
     layout->traversePreOrder(
         [&](LayoutBase *element) {
+            stats.nodesVisited++;
             if (element->getDepth() > 0) {
                 auto pp = element->getParentPtr();
                 if (pp) {
@@ -155,6 +165,7 @@ void LayoutManager::draw(mssm::CoreWindow& window, mssm::Canvas2d &g)
     if (!collapsed) {
         if (context->getNeedsResize()) {
             resize(parentProps, screenRect);
+            stats.resizedThisFrame = true;
         }
 
         g.resetClip();
@@ -197,6 +208,17 @@ void LayoutManager::draw(mssm::CoreWindow& window, mssm::Canvas2d &g)
             g.text({10*element->getDepth(), yPos}, 20, txt);
             yPos += 20;
         });
+
+        yPos += 10;
+        g.text({10, yPos}, 16, "frame: " + std::to_string(stats.frameIndex));
+        yPos += 18;
+        g.text({10, yPos}, 16, "events: " + std::to_string(stats.eventsProcessed));
+        yPos += 18;
+        g.text({10, yPos}, 16, "nodes: " + std::to_string(stats.nodesVisited));
+        yPos += 18;
+        g.text({10, yPos}, 16, "overlays: " + std::to_string(stats.overlayCount));
+        yPos += 18;
+        g.text({10, yPos}, 16, std::string("resized: ") + (stats.resizedThisFrame ? "yes" : "no"));
     }
 }
 
@@ -211,22 +233,7 @@ void LayoutManager::propagateMouse(const PropertyBag &parentProps, const RectI &
 
     if (!context->overlays.empty()) {
         for (int i = context->overlays.size() - 1; i >= 0; i--) {
-            if (i >= context->overlays.size()) {
-                // overlay removed while propagating?
-                std::cout
-                    << "Overlay removed while propagating mouse (handle this in a more general way!"
-                    << std::endl;
-                break;
-            }
-            LayoutPtr tmp = context->overlays[i];
-            LayoutBase::EvtRes res = tmp->propagateMouse(parentProps, prop, clip, evt);
-            if (i >= context->overlays.size() || tmp != context->overlays[i]) {
-                // overlay removed while propagating?
-                std::cout << "Overlay removed while propagating mouse (handle this in a more "
-                             "general way!"
-                          << std::endl;
-                break;
-            }
+            LayoutBase::EvtRes res = context->overlays[i]->propagateMouse(parentProps, prop, clip, evt);
             if (res != LayoutBase::EvtRes::propagate) {
                 prop = LayoutBase::EvtProp::hover;
             }
@@ -258,7 +265,6 @@ void LayoutManager::propagateKey(const PropertyBag &parentProps, const RectI &cl
 
 void LayoutManager::resize(const PropertyBag &parentProps, const RectI &rect)
 {
-    std::cout << "Resizing" << std::endl;
     context->resizeOverlays(parentProps, rect);
     layout->resize(parentProps, rect);
     context->clearNeedsResize();

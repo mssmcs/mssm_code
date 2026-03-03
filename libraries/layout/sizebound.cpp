@@ -1,7 +1,5 @@
 #include "sizebound.h"
 #include <algorithm>
-#include <iostream>
-#include <ostream>
 #include <vector>
 
 SizeBound constraintIntersection(const SizeBound& a, const SizeBound& b) {
@@ -142,7 +140,6 @@ std::vector<int> distributeSizes(const std::vector<SizeBound> &bounds, int span,
 
     // If we don't have enough space for the minimums, return what we have
     if (toDistribute < 0) {
-        std::cout << "Not enough space for minimum sizes" << std::endl;
         return sizes;
     }
 

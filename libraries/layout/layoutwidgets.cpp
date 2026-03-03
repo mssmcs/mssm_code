@@ -1,6 +1,5 @@
 #include "layoutwidgets.h"
 #include "rectdraw.h"
-#include "vec3d.h"
 #include "layoutcalcs.h"
 
 using namespace mssm;
@@ -25,7 +24,6 @@ LayoutColor::LayoutColor(Private privateTag, LayoutContext *context, mssm::Color
 
 LayoutColor::~LayoutColor()
 {
-    std::cout << "Deleting Color: " << color.toRealVec3<Vec3d>() << std::endl;
 }
 
 void LayoutColor::draw(const PropertyBag& parentProps, mssm::Canvas2d& g)
@@ -49,20 +47,6 @@ void LayoutColor::foreachChildImpl(std::function<void(LayoutBase *)> f, ForeachC
 
 LayoutBase::EvtRes LayoutColor::onMouse(const PropertyBag& parentProps, MouseEventReason reason, const MouseEvt &evt)
 {
-    if (evt.action == MouseEvt::Action::press) {
-
-        auto label = LayoutLabel::make(context, "ToolTip Example");
-
-        label->backgroundColor = mssm::BLACK;
-        label->borderColor = mssm::GREY;
-
-        Vec2d offset = evt.pos - Vec2d{thisRect().pos};
-        LayoutPtr tip = LayoutTooltipAnchor::make(context, label, offset);
-
-        addToolTip(parentProps, evt.pos, tip);
-
-        return LayoutBase::EvtRes::consumed;
-    }
     return LayoutBase::EvtRes::propagate;
 }
 

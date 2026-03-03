@@ -22,7 +22,7 @@
 
 # Linux app icon setup
 configure_file(
-  ${PROJECT_SOURCE_DIR}/packaging/Manifests/App.desktop.in
+  ${PROJECT_PACKAGING_SOURCE_FOLDER}/Manifests/App.desktop.in
   ${CMAKE_CURRENT_BINARY_DIR}/${NAME}.desktop
   @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.desktop

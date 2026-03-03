@@ -178,7 +178,6 @@ LayoutBase::EvtRes LayoutMenuItem::onMouse(const PropertyBag &parentProps, Mouse
     case MouseEvt::Action::exit:
         break;
     case MouseEvt::Action::move:
-        std::cout << "Hmm" << std::endl;
         break;
     case MouseEvt::Action::drag:
         break;

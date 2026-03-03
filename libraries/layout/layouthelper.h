@@ -45,6 +45,8 @@ private:
     Builder layout{};
     bool initialized{true};
 public:
+    // Wrapper provides convenient implicit conversions for the layout DSL.
+    // Each constructor stores a builder that materializes a widget in a context.
     Wrapper() : initialized{false} { layout = [](LayoutContext*) { return LayoutPtr{}; }; }
     Wrapper(Builder layout) : layout{layout}
     {
@@ -228,6 +230,7 @@ public:
     operator Builder() const override;
 };
 
+// `a | b` creates a horizontal split, `a / b` creates a vertical split.
 Builder operator|(Wrapper aw, Wrapper bw);
 Builder operator/(Wrapper aw, Wrapper bw);
 

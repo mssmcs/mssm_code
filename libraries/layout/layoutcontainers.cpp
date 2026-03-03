@@ -473,8 +473,7 @@ int LayoutSplitter::setFirstSize(const PropertyBag& parentProps, const RectI &ne
         rightBounds.xBound.maxSize = SizeBound::maxV;
 
         if (!limit(leftBounds.xBound, rightBounds.xBound, newLeftWidth, spaceH)) {
-            std::cout << "Uh Oh bounds problem!!" << std::endl;
-            //return;
+            // Keep constrained value and continue rather than hard failing.
         }
 
         int newRightWidth = rightBounds.xBound.constrain(spaceH - newLeftWidth);
@@ -513,8 +512,7 @@ int LayoutSplitter::setFirstSize(const PropertyBag& parentProps, const RectI &ne
         bottomBounds.yBound.maxSize = SizeBound::maxV;
 
         if (!limit(topBounds.yBound, bottomBounds.yBound, newTopHeight, spaceV)) {
-            std::cout << "Uh Oh bounds problem!!" << std::endl;
-            //return;
+            // Keep constrained value and continue rather than hard failing.
         }
 
         int newBottomHeight = bottomBounds.yBound.constrain(spaceV - newTopHeight);

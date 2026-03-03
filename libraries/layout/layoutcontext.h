@@ -72,6 +72,16 @@ public:
 };
 
 class LayoutContext : public TextMetrics {
+    enum class OverlayMutationType {
+        push,
+        remove
+    };
+
+    struct OverlayMutation {
+        OverlayMutationType type{};
+        LayoutPtr overlay;
+    };
+
     class HoverItem {
     public:
         LayoutPtr element;
@@ -84,6 +94,8 @@ class LayoutContext : public TextMetrics {
     RectI windowRect;
     bool debug{false};
     std::vector<HoverItem> hoverChain;
+    int eventDispatchDepth{0};
+    std::vector<OverlayMutation> pendingOverlayMutations;
 public: // TODO: make private later
     std::vector<LayoutPtr> overlays;
 public:
@@ -125,6 +137,8 @@ public:
 
     void pushOverlay(LayoutPtr overlay);
     void removeOverlay(LayoutPtr overlay);
+    void beginEventDispatch();
+    void endEventDispatch();
 
     void updateHoverChain(const PropertyBag &parentProps, LayoutPtr hoverElement, bool isInside, Vec2d pos);
     void iterateHoverChain(std::function<void(LayoutBase*)> f);
@@ -135,6 +149,13 @@ public:
     virtual void resizeOverlays(const PropertyBag& parentProps, const RectI& rect);
 
 private:
+    [[noreturn]] void failValidation(const char* stage, const std::string& message) const;
+    std::string buildDebugStateSummary() const;
+    void validateHoverChain(const char* stage) const;
+    void validateOverlayStack(const char* stage) const;
+    void pushOverlayNow(LayoutPtr overlay);
+    void removeOverlayNow(LayoutPtr overlay);
+    void applyPendingOverlayMutations();
     void sendEnter(const PropertyBag &parentProps, LayoutPtr element, Vec2d pos);
     void sendExit(const PropertyBag& parentProps, LayoutPtr element, Vec2d pos);
     void truncateHoverChain(const PropertyBag &parentProps, int depth, Vec2d pos);

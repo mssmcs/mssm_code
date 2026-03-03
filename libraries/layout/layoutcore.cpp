@@ -250,14 +250,12 @@ void LayoutBase::setOuterMargins(int leftRight, int topBottom)
 
 void LayoutBase::setOuterMargins(int left, int right, int top, int bottom)
 {
-    std::cout << "setOuterMargins not supported on this element" << std::endl;
-   // throw std::logic_error("setOuterMargins not supported on this element");
+    // Ignored by default for elements without margin semantics.
 }
 
 void LayoutBase::setInnerMargins(int hBetween, int vBetween)
 {
-    std::cout << "setInnerMargins not supported on this element" << std::endl;
-  // throw std::logic_error("setInnerMargins not supported on this element");
+    // Ignored by default for elements without margin semantics.
 }
 
 void LayoutBase::setInnerMargins(int between)
@@ -277,13 +275,11 @@ void LayoutBase::releaseKeyboard()
 
 void LayoutBase::grabMouse()
 {
-    std::cout << "Grabbing Mouse: " << getTypeStr() << " " << getName() << std::endl;
     context->setDragFocus(shared_from_this());
 }
 
 void LayoutBase::releaseMouse()
 {
-    std::cout << "Releasing Mouse: " << getTypeStr() << " " << getName() << std::endl;
     context->setDragFocus({});
 }
 
@@ -516,7 +512,6 @@ void LayoutBase::setOverlay(LayoutPtr overlay)
 void LayoutBase::closeOverlay()
 {
     if (overlayElement) {
-        std::cout << "Closing Overlay" << std::endl;
         overlayElement->localReleaseMouseAndKeyboard();
         showingTooltip = false;
         overlayElement->closeOverlayRecursive();

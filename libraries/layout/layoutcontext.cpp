@@ -2,11 +2,9 @@
 #include "layoutcore.h"
 //#include "vulkdevice.h"
 #include <algorithm>
-#include <cassert>
-
-// // Use (void) to silence unused warnings.
-#undef assertm
-#define assertm(exp, msg) assert((void(msg), exp))
+#include <sstream>
+#include <stdexcept>
+#include <unordered_set>
 
 std::string MouseEvt::actionName() const {
     switch (action) {
@@ -22,20 +20,173 @@ std::string MouseEvt::actionName() const {
     }
 }
 
-
-void LayoutContext::pushOverlay(LayoutPtr overlay)
+[[noreturn]] void LayoutContext::failValidation(const char* stage, const std::string& message) const
 {
+#ifndef NDEBUG
+    std::stringstream ss;
+    ss << "LayoutContext validation failed";
+    if (stage) {
+        ss << " [" << stage << "]";
+    }
+    ss << ": " << message << "\n" << buildDebugStateSummary();
+    throw std::logic_error(ss.str());
+#else
+    (void)stage;
+    (void)message;
+    throw std::logic_error("LayoutContext validation failed");
+#endif
+}
+
+std::string LayoutContext::buildDebugStateSummary() const
+{
+#ifndef NDEBUG
+    std::stringstream ss;
+    ss << "eventDispatchDepth=" << eventDispatchDepth << "\n";
+    ss << "overlays(" << overlays.size() << "):";
+    if (overlays.empty()) {
+        ss << " <none>\n";
+    }
+    else {
+        ss << "\n";
+        for (int i = 0; i < static_cast<int>(overlays.size()); ++i) {
+            const auto& ov = overlays[i];
+            ss << "  [" << i << "] ";
+            if (!ov) {
+                ss << "<null>\n";
+                continue;
+            }
+            ss << ov->getTypeStr()
+               << " name='" << ov->getName() << "'"
+               << " layer=" << ov->getLayer()
+               << " depth=" << ov->getDepth()
+               << " collapsed=" << (ov->getCollapsed() ? "true" : "false")
+               << "\n";
+        }
+    }
+
+    ss << "hoverChain(" << hoverChain.size() << "):";
+    if (hoverChain.empty()) {
+        ss << " <none>\n";
+    }
+    else {
+        ss << "\n";
+        for (int i = 0; i < static_cast<int>(hoverChain.size()); ++i) {
+            const auto& h = hoverChain[i];
+            ss << "  [" << i << "] ";
+            if (!h.element) {
+                ss << "<null>\n";
+                continue;
+            }
+            ss << h.element->getTypeStr()
+               << " name='" << h.element->getName() << "'"
+               << " layer=" << h.element->getLayer()
+               << " depth=" << h.element->getDepth()
+               << " hoverTime=" << h.hoverTime
+               << " collapsed=" << (h.element->getCollapsed() ? "true" : "false")
+               << "\n";
+        }
+    }
+    return ss.str();
+#else
+    return {};
+#endif
+}
+
+void LayoutContext::validateHoverChain(const char* stage) const
+{
+#ifndef NDEBUG
+    if (hoverChain.empty()) {
+        return;
+    }
+
+    const auto& first = hoverChain[0].element;
+    if (!first) {
+        failValidation(stage, "hoverChain[0] is null");
+    }
+    if (first->getDepth() != 0) {
+        failValidation(stage, "hover chain must start at local root (depth 0)");
+    }
+    if (first->getCollapsed()) {
+        failValidation(stage, "collapsed element cannot be in hover chain");
+    }
+
+    int expectedLayer = first->getLayer();
+    for (int i = 0; i < static_cast<int>(hoverChain.size()); ++i) {
+        const auto& element = hoverChain[i].element;
+        if (!element) {
+            failValidation(stage, "hover chain contains null element at index " + std::to_string(i));
+        }
+        if (element->getDepth() != i) {
+            failValidation(stage, "hover depth/index mismatch at index " + std::to_string(i));
+        }
+        if (element->getLayer() != expectedLayer) {
+            failValidation(stage, "hover layer mismatch at index " + std::to_string(i));
+        }
+        if (element->getCollapsed()) {
+            failValidation(stage, "collapsed hover element at index " + std::to_string(i));
+        }
+
+        if (i > 0) {
+            auto parent = element->getParentPtr();
+            if (!parent) {
+                failValidation(stage, "hover chain element missing parent at index " + std::to_string(i));
+            }
+            if (parent.get() != hoverChain[i - 1].element.get()) {
+                failValidation(stage, "hover chain parent linkage broken at index " + std::to_string(i));
+            }
+        }
+    }
+#else
+    (void)stage;
+#endif
+}
+
+void LayoutContext::validateOverlayStack(const char* stage) const
+{
+#ifndef NDEBUG
+    if (eventDispatchDepth < 0) {
+        failValidation(stage, "eventDispatchDepth underflow");
+    }
+
+    std::unordered_set<const LayoutBase*> seen;
+    for (int i = 0; i < static_cast<int>(overlays.size()); ++i) {
+        const auto& overlay = overlays[i];
+        if (!overlay) {
+            failValidation(stage, "overlay pointer is null at index " + std::to_string(i));
+        }
+        if (!overlay->isLocalRoot()) {
+            failValidation(stage, "overlay must be local root at index " + std::to_string(i));
+        }
+        if (overlay->getLayer() != i + 1) {
+            failValidation(stage, "overlay layer mismatch at index " + std::to_string(i));
+        }
+        auto [_, inserted] = seen.insert(overlay.get());
+        if (!inserted) {
+            failValidation(stage, "duplicate overlay pointer in stack at index " + std::to_string(i));
+        }
+    }
+#else
+    (void)stage;
+#endif
+}
+
+
+void LayoutContext::pushOverlayNow(LayoutPtr overlay)
+{
+    validateOverlayStack("prePushOverlayNow");
     overlay->updateLayer(overlays.size()+1, 0);
     overlays.push_back(overlay);
     this->setNeedsResize();
+    validateOverlayStack("postPushOverlayNow");
 }
 
-void LayoutContext::removeOverlay(LayoutPtr overlay)
+void LayoutContext::removeOverlayNow(LayoutPtr overlay)
 {
+    validateOverlayStack("preRemoveOverlayNow");
+    validateHoverChain("preRemoveOverlayNow");
     //hoverChain.onRemove(overlay);
 
     if (hoverChain.size() > 0 && hoverChain[0].element == overlay) {
-        std::cout << "Erasing hover chain in removeOverlay" << std::endl;
         // for (int i = hoverChain.size()-1; i >= 0; i--) {
         //     sendExit(hoverChain[i], {0,0});
         // }
@@ -55,11 +206,83 @@ void LayoutContext::removeOverlay(LayoutPtr overlay)
     for (int i = removedIdx; i < overlays.size(); i++) {
         overlays[i]->updateLayer(i+1, 0);
     }
+    validateOverlayStack("postRemoveOverlayNow");
+    validateHoverChain("postRemoveOverlayNow");
+}
+
+void LayoutContext::pushOverlay(LayoutPtr overlay)
+{
+    if (eventDispatchDepth > 0) {
+        pendingOverlayMutations.push_back({OverlayMutationType::push, overlay});
+        setNeedsResize();
+        return;
+    }
+    pushOverlayNow(overlay);
+}
+
+void LayoutContext::removeOverlay(LayoutPtr overlay)
+{
+    if (eventDispatchDepth > 0) {
+        pendingOverlayMutations.push_back({OverlayMutationType::remove, overlay});
+        setNeedsResize();
+        return;
+    }
+    removeOverlayNow(overlay);
+}
+
+void LayoutContext::beginEventDispatch()
+{
+    eventDispatchDepth++;
+    validateOverlayStack("beginEventDispatch");
+}
+
+void LayoutContext::endEventDispatch()
+{
+    validateOverlayStack("preEndEventDispatch");
+    if (eventDispatchDepth == 0) {
+        return;
+    }
+    eventDispatchDepth--;
+    if (eventDispatchDepth == 0) {
+        applyPendingOverlayMutations();
+    }
+    validateOverlayStack("postEndEventDispatch");
+}
+
+void LayoutContext::applyPendingOverlayMutations()
+{
+    validateOverlayStack("preApplyPendingOverlayMutations");
+    validateHoverChain("preApplyPendingOverlayMutations");
+    if (pendingOverlayMutations.empty()) {
+        return;
+    }
+    auto mutations = std::move(pendingOverlayMutations);
+    pendingOverlayMutations.clear();
+    for (const auto& mutation : mutations) {
+        if (!mutation.overlay) {
+            continue;
+        }
+        switch (mutation.type) {
+        case OverlayMutationType::push:
+            pushOverlayNow(mutation.overlay);
+            break;
+        case OverlayMutationType::remove:
+            removeOverlayNow(mutation.overlay);
+            break;
+        }
+    }
+    validateOverlayStack("postApplyPendingOverlayMutations");
+    validateHoverChain("postApplyPendingOverlayMutations");
 }
 
 
 void LayoutContext::updateHoverChain(const PropertyBag& parentProps, LayoutPtr hoverElement, bool isInside, Vec2d pos)
 {
+    validateHoverChain("preUpdateHoverChain");
+    // Hover-chain invariants:
+    // - Chain entries are ordered root -> leaf for one local root/layer.
+    // - Index in chain corresponds to element depth for the active local root.
+    // - Crossing layer boundaries truncates and re-roots the chain.
     if (!hoverChain.empty()) {
         // is hoverElement in a higher overlay than the hoverChain?
 
@@ -68,6 +291,7 @@ void LayoutContext::updateHoverChain(const PropertyBag& parentProps, LayoutPtr h
 
         if (elementLayer < chainLayer) {
             // ignore?
+            validateHoverChain("postUpdateHoverChainIgnoreLowerLayer");
             return;
         }
 
@@ -76,8 +300,6 @@ void LayoutContext::updateHoverChain(const PropertyBag& parentProps, LayoutPtr h
                 if (!hoverElement->isLocalRoot()) {
                     throw std::logic_error("Hover element not local root");
                 }
-                std::cout << "mouse entered an overlay higher than current hoverChain" << std::endl;
-                std::cout << "When inside element: " << hoverElement->trail() << std::endl;
                 truncateHoverChain(parentProps, 0, pos);
                 if (!hoverElement->getCollapsed()) {
                     hoverChain.push_back({hoverElement, 0.0});
@@ -87,6 +309,7 @@ void LayoutContext::updateHoverChain(const PropertyBag& parentProps, LayoutPtr h
             else {
                 // ignore?
             }
+            validateHoverChain("postUpdateHoverChainLayerTransition");
             return;
         }
     }
@@ -95,39 +318,40 @@ void LayoutContext::updateHoverChain(const PropertyBag& parentProps, LayoutPtr h
 
     if (hoverChain.size() < depth && isInside) {
         if (hoverChain.size() == 0) {
-            std::cout << "Maybe this is ok" << std::endl;
             // example of when this happens: button click inside overlay
             // is seen by button "underneath" the overlay, and the
             // button handler removes or replaces overlay
             // which triggers clearing hover chain, but event is still
             // propagating through the non-overlay tree
+            validateHoverChain("postUpdateHoverChainIgnoreCleared");
             return;
         }
-        std::cout << "Hover Chain size: " << hoverChain.size() << std::endl;
-        std::cout << "depth: " << depth << std::endl;
         throw std::logic_error("hoverChain.size() < depth");
     }
 
     // Note: hoverChain.size() < depth is ok as long as isInside is false
 
     if (isInside) {
-        assertm(hoverChain.size() >= depth, "hoverChain.size() >= depth");
+        if (hoverChain.size() < depth) {
+            failValidation("updateHoverChainInside", "hover chain shorter than depth");
+        }
 
         if (hoverChain.size() == depth) {
             hoverChain.push_back({hoverElement, 0.0});
             sendEnter(parentProps, hoverElement, pos);
+            validateHoverChain("postUpdateHoverChainAppend");
             return;
         }
         else if (hoverChain[depth].element == hoverElement) {
             // we were inside, and we're still inside, nothing to do
+            validateHoverChain("postUpdateHoverChainNoop");
             return;
         }
         else {
-            std::cout << "This place: " << std::endl;
-
             truncateHoverChain(parentProps, depth, pos);
             hoverChain.push_back({hoverElement, 0.0});
             sendEnter(parentProps, hoverElement, pos);
+            validateHoverChain("postUpdateHoverChainTruncateAndAppend");
             return;
         }
     }
@@ -135,11 +359,12 @@ void LayoutContext::updateHoverChain(const PropertyBag& parentProps, LayoutPtr h
         // not inside
         if (depth < hoverChain.size() && hoverChain[depth].element == hoverElement) {
             // we _were_ inside, so truncate
-            std::cout << "This place2: " << std::endl;
             truncateHoverChain(parentProps, depth, pos);
+            validateHoverChain("postUpdateHoverChainTruncate");
             return;
         }
     }
+    validateHoverChain("postUpdateHoverChainNoChange");
 }
 
 void LayoutContext::iterateHoverChain(std::function<void (LayoutBase *)> f)
@@ -175,15 +400,12 @@ double LayoutContext::getHoverTime(const LayoutBase *element) const
 
 void LayoutContext::truncateHoverChain(const PropertyBag& parentProps, int depth, Vec2d pos)
 {
-    std::cout << "Truncating to: " << depth << std::endl;
-
+    validateHoverChain("preTruncateHoverChain");
     while (hoverChain.size() > depth) {
-        if (debug) {
-            std::cout << "Exiting: " << hoverChain.back().element->getTypeStr() << std::endl;
-        }
         sendExit(parentProps, hoverChain.back().element, pos);
         hoverChain.pop_back();
     }
+    validateHoverChain("postTruncateHoverChain");
 }
 
 void LayoutContext::resizeOverlays(const PropertyBag &parentProps, const RectI &rect)
@@ -196,7 +418,6 @@ void LayoutContext::resizeOverlays(const PropertyBag &parentProps, const RectI &
 
 void LayoutContext::sendEnter(const PropertyBag& parentProps, LayoutPtr element, Vec2d pos)
 {
-    std::cout << "  Entering: " << element->trail() << std::endl;
     MouseEvt evt;
     evt.action = MouseEvt::Action::enter;
     evt.button = mssm::MouseButton::None;
@@ -207,19 +428,6 @@ void LayoutContext::sendEnter(const PropertyBag& parentProps, LayoutPtr element,
 
 void LayoutContext::sendExit(const PropertyBag &parentProps, LayoutPtr element, Vec2d pos)
 {
-    if (element->isOverlayRoot()) {
-        std::cout << "  Leaving Overlay" << std::endl;
-    }
-    else if (element->isLocalRoot()) {
-        std::cout << "  Leaving Root" << std::endl;
-    }
-    else {
-        auto pp = element->getParentPtr();
-        if (pp) {
-            std::cout << "  Leaving: " << pp->trail() << std::endl;
-        }
-    }
-
     if (element->isShowingTooltip()) {
         element->closeOverlay();
     }

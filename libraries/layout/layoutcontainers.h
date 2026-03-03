@@ -108,7 +108,7 @@ void LayoutWithChildren<CHILD>::setInnerMargins(int hBetween, int vBetween)
 template<typename CHILD>
 void LayoutWithChildren<CHILD>::appendChild(CHILD child)
 {
-    children.append(child);
+    children.push_back(child);
 }
 
 template<typename CHILD>

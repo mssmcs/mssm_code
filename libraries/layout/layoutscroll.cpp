@@ -50,7 +50,6 @@ LayoutBase::EvtRes LayoutScroll::onMouseDeferred(const PropertyBag &parentProps,
         if (!vScroll->within(evt.pos) && !hScroll->within(evt.pos)) {
             vScroll->applyWheel(evt.dragDelta.y);
             context->setNeedsResize();
-            std::cout << "scrolling" << std::endl;
             return EvtRes::consumed;
         }
         break;

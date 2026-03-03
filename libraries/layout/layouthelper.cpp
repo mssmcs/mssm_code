@@ -154,7 +154,7 @@ CheckBox::operator Builder() const
 
 Slider::operator Builder() const
 {
-    double isHorizontal = this->isHorizontal;
+    bool isHorizontal = this->isHorizontal;
     double minValue = this->minValue;
     double maxValue = this->maxValue;
     double value = this->value;
@@ -231,6 +231,9 @@ Flyout::operator Builder() const
     auto config = this->config;
 
     return [tmp, config](LayoutContext* context) {
+        if (tmp.size() != 2) {
+            throw std::logic_error("LayoutHelper::Flyout expects exactly 2 children");
+        }
         auto widget = LayoutFlyout::make(context, tmp[0](context), tmp[1](context));
         config.applyTo(widget);
         return widget;
@@ -243,6 +246,9 @@ Expander::operator Builder() const
     auto config = this->config;
 
     return [tmp, config](LayoutContext* context) {
+        if (tmp.size() != 2) {
+            throw std::logic_error("LayoutHelper::Expander expects exactly 2 children");
+        }
         auto widget = LayoutExpander::make(context, tmp[0](context), tmp[1](context));
         config.applyTo(widget);
         return widget;

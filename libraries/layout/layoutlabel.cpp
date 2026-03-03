@@ -15,7 +15,6 @@ LayoutLabel::LayoutLabel(Private privateTag, LayoutContext *context, std::string
 
 LayoutLabel::~LayoutLabel()
 {
-    std::cout << "Deleting label: " << text << std::endl;
 }
 
 void LayoutLabel::draw(const PropertyBag& parentProps, mssm::Canvas2d& g)
