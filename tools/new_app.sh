@@ -43,10 +43,11 @@ prompt_select() {
     exit 1
   fi
 
-  echo "$prompt"
+  # UI on stderr so stdout is only the chosen value (safe for $(...) capture)
+  echo "$prompt" >&2
   local i=1
   for opt in "${options[@]}"; do
-    echo "  $i) $opt"
+    echo "  $i) $opt" >&2
     ((i++))
   done
 
