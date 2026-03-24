@@ -8,7 +8,8 @@ template_subdir=""
 libraries=""
 list_templates=0
 list_libraries=0
-git_init=1
+no_git_init=0
+force_git_init=0
 force=0
 template_set=0
 dest_set=0
@@ -27,6 +28,7 @@ Options:
   --list-templates                  List templates from templates/templates.csv
   --list-libraries                  List libraries discovered under libraries/
   --no-git-init                     Skip git init in destination
+  --git-init                        Run git init without prompting
   --force                           Replace destination if it exists
   -h, --help                        Show help
 EOF
@@ -258,7 +260,8 @@ while [[ $# -gt 0 ]]; do
     --libraries) libraries="$2"; shift 2 ;;
     --list-templates) list_templates=1; shift ;;
     --list-libraries) list_libraries=1; shift ;;
-    --no-git-init) git_init=0; shift ;;
+    --no-git-init) no_git_init=1; shift ;;
+    --git-init) force_git_init=1; shift ;;
     --force) force=1; shift ;;
     -h|--help) usage; exit 0 ;;
     *)
@@ -392,9 +395,26 @@ if [[ -n "$libraries" ]]; then
   done
 fi
 
-if [[ "$git_init" -eq 1 ]]; then
+should_init=0
+if [[ "$no_git_init" -eq 1 ]]; then
+  should_init=0
+elif [[ "$force_git_init" -eq 1 ]]; then
+  should_init=1
+elif [[ -t 0 ]]; then
+  read -r -p "Initialize a git repository in this folder? [Y/n] " reply || true
+  case "$reply" in
+    [nN]|[nN][oO]) should_init=0 ;;
+    *) should_init=1 ;;
+  esac
+else
+  should_init=1
+fi
+
+did_git_init=0
+if [[ "$should_init" -eq 1 ]]; then
   if command -v git >/dev/null 2>&1; then
     (cd "$target_path" && git init >/dev/null)
+    did_git_init=1
   else
     echo "Git not found; skipped git init." >&2
   fi
@@ -405,7 +425,7 @@ echo "Template source: $template"
 if [[ -n "$libraries" ]]; then
   echo "Libraries: $libraries"
 fi
-if [[ "$git_init" -eq 1 ]]; then
+if [[ "$did_git_init" -eq 1 ]]; then
   echo "Initialized new git repo."
 fi
 echo "Next step: re-run CMake for your container folder (for example: apps/CMakeLists.txt)."

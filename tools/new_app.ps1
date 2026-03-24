@@ -8,6 +8,7 @@ param(
     [switch]$ListTemplates,
     [switch]$ListLibraries,
     [switch]$NoGitInit,
+    [switch]$GitInit,
     [switch]$Force
 )
 
@@ -16,6 +17,15 @@ $ErrorActionPreference = "Stop"
 
 function Test-IsGitTemplate([string]$Value) {
     return $Value -match "^(https?|ssh|git|file)://|^git@|\.git$"
+}
+
+function Test-StdinInteractive {
+    try {
+        return -not [Console]::IsInputRedirected
+    }
+    catch {
+        return $false
+    }
 }
 
 function Get-TemplateCatalog([string]$RepoRoot) {
@@ -276,6 +286,7 @@ if (Test-Path -LiteralPath $targetPath) {
 }
 
 $tempClonePath = ""
+$NewAppDidGitInit = $false
 try {
     $templatePath = ""
     $templateUrl = ""
@@ -338,12 +349,34 @@ try {
         }
     }
 
-    if (-not $NoGitInit) {
+    $runGitInit = $false
+    if ($NoGitInit) {
+        $runGitInit = $false
+    }
+    elseif ($GitInit) {
+        $runGitInit = $true
+    }
+    elseif (-not (Test-StdinInteractive)) {
+        $runGitInit = $true
+    }
+    else {
+        $response = Read-Host "Initialize a git repository in this folder? [Y/n]"
+        if ([string]::IsNullOrWhiteSpace($response)) {
+            $runGitInit = $true
+        }
+        else {
+            $r = $response.Trim().ToLowerInvariant()
+            $runGitInit = $r -notmatch '^(n|no)$'
+        }
+    }
+
+    if ($runGitInit) {
         $git = Get-Command git -ErrorAction SilentlyContinue
         if ($git) {
             Push-Location $targetPath
             try {
                 & git init | Out-Null
+                $NewAppDidGitInit = $true
             }
             finally {
                 Pop-Location
@@ -365,7 +398,7 @@ Write-Host "Template source: $Template"
 if (-not [string]::IsNullOrWhiteSpace($Libraries)) {
     Write-Host "Libraries: $Libraries"
 }
-if (-not $NoGitInit) {
+if ($NewAppDidGitInit) {
     Write-Host "Initialized new git repo."
 }
 Write-Host "Next step: re-run CMake for your container folder (for example: apps/CMakeLists.txt)."

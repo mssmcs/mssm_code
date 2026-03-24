@@ -124,6 +124,10 @@ if(EXISTS "${ASSETS_SOURCE_FOLDER}")
     endforeach ()
     target_sources(${PROJECT_NAME} PUBLIC ${ASSETS})
 
+    # Copy rules with OUTPUT+DEPENDS so edits to assets trigger re-copy (TARGET POST_BUILD
+    # only runs when the executable is relinked; HEADER_FILE_ONLY sources do not do that).
+    set(_mssm_asset_copy_outputs "")
+
     # Loop over asset files and set up copy commands for local build
     foreach (FILE ${ASSETS})
         # Get the relative path from the data-folder to the particular file.
@@ -137,33 +141,42 @@ if(EXISTS "${ASSETS_SOURCE_FOLDER}")
 
         # This custom command copies files for local runs (non-Apple)
         if(NOT APPLE)
+            set(_mssm_asset_out "${TARGET_ASSET_DIR}/${NEW_FILE}")
             if(WIN32)
                 add_custom_command(
-                    TARGET ${PROJECT_NAME} PRE_BUILD
+                    OUTPUT "${_mssm_asset_out}"
+                    DEPENDS "${FILE}"
                     COMMAND ${CMAKE_COMMAND} -E make_directory "${TARGET_ASSET_DIR}/${NEW_FILE_PATH}"
-                )
-                add_custom_command(
-                    TARGET ${PROJECT_NAME} POST_BUILD
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${FILE}" "${TARGET_ASSET_DIR}/${NEW_FILE}"
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${FILE}" "${_mssm_asset_out}"
+                    COMMENT "Copy asset ${NEW_FILE}"
+                    VERBATIM
                 )
             else()
                 # For Linux and other non-Windows/non-Apple platforms
                 escape_cmake_path("${FILE}" ESCAPED_FILE)
-                escape_cmake_path("${TARGET_ASSET_DIR}/${NEW_FILE_PATH}" ESCAPED_DEST_PATH)
                 escape_cmake_path("${TARGET_ASSET_DIR}/${NEW_FILE}" ESCAPED_DEST_FILE)
 
                 add_custom_command(
-                    TARGET ${PROJECT_NAME} POST_BUILD
+                    OUTPUT "${_mssm_asset_out}"
+                    DEPENDS "${FILE}"
                     COMMAND ${CMAKE_COMMAND} -E make_directory "${TARGET_ASSET_DIR}/${NEW_FILE_PATH}"
                     COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${ESCAPED_FILE}" "${ESCAPED_DEST_FILE}"
+                    COMMENT "Copy asset ${NEW_FILE}"
+                    VERBATIM
                 )
             endif()
+            list(APPEND _mssm_asset_copy_outputs "${_mssm_asset_out}")
         endif()
 
         # Make sure it shows up in the IDE Assets folder
         source_group("Assets/${NEW_FILE_PATH}" FILES "${FILE}")
 
     endforeach ()
+
+    if(NOT APPLE AND _mssm_asset_copy_outputs)
+        add_custom_target(${PROJECT_NAME}_mssm_assets DEPENDS ${_mssm_asset_copy_outputs})
+        add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_mssm_assets)
+    endif()
 
 endif()
 
