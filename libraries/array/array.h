@@ -412,6 +412,8 @@ class Array : public ArrayBase<T,T>
 public:
     Array() {}
     Array(std::initializer_list<T> items) : ArrayBase<T,T>{items} {}
+
+    static Array<T> ofSize(int size, T defaultValue = {}) { Array<T> arr; arr.resize(size, defaultValue); return arr; }
 };
 
 template<>
