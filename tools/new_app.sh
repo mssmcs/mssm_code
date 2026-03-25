@@ -121,7 +121,7 @@ list_catalog_templates() {
 
   echo "Available templates:"
   local id source location branch subdir description
-  while IFS=, read -r id source location branch subdir description; do
+  while IFS=, read -r id source location branch subdir description || [[ -n "$id" ]]; do
     [[ "$id" == "id" ]] && continue
     [[ -z "$id" ]] && continue
     echo "  $id [$source] - $description"
@@ -139,7 +139,7 @@ choose_template_from_catalog() {
   local -a options=()
   local -a ids=()
   local id source location branch subdir description
-  while IFS=, read -r id source location branch subdir description; do
+  while IFS=, read -r id source location branch subdir description || [[ -n "$id" ]]; do
     [[ "$id" == "id" ]] && continue
     [[ -z "$id" ]] && continue
     ids+=("$id")
