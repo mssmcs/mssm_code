@@ -99,8 +99,9 @@ read_catalog_entry() {
   fi
 
   local line id source location branch subdir description
-  while IFS=, read -r id source location branch subdir description; do
+  while IFS=, read -r id source location branch subdir description || [[ -n "$id" ]]; do
     [[ "$id" == "id" ]] && continue
+    id="${id//$'\r'/}"
     [[ -z "$id" ]] && continue
     if [[ "$id" == "$template_id" ]]; then
       printf '%s\n' "$source|$location|$branch|$subdir|$description"
@@ -123,6 +124,7 @@ list_catalog_templates() {
   local id source location branch subdir description
   while IFS=, read -r id source location branch subdir description || [[ -n "$id" ]]; do
     [[ "$id" == "id" ]] && continue
+    id="${id//$'\r'/}"
     [[ -z "$id" ]] && continue
     echo "  $id [$source] - $description"
   done < "$catalog"
@@ -141,6 +143,7 @@ choose_template_from_catalog() {
   local id source location branch subdir description
   while IFS=, read -r id source location branch subdir description || [[ -n "$id" ]]; do
     [[ "$id" == "id" ]] && continue
+    id="${id//$'\r'/}"
     [[ -z "$id" ]] && continue
     ids+=("$id")
     options+=("$id [$source] - ${description:-no description}")
