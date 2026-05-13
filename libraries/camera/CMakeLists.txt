@@ -45,7 +45,28 @@ if (WIN32)
 endif()
 
 if (APPLE)
+    if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+        set(COMPILERBITS "64 bit")
+    else()
+        set(COMPILERBITS "32 bit")
+    endif()
 
+    target_compile_definitions(${NAME} PRIVATE "__PLATFORM__=\"OSX ${COMPILERBITS}\"")
+
+    target_sources(${NAME} PRIVATE
+        ${camera_SOURCE_DIR}/mac/platformcontext.mm
+        ${camera_SOURCE_DIR}/mac/platformstream.mm
+        ${camera_SOURCE_DIR}/mac/uvcctrl.mm
+    )
+
+    target_link_libraries(${NAME} PUBLIC
+        "-framework AVFoundation"
+        "-framework Foundation"
+        "-framework CoreMedia"
+        "-framework CoreVideo"
+        "-framework Accelerate"
+        "-framework IOKit"
+    )
 endif()
 
 if (LINUX)
