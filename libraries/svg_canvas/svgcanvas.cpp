@@ -320,7 +320,10 @@ void SVGCanvas::point(Vec2d pos, mssm::Color c) {
     applyStyle(circle, c, c);
 }
 
-void SVGCanvas::image(Vec2d pos, const mssm::Image& img) {
+void SVGCanvas::image(Vec2d pos, const mssm::Image& img, double alpha) {
+
+
+
     // SVG can't directly embed images, would need to use <image> with base64 data
     // For simplicity, just draw a placeholder rectangle
     auto rect = currentTarget()->add_child<SVG::Rect>(pos.x, pos.y, img.width(), img.height(), 0);
@@ -334,12 +337,12 @@ void SVGCanvas::image(Vec2d pos, const mssm::Image& img) {
     text->set_attr("fill", "black");
 }
 
-void SVGCanvas::image(Vec2d pos, const mssm::Image& img, Vec2d src, int srcw, int srch) {
+void SVGCanvas::image(Vec2d pos, const mssm::Image& img, Vec2d src, int srcw, int srch, double alpha) {
     // Simplified placeholder
     image(pos, img);
 }
 
-void SVGCanvas::image(Vec2d pos, double w, double h, const mssm::Image& img) {
+void SVGCanvas::image(Vec2d pos, double w, double h, const mssm::Image& img, double alpha) {
     // Simplified placeholder
     auto rect = currentTarget()->add_child<SVG::Rect>(pos.x, pos.y, w, h, 0);
     rect->set_attr("fill", "grey");
@@ -351,12 +354,12 @@ void SVGCanvas::image(Vec2d pos, double w, double h, const mssm::Image& img) {
     text->set_attr("fill", "black");
 }
 
-void SVGCanvas::image(Vec2d pos, double w, double h, const mssm::Image& img, Vec2d src, int srcw, int srch) {
+void SVGCanvas::image(Vec2d pos, double w, double h, const mssm::Image& img, Vec2d src, int srcw, int srch, double alpha) {
     // Simplified placeholder
-    image(pos, w, h, img);
+    image(pos, w, h, img, alpha);
 }
 
-void SVGCanvas::imageC(Vec2d center, double angle, const mssm::Image& img) {
+void SVGCanvas::imageC(Vec2d center, double angle, const mssm::Image& img, double alpha) {
     // SVG can do transforms, but for simplicity with placeholder
     double w = img.width();
     double h = img.height();
@@ -376,12 +379,12 @@ void SVGCanvas::imageC(Vec2d center, double angle, const mssm::Image& img) {
     text->set_attr("fill", "black");
 }
 
-void SVGCanvas::imageC(Vec2d center, double angle, const mssm::Image& img, Vec2d src, int srcw, int srch) {
+void SVGCanvas::imageC(Vec2d center, double angle, const mssm::Image& img, Vec2d src, int srcw, int srch, double alpha) {
     // Simplified placeholder
-    imageC(center, angle, img);
+    imageC(center, angle, img, alpha);
 }
 
-void SVGCanvas::imageC(Vec2d center, double angle, double w, double h, const mssm::Image& img) {
+void SVGCanvas::imageC(Vec2d center, double angle, double w, double h, const mssm::Image& img, double alpha) {
     Vec2d topLeft(center.x - w/2, center.y - h/2);
 
     auto group = currentTarget()->add_child<SVG::Group>();
@@ -398,9 +401,9 @@ void SVGCanvas::imageC(Vec2d center, double angle, double w, double h, const mss
     text->set_attr("fill", "black");
 }
 
-void SVGCanvas::imageC(Vec2d center, double angle, double w, double h, const mssm::Image& img, Vec2d src, int srcw, int srch) {
+void SVGCanvas::imageC(Vec2d center, double angle, double w, double h, const mssm::Image& img, Vec2d src, int srcw, int srch, double alpha) {
     // Simplified placeholder
-    imageC(center, angle, w, h, img);
+    imageC(center, angle, w, h, img, alpha);
 }
 
 bool SVGCanvas::isClipped(Vec2d pos) const {

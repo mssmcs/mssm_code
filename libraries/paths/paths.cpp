@@ -56,6 +56,15 @@ std::string Paths::findAsset(std::string filename)
     else if (fs::exists(exeFolder / "assets")) {
         dir = exeFolder / "assets";
     }
+    else if (exeFolder.has_parent_path()) {
+        fs::path parent = exeFolder.parent_path();
+        if (fs::exists(parent / "Assets")) {
+            dir = parent / "Assets";
+        }
+        else if (fs::exists(parent / "assets")) {
+            dir = parent / "assets";
+        }
+    }
 
     dir /= filename;
 

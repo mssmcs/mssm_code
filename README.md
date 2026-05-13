@@ -6,6 +6,30 @@ The `apps/` folder is the aggregate CMake project that discovers and builds app 
 
 ### Linux
 
+Prerequisites
+
+```bash
+sudo apt update
+sudo apt install ninja-build build-essential cmake
+```
+
+For graphics apps
+```bash
+sudo apt install \
+  libwayland-dev \
+  libwayland-bin \
+  wayland-protocols \
+  libxkbcommon-dev \
+  xorg-dev \
+  extra-cmake-modules
+
+sudo apt install libglu1-mesa-dev
+
+sudo apt install mesa-utils
+
+
+```
+
 ```bash
 cd apps
 cmake -S . -B build -G Ninja
@@ -159,6 +183,18 @@ Optional library override while scaffolding:
 - Windows: `-Libraries "mssm_graphics_nanovg"`
 - macOS/Linux: `--libraries "mssm_graphics_nanovg"`
 - Example with OpenCV: `-Libraries "mssm opencv"` / `--libraries "mssm opencv"`
+
+Graphics backend options:
+
+- `mssm_graphics_nanovg`: existing OpenGL/NanoVG path
+- `mssm_graphics_vulk`: existing Vulkan path
+- `mssm_graphics_dawn`: experimental WebGPU path via `libraries/dawn` + `libraries/mssm_webgpu`
+
+Notes for `mssm_graphics_dawn`:
+
+- This is currently a wiring/scaffolding backend, not a full `Canvas2d` implementation.
+- Dawn integration is currently **prebuilt-only** and pinned to a Windows artifact in `libraries/dawn/CMakeLists.txt`.
+- There is no source-build fallback in this mode; configure fails if prebuilt download/verify fails.
 
 OpenCV library behavior:
 

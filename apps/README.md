@@ -65,6 +65,12 @@ Examples from repo root:
 bash tools/new_app.sh --template graphics_app --name assignment01 --libraries "mssm_graphics_nanovg"
 ```
 
+Graphics backend library choices for `--libraries` / `-Libraries`:
+
+- `mssm_graphics_nanovg` (OpenGL + NanoVG)
+- `mssm_graphics_vulk` (Vulkan)
+- `mssm_graphics_dawn` (experimental WebGPU scaffolding, Windows prebuilt Dawn path)
+
 Examples from `apps/` folder:
 
 ```powershell

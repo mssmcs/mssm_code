@@ -12,3 +12,7 @@
 # Keep a tracked OpenCV reference app.
 !/opencv_demo/
 !/opencv_demo/**
+
+# Keep a tracked Dawn/WebGPU smoke app.
+!/webgpu_dawn_smoke/
+!/webgpu_dawn_smoke/**

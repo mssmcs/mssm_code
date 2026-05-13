@@ -50,6 +50,15 @@ else()
     set(PROJECT_PACKAGING_SOURCE_FOLDER "${MSSM_CODE_ROOT}/packaging")
 endif()
 
+# Multi-config generators (VS, Ninja Multi-Config) place the executable under
+# RUNTIME_OUTPUT_DIRECTORY/<Config>/; single-config generators use RUNTIME_OUTPUT_DIRECTORY
+# as-is. Match assets to the same layout so findAsset sees them next to the exe.
+if(CMAKE_CONFIGURATION_TYPES)
+    set(_MSSM_RUNTIME_CONFIG_SUBDIR "/$<CONFIG>")
+else()
+    set(_MSSM_RUNTIME_CONFIG_SUBDIR "")
+endif()
+
 # Set up the directory structure based on platform
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     # Create a project-specific folder inside bin for Linux
@@ -57,16 +66,14 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}"
     )
 
-    # Set assets directory for Linux
-    set(TARGET_ASSET_DIR "${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}/assets")
+    set(TARGET_ASSET_DIR "${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}${_MSSM_RUNTIME_CONFIG_SUBDIR}/assets")
 elseif(WIN32)
     # For Windows, create a project-specific folder structure similar to Linux
     set_target_properties(${PROJECT_NAME} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${PROJECT_NAME}"
     )
 
-    # Set assets to be in a subfolder of the project folder
-    set(TARGET_ASSET_DIR "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/assets")
+    set(TARGET_ASSET_DIR "${CMAKE_BINARY_DIR}/${PROJECT_NAME}${_MSSM_RUNTIME_CONFIG_SUBDIR}/assets")
 else()
     # For other platforms (like macOS)
     set(TARGET_ASSET_DIR "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets")

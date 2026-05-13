@@ -5,8 +5,16 @@ set(CMAKE_C_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # set(CMAKE_C_STANDARD_REQUIRED ON)
 
+# Show FetchContent progress in direct CMake and Qt Creator logs.
+if(NOT DEFINED FETCHCONTENT_QUIET)
+    set(FETCHCONTENT_QUIET OFF CACHE BOOL "Show FetchContent progress output")
+endif()
+
 # add subdirectories that should be excluded from the build
 set(EXCLUDE_SUBDIRS
+    playground-hamling
+    stop_motion26
+    webgpu_dawn_smoke
     opencv_demo
 )
 

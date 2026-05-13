@@ -52,6 +52,9 @@ public:
     constexpr Vec2base rot180() const { return { -x, -y}; }  //CCW
     constexpr Vec2base rot270() const { return { y, -x}; }   //CCW
 
+    constexpr Vec2base perpCCW() const { return rot90(); }
+    constexpr Vec2base perpCW() const { return rot270(); }
+
     constexpr void scale(T s) { x *= s; y *= s; }
     constexpr void rotate(double radians) { *this = { x * cos(radians) - y * sin(radians), x * sin(radians) + y * cos(radians) };}
 
