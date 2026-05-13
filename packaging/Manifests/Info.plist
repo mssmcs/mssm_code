@@ -31,5 +31,5 @@
     <string>NSApplication</string>
     <key>NSHighResolutionCapable</key>
     <true/>
-  </dict>
+${CAMERA_USAGE_ENTRIES}  </dict>
 </plist>
