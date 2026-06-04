@@ -137,6 +137,8 @@ public:
 
     void pushOverlay(LayoutPtr overlay);
     void removeOverlay(LayoutPtr overlay);
+    // Remove element and descendants from hover chain (e.g. before collapse or deferred overlay close).
+    void detachHoverChainFromElement(LayoutPtr element);
     void beginEventDispatch();
     void endEventDispatch();
 

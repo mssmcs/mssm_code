@@ -182,6 +182,9 @@ std::string LayoutBase::trail() const
 
 void LayoutBase::setCollapsed(bool collapsed)
 {
+    if (collapsed) {
+        context->detachHoverChainFromElement(shared_from_this());
+    }
     isCollapsed = collapsed;
     foreachChild([collapsed](LayoutBase* child) {
         child->setCollapsed(collapsed);

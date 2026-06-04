@@ -171,6 +171,21 @@ void LayoutContext::validateOverlayStack(const char* stage) const
 }
 
 
+void LayoutContext::detachHoverChainFromElement(LayoutPtr element)
+{
+    if (!element) {
+        return;
+    }
+    validateHoverChain("preDetachHoverChainFromElement");
+    for (int i = 0; i < static_cast<int>(hoverChain.size()); ++i) {
+        if (hoverChain[i].element == element) {
+            hoverChain.resize(i);
+            break;
+        }
+    }
+    validateHoverChain("postDetachHoverChainFromElement");
+}
+
 void LayoutContext::pushOverlayNow(LayoutPtr overlay)
 {
     validateOverlayStack("prePushOverlayNow");
@@ -184,14 +199,7 @@ void LayoutContext::removeOverlayNow(LayoutPtr overlay)
 {
     validateOverlayStack("preRemoveOverlayNow");
     validateHoverChain("preRemoveOverlayNow");
-    //hoverChain.onRemove(overlay);
-
-    if (hoverChain.size() > 0 && hoverChain[0].element == overlay) {
-        // for (int i = hoverChain.size()-1; i >= 0; i--) {
-        //     sendExit(hoverChain[i], {0,0});
-        // }
-        hoverChain.clear();
-    }
+    detachHoverChainFromElement(overlay);
 
     int removedIdx = -1;
 
@@ -223,6 +231,7 @@ void LayoutContext::pushOverlay(LayoutPtr overlay)
 void LayoutContext::removeOverlay(LayoutPtr overlay)
 {
     if (eventDispatchDepth > 0) {
+        detachHoverChainFromElement(overlay);
         pendingOverlayMutations.push_back({OverlayMutationType::remove, overlay});
         setNeedsResize();
         return;

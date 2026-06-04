@@ -433,6 +433,22 @@ public:
     operator Builder() const override;
 };
 
+// DSL helpers for labeled menu items and tabs (prefer over long ItemWrapper/TabWrapper types).
+inline Menu::ItemWrapper item(std::string label, Wrapper content)
+{
+    return Menu::ItemWrapper{std::move(label), content};
+}
+
+inline Menu::ItemWrapper item(std::string label, mssm::Color color)
+{
+    return Menu::ItemWrapper{std::move(label), color};
+}
+
+inline Tabs::TabWrapper tab(std::string label, Wrapper content)
+{
+    return Tabs::TabWrapper{std::move(label), content};
+}
+
 } // namespace LayoutHelper
 
 #endif // LAYOUTHELPER_H
