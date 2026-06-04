@@ -55,6 +55,14 @@ cmake -S C:/github/mssm_code/tests -B C:/github/mssm_code/tests/build/agent -G N
 cmake --build C:/github/mssm_code/tests/build/agent --target layout_sizebound_tests
 ```
 
+On Windows with **Qt Creator + MinGW**, prefer the kit build tree Qt already configured (example kit folder name):
+
+```text
+C:/github/mssm_code/tests/build/Desktop_Qt_6_11_0_MinGW_64_bit-Debug
+```
+
+Do not rely on a fresh `cmake -G Ninja` configure from a bare shell unless `g++` is on `PATH` — agents and CI shells often lack the compiler until a kit is selected.
+
 **Examples with tests:**
 
 ```powershell
@@ -63,6 +71,31 @@ cmake --build C:/github/mssm_code/examples/build/agent --target layout_sizebound
 ```
 
 In Qt Creator: **Projects → Build → CMake** → add `-DMSSM_BUILD_TESTS=ON`, reconfigure, then build target `layout_sizebound_tests` or **all**.
+
+## Running from Qt Creator or an agent shell (Windows MinGW)
+
+Use the **existing Qt Creator build directory** for the `tests/` or `examples/` bundle. Kit folder names vary; look under `tests/build/` or `examples/build/` for `Desktop_Qt_*`.
+
+Build and run all discovered tests:
+
+```powershell
+$build = "C:/github/mssm_code/tests/build/Desktop_Qt_6_11_0_MinGW_64_bit-Debug"
+
+& "C:/Qt/Tools/CMake_64/bin/cmake.exe" --build $build --target all
+& "C:/Qt/Tools/CMake_64/bin/cmake.exe" -E chdir $build ctest --output-on-failure
+```
+
+Run one executable directly:
+
+```powershell
+& "$build/local_library/layout/tests/layout_sizebound_tests.exe"
+```
+
+**MinGW runtime DLLs:** On Windows MinGW builds, [`cmake/MssmWindowsRuntime.cmake`](cmake/MssmWindowsRuntime.cmake) copies `libgcc_s_seh-1.dll`, `libstdc++-6.dll`, and `libwinpthread-1.dll` next to each app and gtest executable at link time. You do **not** need `C:/Qt/Tools/mingw1310_64/bin` on `PATH` to run tests or examples from their output folder.
+
+If you see `libgcc_s_seh-1.dll was not found`, rebuild the target so POST_BUILD copy runs, or check that the exe and DLLs sit in the same directory.
+
+The same pattern applies to example apps (e.g. `layout_example`) under `examples/build/Desktop_Qt_.../`.
 
 ## Run tests
 

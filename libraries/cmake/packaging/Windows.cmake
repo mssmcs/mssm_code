@@ -18,6 +18,8 @@
 # For distribution:
 # install(FILES $<TARGET_FILE:SDL2::SDL2> DESTINATION ${CMAKE_INSTALL_BINDIR})
 
+include(${CMAKE_CURRENT_LIST_DIR}/../MssmWindowsRuntime.cmake)
+
 option(MSSM_WINDOWS_AUTO_RUNTIME_DEPS "Automatically package runtime DLL dependencies on Windows." ON)
 
 # Automatically gather and install transitive runtime DLL dependencies
@@ -61,10 +63,7 @@ endif()
 if(MINGW)
   get_filename_component(_mssm_mingw_bin_dir "${CMAKE_CXX_COMPILER}" DIRECTORY)
 
-  foreach(_mssm_runtime_dll
-      libgcc_s_seh-1.dll
-      libstdc++-6.dll
-      libwinpthread-1.dll)
+  foreach(_mssm_runtime_dll IN LISTS MSSM_MINGW_RUNTIME_DLL_NAMES)
     set(_mssm_runtime_dll_path "${_mssm_mingw_bin_dir}/${_mssm_runtime_dll}")
     if(EXISTS "${_mssm_runtime_dll_path}")
       install(
@@ -74,6 +73,8 @@ if(MINGW)
       )
     endif()
   endforeach()
+
+  mssm_copy_mingw_runtime_dlls(${PROJECT_NAME})
 endif()
 
 # Copy assets into app bundle

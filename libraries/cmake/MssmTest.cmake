@@ -2,6 +2,7 @@
 # Requires googletest to be added to ALL_LIBRARIES before library subdirectories run.
 
 include(GoogleTest)
+include(${CMAKE_CURRENT_LIST_DIR}/MssmWindowsRuntime.cmake)
 
 function(mssm_add_gtest target)
     set(options "")
@@ -30,6 +31,8 @@ function(mssm_add_gtest target)
         CXX_STANDARD 23
         CXX_STANDARD_REQUIRED ON
     )
+
+    mssm_copy_mingw_runtime_dlls(${target})
 
     gtest_discover_tests(${target})
 endfunction()
