@@ -120,6 +120,8 @@ public:
     constexpr operator int() const { return code; }
     constexpr int keyCode() const { return code; }
     explicit constexpr operator char() const { return code; }
+    // GLFW key codes are not ASCII; std::isprint(keyCode()) truncates (e.g. Shift 340 -> 'T').
+    constexpr bool isPrintableAscii() const { return code >= 32 && code <= 126; }
     constexpr bool operator==(KeyConst other) const { return code == other.code; }
     constexpr bool operator==(char other) const { return std::isalpha(other) ? (code == std::toupper(other)) : (code == other); }
     std::string toFormatString() const;

@@ -927,23 +927,36 @@ double NanovgWindow::textWidth(const FontInfo& sizeAndFace, const string &str)
     return metrics[2]-metrics[0];  // xmax-xmin
 }
 
-// Function to compute x offsets for each character in a string
-// NOTE: font, size must be set appropriately before calling this function
-std::vector<double> getCharacterXOffsets(NVGcontext* ctx, const FontInfo &sizeAndFace, double startX, std::string text)
+// Function to compute x offsets for each character in a string.
+// Returns one x per character boundary (size = text.size() + 1 for cursor indexing).
+// NOTE: font, size, and text align must match the subsequent nvgText() call.
+std::vector<double> getCharacterXOffsets(NVGcontext* ctx, const FontInfo &sizeAndFace, double startX, const std::string& text)
 {
-    std::vector<NVGglyphPosition> positions(text.size()+2);
+    std::vector<double> xOffsets;
+    if (text.empty()) {
+        xOffsets.push_back(startX);
+        return xOffsets;
+    }
+
+    std::vector<NVGglyphPosition> positions(text.size() + 1);
 
     nvgFontSize(ctx, sizeAndFace.getSize());
     nvgFontFaceId(ctx, sizeAndFace.getFaceIdx());
+    // Match layout TextEditBox (LEFT | TOP) so glyph x positions align with drawn text.
+    nvgTextAlign(ctx, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
 
-    text.append(1, '_'); // Add a char at the end to get the last character's x position
+    const int count = nvgTextGlyphPositions(ctx, startX, 0, text.c_str(), text.c_str() + text.size(),
+                                            positions.data(), static_cast<int>(positions.size()));
 
-    int count = nvgTextGlyphPositions(ctx, startX, 0, text.c_str(), text.c_str() + text.size(), positions.data(), positions.size());
+    xOffsets.reserve(count + 1);
+    for (int i = 0; i < count; ++i) {
+        xOffsets.push_back(positions[i].x);
+    }
 
-    std::vector<double> xOffsets(count);
-
-    for (int i = 0; i < count; i++) {
-        xOffsets[i] = positions[i].x;
+    if (count > 0) {
+        xOffsets.push_back(positions[count - 1].maxx);
+    } else {
+        xOffsets.push_back(startX);
     }
 
     return xOffsets;

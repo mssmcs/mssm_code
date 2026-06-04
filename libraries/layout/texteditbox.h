@@ -14,7 +14,12 @@ class TextEditBox : public TextEditLine
     VAlign vAlign = VAlign::top;
     RectI rect;
     int textOffset{0}; // allow shifting text to keep cursor inside rect
+    int selectionAnchor{0}; // click position; cursorPos tracks the active end while dragging
     FontInfo sizeAndFace;
+
+    Vec2d textDrawOrigin() const;
+    void syncTextGeometry();
+    void adjustTextOffsetForCursor();
 public:
     TextEditBox(TextMetrics& metrics, const FontInfo &sizeAndFace, std::string text = "");
     void draw(mssm::Canvas2d &g, bool hasFocus);

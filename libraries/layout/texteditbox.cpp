@@ -24,16 +24,19 @@ TextEditBox::TextEditBox(TextMetrics &metrics, const FontInfo &sizeAndFace, std:
     tg.update(0, 0, sizeAndFace, text, hAlign, vAlign);
 }
 
-void TextEditBox::draw(Canvas2d &g, bool hasFocus)
+Vec2d TextEditBox::textDrawOrigin() const
 {
-    Vec2d pos = cast<Vec2d>(rect.upperLeft()) + Vec2d{2,2};
+    return cast<Vec2d>(rect.upperLeft()) + Vec2d{2, 2};
+}
 
-    g.pushClip(rect.left(), rect.top(), rect.width, rect.height, false);
+void TextEditBox::syncTextGeometry()
+{
+    const Vec2d origin = textDrawOrigin();
+    tg.update(origin.x + textOffset, origin.y, sizeAndFace, getText(), hAlign, vAlign);
+}
 
-    drawRect(g, rect, rgb(35, 35, 35), hasFocus ? BLACK : rgb(10,10,10));
-
-    tg.update(pos.x+textOffset, pos.y, sizeAndFace, getText(), hAlign, vAlign);
-
+void TextEditBox::adjustTextOffsetForCursor()
+{
     double x1;
     double y1;
     double x2;
@@ -41,15 +44,31 @@ void TextEditBox::draw(Canvas2d &g, bool hasFocus)
     tg.getCursorLine(cursorPos, x1, y1, x2, y2);
 
     if (x1 < rect.left()) {
-        textOffset += rect.left()-x1;
-        tg.update(pos.x+textOffset, pos.y, sizeAndFace, getText(), hAlign, vAlign);
-        tg.getCursorLine(cursorPos, x1, y1, x2, y2);
-    }
-    else if (x1 > rect.right()) {
+        textOffset += rect.left() - x1;
+    } else if (x1 > rect.right()) {
         textOffset -= x1 - rect.right();
-        tg.update(pos.x+textOffset, pos.y, sizeAndFace, getText(), hAlign, vAlign);
-        tg.getCursorLine(cursorPos, x1, y1, x2, y2);
     }
+}
+
+void TextEditBox::draw(Canvas2d &g, bool hasFocus)
+{
+    const Vec2d origin = textDrawOrigin();
+
+    g.pushClip(rect.left(), rect.top(), rect.width, rect.height, false);
+
+    drawRect(g, rect, rgb(35, 35, 35), hasFocus ? BLACK : rgb(10,10,10));
+
+    syncTextGeometry();
+    adjustTextOffsetForCursor();
+    syncTextGeometry();
+
+    double x1;
+    double y1;
+    double x2;
+    double y2;
+    tg.getCursorLine(cursorPos, x1, y1, x2, y2);
+
+    const Vec2d drawPos{origin.x + textOffset, origin.y};
 
     if (hasFocus && hasSelection()) {
         auto start = selectionStart();
@@ -65,24 +84,18 @@ void TextEditBox::draw(Canvas2d &g, bool hasFocus)
         tg.getRectForRange(start, end-1, rx, ry, rw, rh);
         g.rect({rx, ry}, rw, rh, TRANS, GREY);
 
-        g.text({tg.getCharX(0), pos.y}, sizeAndFace, first, WHITE, hAlign, vAlign);
-        g.text({tg.getCharX(start), pos.y}, sizeAndFace, middle, BLACK, hAlign, vAlign);
-        g.text({tg.getCharX(end), pos.y}, sizeAndFace, second, WHITE, hAlign, vAlign);
+        g.text({tg.getCharX(0), drawPos.y}, sizeAndFace, first, WHITE, hAlign, vAlign);
+        g.text({tg.getCharX(start), drawPos.y}, sizeAndFace, middle, BLACK, hAlign, vAlign);
+        g.text({tg.getCharX(end), drawPos.y}, sizeAndFace, second, WHITE, hAlign, vAlign);
     } else {
-        g.text(pos+Vec2d{textOffset, 0}, sizeAndFace, text, WHITE, hAlign, vAlign);
+        g.text(drawPos, sizeAndFace, text, WHITE, hAlign, vAlign);
     }
 
     if (hasFocus) {
-        int alpha = static_cast<int>(254*(sin(getCurrentTimeSeconds()*5)*0.5+0.5));
-        if (alpha < 128) {
-            alpha = 0;
-        }
-        else {
-            alpha = 255;
-        }
-        g.line({x1, y1}, {x2, y2}, {128,128,255,alpha});
-        g.line({x1+1, y1}, {x2+1, y2}, {128,128,255,alpha});
-        //g.println("{}",sin(g.time())*0.5+0.5);
+        const int alpha = static_cast<int>(180 + 75 * (sin(getCurrentTimeSeconds() * 5) * 0.5 + 0.5));
+        const Color cursorColor{255, 255, 255, static_cast<uint8_t>(alpha)};
+        g.line({x1, y1}, {x2, y2}, cursorColor);
+        g.line({x1 + 1, y1}, {x2 + 1, y2}, cursorColor);
     }
 
     g.popClip();
@@ -90,9 +103,10 @@ void TextEditBox::draw(Canvas2d &g, bool hasFocus)
 
 bool TextEditBox::onClick(Vec2d pos)
 {
-    //if (tg.isPointInText(pos.x, pos.y)) {
     if (rect.within(pos)) {
-        cursorPos = tg.getCursorIndex(pos.x);
+        syncTextGeometry();
+        selectionAnchor = tg.getCursorIndex(pos.x);
+        cursorPos = selectionAnchor;
         clearSelection();
         return true;
     }
@@ -101,12 +115,15 @@ bool TextEditBox::onClick(Vec2d pos)
 
 void TextEditBox::onDrag(Vec2d pos)
 {
-    int endPos = tg.getCursorIndex(pos.x);
-    if (endPos != cursorPos) {
-        if (endPos > cursorPos) {
-            selectionDelta = endPos - cursorPos;
-        } else {
-            selectionDelta = endPos - cursorPos;
-        }
-    }
+    syncTextGeometry();
+
+    // Use raw x so dragging past the widget edge can reach the start/end of the string.
+    const int endPos = tg.getCursorIndex(pos.x);
+
+    // Match keyboard selection model: cursorPos is the active end, anchor stays fixed.
+    cursorPos = endPos;
+    selectionDelta = selectionAnchor - endPos;
+
+    adjustTextOffsetForCursor();
+    syncTextGeometry();
 }
