@@ -1,12 +1,12 @@
 #ifndef LAYOUTSCROLL_H
 #define LAYOUTSCROLL_H
 
-#include "layoutslider.h"
+#include "layoutscrollbar.h"
 
 class LayoutScroll : public LayoutBase {
     LayoutPtr child;
-    std::shared_ptr<LayoutSlider> vScroll;
-    std::shared_ptr<LayoutSlider> hScroll;
+    std::shared_ptr<LayoutScrollBar> vScroll;
+    std::shared_ptr<LayoutScrollBar> hScroll;
     int extraX{0};
     int extraY{0};
     int xScroll{0};

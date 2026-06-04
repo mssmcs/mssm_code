@@ -93,7 +93,7 @@ void TextEditBox::draw(Canvas2d &g, bool hasFocus)
 
     if (hasFocus) {
         const int alpha = static_cast<int>(180 + 75 * (sin(getCurrentTimeSeconds() * 5) * 0.5 + 0.5));
-        const Color cursorColor{255, 255, 255, static_cast<uint8_t>(alpha)};
+        const Color cursorColor{255, 255, 255, alpha};
         g.line({x1, y1}, {x2, y2}, cursorColor);
         g.line({x1 + 1, y1}, {x2 + 1, y2}, cursorColor);
     }

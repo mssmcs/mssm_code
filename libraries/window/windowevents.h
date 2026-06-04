@@ -210,6 +210,38 @@ public:
     bool hasShift() const { return static_cast<int>(mods) & static_cast<int>(ModKey::Shift); }
     Key  key() const { return Key(arg); }
     MouseButton  mouseButton() const { return static_cast<MouseButton>(arg); }
+
+    // MouseMove: arg is a GLFW-style button-down bitmask (1 << button index).
+    bool hasMouseButtonDown(MouseButton button) const
+    {
+        if (evtType != EvtType::MouseMove) {
+            return false;
+        }
+        if (static_cast<int>(button) < 0) {
+            return false;
+        }
+        return (arg & (1 << static_cast<int>(button))) != 0;
+    }
+
+    bool anyMouseButtonDown() const
+    {
+        return evtType == EvtType::MouseMove && arg != 0;
+    }
+
+    // First pressed button in left, middle, right order (matches layout drag priority).
+    MouseButton primaryMouseButtonDown() const
+    {
+        if (hasMouseButtonDown(MouseButton::Left)) {
+            return MouseButton::Left;
+        }
+        if (hasMouseButtonDown(MouseButton::Middle)) {
+            return MouseButton::Middle;
+        }
+        if (hasMouseButtonDown(MouseButton::Right)) {
+            return MouseButton::Right;
+        }
+        return MouseButton::None;
+    }
 };
 
 std::ostream& operator<<(std::ostream& os, const Event& evt);

@@ -61,14 +61,14 @@ void LayoutManager::propagateEvents(const PropertyBag &parentProps, double elaps
             sent = true;
             break;
         case mssm::EvtType::MouseMove:
-            if (e.arg
-                & 0x01) { // TODO: hack:  arg = BITMASK OF BUTTONS!  1 = 0  2 = 1  4 = 2,  x and y = mouse pos
+            if (e.anyMouseButtonDown()) {
+                const mssm::MouseButton dragButton = e.primaryMouseButtonDown();
                 evt.action = MouseEvt::Action::drag;
                 evt.pos = {e.x, e.y};
                 evt.mods = e.mods;
-                evt.button = mssm::MouseButton::Left;
-                evt.dragDelta = evt.pos - context->mouseDragStart(mssm::MouseButton::Left);
-                evt.dragMax = context->maxDragDistance(mssm::MouseButton::Left);
+                evt.button = dragButton;
+                evt.dragDelta = evt.pos - context->mouseDragStart(dragButton);
+                evt.dragMax = context->maxDragDistance(dragButton);
                 propagateMouse(parentProps, screenRect, evt);
                 sent = true;
             }

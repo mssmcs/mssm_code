@@ -122,8 +122,9 @@ Scroll{VStack{Button("One"), Button("Two"), "More text..."}}
 
 ### Scroll bar ↔ content contract
 
-- `LayoutScroll::resize()` reads `vScroll->value` / `hScroll->value` and offsets the child (`contentRect.pos`).
-- `LayoutSlider` updates `value` on thumb drag and calls `context->setNeedsResize()` so the parent scroll area re-runs `resize()` and moves content.
+- `LayoutScroll::resize()` reads `vScroll->scrollOffset` / `hScroll->scrollOffset` and offsets the child (`contentRect.pos`).
+- `LayoutScrollBar` owns thumb geometry and pixel offset; thumb drag and wheel call `context->setNeedsResize()` so the parent scroll area re-runs `resize()` and moves content.
+- `LayoutSlider` is for numeric value controls only (not scroll bars).
 - Mouse wheel over the scroll panel is handled in `LayoutScroll::onMouseDeferred` (also calls `setNeedsResize()`).
 
 If you add a custom scroll container, mirror this: **slider value changes must trigger a resize pass on the scroll parent.**
@@ -137,3 +138,12 @@ LayoutManager windowLayout(&context, LayoutStacked::make(...));
 ```
 
 `Wrapper` implicitly converts colors, strings, labels, and child builders so DSL expressions compose without boilerplate.
+
+## Unit tests
+
+Headless GoogleTest targets live in [`tests/`](tests/):
+
+- **`layout_sizebound_tests`** — `distributeSizes`, `hStack` / `vStack`, `constraintIntersectionSafe` (links only `sizebound.cpp` for a fast T1 build).
+- **`window_event_mask_tests`** — `Event::hasMouseButtonDown` / `primaryMouseButtonDown` for `EvtType::MouseMove` (`arg` is a GLFW-style button bitmask).
+
+Enable via **`MSSM_BUILD_TESTS=ON`** on any bundle, or open the [`tests/`](../../tests/) bundle (tests on by default). Run with `ctest` or the test executable; see [`../TESTING.md`](../TESTING.md).

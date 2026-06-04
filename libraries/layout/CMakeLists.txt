@@ -26,6 +26,7 @@ icondrawer.h icondrawer.cpp
 layoutbutton.h layoutbutton.cpp
 layoutdraghandle.cpp layoutdraghandle.h
 layoutslider.cpp layoutslider.h
+layoutscrollbar.cpp layoutscrollbar.h
 layoutscroll.cpp layoutscroll.h
 layoutadapter.cpp layoutadapter.h
 layouttext.cpp layouttext.h
@@ -43,3 +44,7 @@ target_link_libraries(${NAME} PUBLIC  image_base mssm_paths mssm_window mssm_vec
 set_target_properties(${NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
 target_include_directories(${NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSSM_BUILD_TESTS)
+    add_subdirectory(tests)
+endif()

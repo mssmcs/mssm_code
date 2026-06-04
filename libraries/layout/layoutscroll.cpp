@@ -4,8 +4,8 @@
 LayoutScroll::LayoutScroll(Private privateTag, LayoutContext *context, LayoutPtr child)
     : LayoutBase{context}, child{child}
 {
-    hScroll = LayoutSlider::make(context, true, 0, 0, 0);
-    vScroll = LayoutSlider::make(context, false, 0, 0, 0);
+    hScroll = LayoutScrollBar::make(context, true);
+    vScroll = LayoutScrollBar::make(context, false);
     setParentsOfChildren();
 }
 
@@ -91,8 +91,8 @@ void LayoutScroll::resize(const PropertyBag& parentProps, const RectI& rect)
 {
     setRect(rect);
     
-    xScroll = hScroll->value;
-    yScroll = vScroll->value;
+    xScroll = static_cast<int>(hScroll->scrollOffset);
+    yScroll = static_cast<int>(vScroll->scrollOffset);
 
     auto childBound = child->getBound(parentProps);
 
@@ -159,15 +159,13 @@ void LayoutScroll::resize(const PropertyBag& parentProps, const RectI& rect)
         vScroll->width = 0;
     }
     
-    hScroll->proportion = (double(rect.width-vScroll->width)/contentRect.width);
-    hScroll->minValue = 0;
-    hScroll->maxValue = extraX;
-    hScroll->value = xScroll;
-    
-    vScroll->proportion = (double(rect.height-hScroll->height)/contentRect.height);
-    vScroll->minValue = 0;
-    vScroll->maxValue = extraY;
-    vScroll->value = yScroll;
+    hScroll->proportion = static_cast<double>(rect.width - vScroll->width) / contentRect.width;
+    hScroll->scrollMax = extraX;
+    hScroll->scrollOffset = xScroll;
+
+    vScroll->proportion = static_cast<double>(rect.height - hScroll->height) / contentRect.height;
+    vScroll->scrollMax = extraY;
+    vScroll->scrollOffset = yScroll;
     
     contentRect.pos = rect.pos-Vec2i32{xScroll, yScroll};
     

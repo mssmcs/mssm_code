@@ -1,7 +1,33 @@
+# mssm_code: opt-in at repo root. Only whitelisted trees are tracked.
+# Cloned sibling repos (apps/, examples/, grading/, …) need no mention — ignored by /*.
+/*
+
+!/.gitignore
+!/.aiexclude
+!/.DS_Store
+!/README.md
+
+!/assets/
+!/assets/**
+!/docs/
+!/docs/**
+!/libraries/
+!/libraries/**
+!/packaging/
+!/packaging/**
+!/shared/
+!/shared/**
+!/templates/
+!/templates/**
+!/tools/
+!/tools/**
+
+# In-repo test harness (not a cloned sibling repo)
+!/tests/
+!/tests/**
+
 .vs
 .vscode
-
-# examples
 
 # C++ objects and libs
 *.slo
@@ -57,6 +83,3 @@ compile_commands.json
 *creator.user*
 
 *_qmlcache.qrc
-
-examples
-grading

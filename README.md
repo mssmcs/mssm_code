@@ -2,7 +2,17 @@
 
 ## Build
 
-The `apps/` folder is the aggregate CMake project that discovers and builds app subprojects.
+mssm_code uses **project bundles** — top-level folders you open as one CMake project:
+
+| Bundle | Purpose |
+|--------|---------|
+| [`apps/`](apps/) | Student and course applications |
+| [`examples/`](examples/) | Teaching and library demos |
+| [`tests/`](tests/) | Library unit tests (`ctest`; no apps) |
+
+All bundles share [`libraries/cmake/MssmAggregateRoot.cmake`](libraries/cmake/MssmAggregateRoot.cmake). See [`docs/BUNDLES.md`](docs/BUNDLES.md).
+
+The `apps/` folder is the usual aggregate for shipping student apps; `examples/` and `tests/` work the same way with different child projects.
 
 ### Linux
 
@@ -113,40 +123,24 @@ On Windows, each package target can produce `ZIP` and `NSIS` outputs.
 
 ## Notes
 
-- `apps/` subfolders (student/app repos) are ignored by `mssm_code` Git config.
+- **`apps/`**, **`examples/`**, and **`grading/`** are separate git repos cloned beside `mssm_code`; they are not tracked by the `mssm_code` repo. See [`docs/BUNDLES.md`](docs/BUNDLES.md).
+- **`tests/`** is part of `mssm_code` — a thin CMake/`ctest` entry point; library test sources live under `libraries/<lib>/tests/`.
 - Shared packaging assets live under `shared/packaging/`.
 
-## Unit Tests With Googletest
+## Unit tests
 
-`googletest` is available as a shared library entry under `libraries/`.
+Library unit tests use **GoogleTest**, live under `libraries/<lib>/tests/`, and build when **`MSSM_BUILD_TESTS=ON`**.
 
-1. Add it to your app `CMakeLists.txt` library list:
+- **Strategy and tiers:** [`libraries/TESTING.md`](libraries/TESTING.md)
+- **Bundles and Qt workflow:** [`docs/BUNDLES.md`](docs/BUNDLES.md)
+- **Run all tests quickly:** open the [`tests/`](tests/) bundle, build, then `ctest --output-on-failure`
+- **While hacking an app:** configure `examples/` or `apps/` with `-DMSSM_BUILD_TESTS=ON`
 
-```cmake
-set(LIBRARIES mssm googletest)
-```
+Reference implementation: `libraries/layout/tests/` (`layout_sizebound_tests`, `window_event_mask_tests` via `mssm_add_gtest` in [`libraries/cmake/MssmTest.cmake`](libraries/cmake/MssmTest.cmake)).
 
-2. In your app CMake, add a test target and link it:
+### App-specific tests (optional)
 
-```cmake
-enable_testing()
-
-add_executable(my_app_tests
-    tests/main.cpp
-    tests/sample_test.cpp
-)
-
-target_link_libraries(my_app_tests PRIVATE
-    googletest_main
-    mssm_utils
-)
-
-include(GoogleTest)
-gtest_discover_tests(my_app_tests)
-```
-
-`googletest` links `GTest::gtest`, and `googletest_main` links `GTest::gtest_main`.
-Use whichever is appropriate for your test executable.
+Apps can still add their own gtest executables under `<app>/tests/`. Add `googletest` to the app `LIBRARIES` list and use `gtest_discover_tests` as in the `googletest` library template. Prefer `libraries/<lib>/tests/` for code shared across apps.
 
 ## New App Scaffolding
 

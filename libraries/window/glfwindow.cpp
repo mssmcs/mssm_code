@@ -124,19 +124,6 @@ std::ostream& operator<<(std::ostream& os, const Key& k)
 }
 
 
-std::ostream& operator<<(std::ostream& os, const MouseButton& k)
-{
-    switch (k) {
-    case MouseButton::None:       os <<  "MouseButton::None"; break;
-    case MouseButton::Left:       os <<  "MouseButton::Left"; break;
-    case MouseButton::Right:      os <<  "MouseButton::Right"; break;
-    case MouseButton::Middle:     os <<  "MouseButton::Middle"; break;
-    default:                      os <<  "MouseButton::" << ((int)k + 1); break;
-    }
-    return os;
-}
-
-
 GLFWmonitor* get_current_monitor(GLFWwindow *window)
 {
     int nmonitors, i;
