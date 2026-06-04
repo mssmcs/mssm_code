@@ -24,7 +24,7 @@ LayoutBase::EvtRes LayoutText::onMouse(const PropertyBag& parentProps, MouseEven
     case MouseEvt::Action::drag:
         if (hasDragFocus()) {
             editBox.onDrag(evt.pos);
-            context->setNeedsResize();
+            context->setNeedsPaint();
         }
         break;
     case MouseEvt::Action::press:
@@ -53,26 +53,26 @@ LayoutBase::EvtRes LayoutText::onKey(const PropertyBag &parentProps, const KeyEv
         if (hasKeyFocus()) {
             if (key.key.isPrintableAscii()) {
                 editBox.addChar(static_cast<char>(key.key.keyCode()), key.hasShift());
-                context->setNeedsResize();
+                context->setNeedsPaint();
                 return EvtRes::consumed;
             }
             else {
                 switch (key.key) {
                 case Key::Left:
                     editBox.onLeft(key.hasShift());
-                    context->setNeedsResize();
+                    context->setNeedsPaint();
                     break;
                 case Key::Right:
                     editBox.onRight(key.hasShift());
-                    context->setNeedsResize();
+                    context->setNeedsPaint();
                     break;
                 case Key::Delete:
                     editBox.onDelete();
-                    context->setNeedsResize();
+                    context->setNeedsPaint();
                     break;
                 case Key::Backspace:
                     editBox.onBackspace();
-                    context->setNeedsResize();
+                    context->setNeedsPaint();
                     break;
                 }
             }

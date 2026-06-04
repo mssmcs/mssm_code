@@ -1,5 +1,8 @@
 #include "layoutmanager.h"
 
+#include <string>
+#include <vector>
+
 LayoutManager::LayoutManager(LayoutContext *context, LayoutPtr layout)
     : context{context}
     , layout{layout}
@@ -80,24 +83,28 @@ void LayoutManager::propagateEvents(const PropertyBag &parentProps, double elaps
             evt.dragDelta = {0.0, e.arg};
             evt.button = mssm::MouseButton::None;
             propagateMouse(parentProps, screenRect, evt);
+            sent = true;
             break;
         case mssm::EvtType::KeyPress:
             keyEvt.action = KeyEvt::Action::press;
             keyEvt.key = e.key();
             keyEvt.mods = e.mods;
             propagateKey(parentProps, screenRect, keyEvt);
+            sent = true;
             break;
         case mssm::EvtType::KeyRepeat:
             keyEvt.action = KeyEvt::Action::repeat;
             keyEvt.key = e.key();
             keyEvt.mods = e.mods;
             propagateKey(parentProps, screenRect, keyEvt);
+            sent = true;
             break;
         case mssm::EvtType::KeyRelease:
             keyEvt.action = KeyEvt::Action::release;
             keyEvt.key = e.key();
             keyEvt.mods = e.mods;
             propagateKey(parentProps, screenRect, keyEvt);
+            sent = true;
             break;
         case mssm::EvtType::MusicEvent:
             break;
@@ -112,6 +119,9 @@ void LayoutManager::propagateEvents(const PropertyBag &parentProps, double elaps
         evt.button = mssm::MouseButton::Left;
         propagateMouse(parentProps, screenRect, evt);
     }
+    if (sent || moved || context->hasHoverEntries()) {
+        context->setNeedsPaint();
+    }
     context->endEventDispatch();
 
 
@@ -124,6 +134,7 @@ void LayoutManager::draw(mssm::CoreWindow& window, mssm::Canvas2d &g)
     stats.eventsProcessed = 0;
     stats.overlayCount = context->overlays.size();
     stats.resizedThisFrame = false;
+    stats.paintedThisFrame = false;
 
     PropertyBag parentProps;
 
@@ -168,57 +179,66 @@ void LayoutManager::draw(mssm::CoreWindow& window, mssm::Canvas2d &g)
             stats.resizedThisFrame = true;
         }
 
-        g.resetClip();
+        if (context->getNeedsPaint() || context->isAnyKeyboardFocus()) {
+            stats.paintedThisFrame = true;
 
-        layout->draw(parentProps, g);
+            g.resetClip();
 
-        g.resetClip();
+            layout->draw(parentProps, g);
 
-        for (LayoutPtr overlay : context->overlays) {
-            overlay->draw(parentProps, g);
-        }
+            g.resetClip();
 
-        layout->debugDraw(g);
+            for (LayoutPtr overlay : context->overlays) {
+                overlay->draw(parentProps, g);
+            }
 
-        window.setCursor(context->getCursor()); // set cursor to whatever was set by layout
+            layout->debugDraw(g);
 
-        context->setCursor(
-            mssm::CoreWindowCursor::arrow); // reset layout cursor so that it auto defaults to arrow
+            window.setCursor(context->getCursor());
 
-        if (layout->hasDragFocus()) {
-            g.rect({0, 0}, g.width() - 1, g.height() - 1, mssm::RED);
+            context->setCursor(
+                mssm::CoreWindowCursor::arrow);
+
+            if (layout->hasDragFocus()) {
+                g.rect({0, 0}, g.width() - 1, g.height() - 1, mssm::RED);
+            }
+
+            context->clearNeedsPaint();
         }
     }
 
     if (window.isAltKeyPressed()) {
-        int yPos = 25;
+        constexpr double rightMargin = 10.0;
+        constexpr double bottomMargin = 10.0;
+        const double rightX = g.width() - rightMargin;
+        double y = g.height() - bottomMargin;
 
-        // layout->traversePreOrder(
-        //     [&](LayoutBase *element) {
-        //         std::string txt = element->getTypeStr() + " " + element->getName() + " " + std::to_string(element->getLayer())+ " " + std::to_string(element->getDepth());
-        //         g.text({10*element->getDepth(), yPos}, 20, txt);
-        //         yPos += 20;
-        //     },
-        //     LayoutBase::ForeachContext::drawing, true, true);
+        auto drawRight = [&](const std::string &txt, int fontSize) {
+            y -= fontSize;
+            g.text({rightX, y}, fontSize, txt, mssm::WHITE, HAlign::right, VAlign::baseline);
+            y -= 4;
+        };
 
-        // yPos += 20;
+        drawRight(std::string("painted: ") + (stats.paintedThisFrame ? "yes" : "no"), 16);
+        drawRight(std::string("resized: ") + (stats.resizedThisFrame ? "yes" : "no"), 16);
+        drawRight("overlays: " + std::to_string(stats.overlayCount), 16);
+        drawRight("nodes: " + std::to_string(stats.nodesVisited), 16);
+        drawRight("events: " + std::to_string(stats.eventsProcessed), 16);
+        drawRight("frame: " + std::to_string(stats.frameIndex), 16);
 
+        y -= 6;
+
+        std::vector<std::string> hoverLines;
         context->iterateHoverChain([&](LayoutBase *element, double t) {
-            std::string txt = element->getTypeStr() + " " + element->getName() + " " + std::to_string(element->getLayer())+ " " + std::to_string(element->getDepth()) + " " + std::to_string(t);
-            g.text({10*element->getDepth(), yPos}, 20, txt);
-            yPos += 20;
+            hoverLines.push_back(element->getTypeStr() + " " + element->getName() + " "
+                                 + std::to_string(element->getLayer()) + " "
+                                 + std::to_string(element->getDepth()) + " "
+                                 + std::to_string(t));
         });
 
-        yPos += 10;
-        g.text({10, yPos}, 16, "frame: " + std::to_string(stats.frameIndex));
-        yPos += 18;
-        g.text({10, yPos}, 16, "events: " + std::to_string(stats.eventsProcessed));
-        yPos += 18;
-        g.text({10, yPos}, 16, "nodes: " + std::to_string(stats.nodesVisited));
-        yPos += 18;
-        g.text({10, yPos}, 16, "overlays: " + std::to_string(stats.overlayCount));
-        yPos += 18;
-        g.text({10, yPos}, 16, std::string("resized: ") + (stats.resizedThisFrame ? "yes" : "no"));
+        for (auto it = hoverLines.rbegin(); it != hoverLines.rend(); ++it) {
+            drawRight(*it, 20);
+        }
     }
 }
 

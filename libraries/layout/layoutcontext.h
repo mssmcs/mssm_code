@@ -91,6 +91,7 @@ class LayoutContext : public TextMetrics {
     LayoutPtr keyFocus{};
     LayoutPtr dragFocus{};
     bool needsResize{true};
+    bool needsPaint{true};
     RectI windowRect;
     bool debug{false};
     std::vector<HoverItem> hoverChain;
@@ -131,9 +132,13 @@ public:
 
     virtual void debugMouse(const RectI& rect, MouseEventReason reason, const MouseEvt& evt) = 0;
 
-    void setNeedsResize() { needsResize = true; }
+    void setNeedsResize() { needsResize = true; needsPaint = true; }
     bool getNeedsResize() const { return needsResize; }
     void clearNeedsResize() { needsResize = false; }
+
+    void setNeedsPaint() { needsPaint = true; }
+    bool getNeedsPaint() const { return needsPaint; }
+    void clearNeedsPaint() { needsPaint = false; }
 
     void pushOverlay(LayoutPtr overlay);
     void removeOverlay(LayoutPtr overlay);
@@ -147,6 +152,7 @@ public:
     void iterateHoverChain(std::function<void(LayoutBase*,double)> f); // passes hoverTime as second parameter
     void updateHoverTimes(double elapsedTimeS);
     double getHoverTime(const LayoutBase *element) const;
+    bool hasHoverEntries() const { return !hoverChain.empty(); }
 
     virtual void resizeOverlays(const PropertyBag& parentProps, const RectI& rect);
 

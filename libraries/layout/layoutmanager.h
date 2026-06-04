@@ -14,6 +14,7 @@ public:
         uint64_t eventsProcessed{0};
         uint64_t overlayCount{0};
         bool resizedThisFrame{false};
+        bool paintedThisFrame{false};
     };
 
 private:

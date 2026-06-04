@@ -34,18 +34,23 @@ This document captures the core runtime rules for the layout system and practica
 
 ## Resize / Invalidation
 
-- `setNeedsResize()` marks geometry/layout dirty; `LayoutManager` runs a full `resize` pass on the root when the flag is set.
-- Pure visual updates (hover, pressed state, colors) should **not** call `setNeedsResize()` unless layout geometry actually changes.
+- `setNeedsResize()` marks geometry/layout dirty and also requests a paint pass. `LayoutManager` runs a full `resize` pass on the root when the flag is set.
+- `setNeedsPaint()` marks visual-only dirt (hover, pressed state, text caret/selection, value slider thumb). Does **not** run `resize()`.
+- Pure visual updates should call `setNeedsPaint()`, not `setNeedsResize()`, unless layout geometry actually changes.
+
+`LayoutManager::draw()` runs `resize()` only when `getNeedsResize()` is true. It draws when `getNeedsPaint()` is true, the keyboard focus caret is active (`isAnyKeyboardFocus()`), or the hover chain is non-empty (hover highlight and menu auto-open).
+
+Hold **Alt** during run to see per-frame `resized:` and `painted:` stats in the overlay.
 
 ### When to call `setNeedsResize()`
 
-| Call it | Do not call it |
-|--------|----------------|
+| Call it | Use `setNeedsPaint()` instead |
+|--------|-------------------------------|
 | Window size change | Hover / highlight only |
 | Splitter position change | Button pressed appearance |
-| Active tab change | |
-| Overlay open/close | |
-| Scroll bar thumb drag or wheel scroll (see below) | |
+| Active tab change | Text edit, selection, caret |
+| Overlay open/close | Value `LayoutSlider` thumb move |
+| Scroll offset change (`LayoutScrollBar`, scroll wheel on content) | |
 | Any change that requires `resize()` to re-read child bounds or positions | |
 
 ## LayoutHelper DSL
@@ -127,7 +132,7 @@ Scroll{VStack{Button("One"), Button("Two"), "More text..."}}
 - `LayoutSlider` is for numeric value controls only (not scroll bars).
 - Mouse wheel over the scroll panel is handled in `LayoutScroll::onMouseDeferred` (also calls `setNeedsResize()`).
 
-If you add a custom scroll container, mirror this: **slider value changes must trigger a resize pass on the scroll parent.**
+If you add a custom scroll container, mirror this: **scroll offset changes must trigger a resize pass on the scroll parent.**
 
 ## Building the tree
 

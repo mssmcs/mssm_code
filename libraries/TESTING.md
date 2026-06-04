@@ -48,48 +48,73 @@ Test sources are shared; each build tree produces its own `*_tests` executables 
 
 ## Configure and build
 
-**Tests bundle (recommended for `ctest`):**
+**Default on this machine (Qt Creator + MinGW, `tests` project):**
+
+```powershell
+& "C:\Qt\Tools\CMake_64\bin\cmake.exe" --build C:/github/mssm_code/tests/build/Desktop_Qt_6_11_0_MinGW_64_bit-Debug --target all
+```
+
+Open the **`tests/`** bundle in Qt Creator first so that build directory exists. Kit folder names vary; look under `tests/build/` for `Desktop_Qt_*`. Agents and scripts should use this same `--build …/Desktop_Qt_…-Debug --target all` pattern — not a fresh `cmake -G Ninja` configure from a bare shell.
+
+**Alternate (headless CI / no Qt kit):**
 
 ```powershell
 cmake -S C:/github/mssm_code/tests -B C:/github/mssm_code/tests/build/agent -G Ninja
-cmake --build C:/github/mssm_code/tests/build/agent --target layout_sizebound_tests
+cmake --build C:/github/mssm_code/tests/build/agent --target all
 ```
 
-On Windows with **Qt Creator + MinGW**, prefer the kit build tree Qt already configured (example kit folder name):
-
-```text
-C:/github/mssm_code/tests/build/Desktop_Qt_6_11_0_MinGW_64_bit-Debug
-```
-
-Do not rely on a fresh `cmake -G Ninja` configure from a bare shell unless `g++` is on `PATH` — agents and CI shells often lack the compiler until a kit is selected.
+Requires `g++` on `PATH` (or an explicit `CMAKE_CXX_COMPILER`).
 
 **Examples with tests:**
 
 ```powershell
-cmake -S C:/github/mssm_code/examples -B C:/github/mssm_code/examples/build/agent -DMSSM_BUILD_TESTS=ON -G Ninja
-cmake --build C:/github/mssm_code/examples/build/agent --target layout_sizebound_tests
+& "C:\Qt\Tools\CMake_64\bin\cmake.exe" --build C:/github/mssm_code/examples/build/Desktop_Qt_6_11_0_MinGW_64_bit-Debug --target all
 ```
 
-In Qt Creator: **Projects → Build → CMake** → add `-DMSSM_BUILD_TESTS=ON`, reconfigure, then build target `layout_sizebound_tests` or **all**.
+Or configure from scratch with `-DMSSM_BUILD_TESTS=ON` if the kit tree is not present yet.
+
+In Qt Creator: open the **`tests`** project → **Build** → **Build All** (same as `--target all` above).
 
 ## Running from Qt Creator or an agent shell (Windows MinGW)
 
-Use the **existing Qt Creator build directory** for the `tests/` or `examples/` bundle. Kit folder names vary; look under `tests/build/` or `examples/build/` for `Desktop_Qt_*`.
-
-Build and run all discovered tests:
+**Build** (always use `--target all` on the Qt kit tree):
 
 ```powershell
-$build = "C:/github/mssm_code/tests/build/Desktop_Qt_6_11_0_MinGW_64_bit-Debug"
-
-& "C:/Qt/Tools/CMake_64/bin/cmake.exe" --build $build --target all
-& "C:/Qt/Tools/CMake_64/bin/cmake.exe" -E chdir $build ctest --output-on-failure
+& "C:\Qt\Tools\CMake_64\bin\cmake.exe" --build C:/github/mssm_code/tests/build/Desktop_Qt_6_11_0_MinGW_64_bit-Debug --target all
 ```
 
-Run one executable directly:
+**Run all discovered tests:**
 
 ```powershell
-& "$build/local_library/layout/tests/layout_sizebound_tests.exe"
+& "C:\Qt\Tools\CMake_64\bin\cmake.exe" -E chdir C:/github/mssm_code/tests/build/Desktop_Qt_6_11_0_MinGW_64_bit-Debug ctest --output-on-failure
 ```
+
+**Run one executable directly** (9 tests in `layout_sizebound_tests` only — not the full suite):
+
+```powershell
+& "C:/github/mssm_code/tests/build/Desktop_Qt_6_11_0_MinGW_64_bit-Debug/local_library/layout/tests/layout_sizebound_tests.exe"
+```
+
+There are **two** gtest executables in the layout library (`layout_sizebound_tests`, `window_event_mask_tests`). Running one exe reports 9 tests; **`ctest` runs all 12** discovered cases.
+
+### Qt Creator: run all tests with `ctest`
+
+The default Run configuration for a single `*_tests` target only runs that executable. To run the full suite from Qt Creator:
+
+**Projects → Run → Add → Custom Executable** (name it e.g. “All tests (ctest)”):
+
+| Field | Value |
+|--------|--------|
+| **Executable** | `%{CMake:Executable:Path}/ctest` |
+| **Working directory** | `%{buildDir}` |
+| **Command line arguments** | `--output-on-failure` |
+| **Run in terminal** | **checked** |
+
+Use the **(Variables)** button next to each field to pick `%{CMake:Executable:Path}` and `%{buildDir}` from the list. Kit folder names vary; those macros stay correct when the build tree moves.
+
+**Run in terminal** is required for reliable `ctest` output (progress and pass/fail lines). Without it, Application Output may truncate or hide results.
+
+Per-exe macros (for the **active** run config only): `%{RunConfig:Executable:FilePath}`, `%{RunConfig:Executable:Path}`. Build paths to other test exes from `%{buildDir}`, e.g. `%{buildDir}/local_library/layout/tests/window_event_mask_tests.exe`.
 
 **MinGW runtime DLLs:** On Windows MinGW builds, [`cmake/MssmWindowsRuntime.cmake`](cmake/MssmWindowsRuntime.cmake) copies `libgcc_s_seh-1.dll`, `libstdc++-6.dll`, and `libwinpthread-1.dll` next to each app and gtest executable at link time. You do **not** need `C:/Qt/Tools/mingw1310_64/bin` on `PATH` to run tests or examples from their output folder.
 
@@ -99,21 +124,14 @@ The same pattern applies to example apps (e.g. `layout_example`) under `examples
 
 ## Run tests
 
-**Run one executable** (Qt Run configuration or shell):
+**`ctest` (after `--target all` build):**
 
 ```powershell
-& "C:/github/mssm_code/tests/build/agent/local_library/layout/tests/layout_sizebound_tests.exe"
-```
-
-Exact path depends on kit and generator; use the link line from the build log.
-
-**`ctest` (all discovered tests in the build tree):**
-
-```powershell
-cd C:/github/mssm_code/tests/build/agent
-ctest --output-on-failure
+& "C:\Qt\Tools\CMake_64\bin\cmake.exe" -E chdir C:/github/mssm_code/tests/build/Desktop_Qt_6_11_0_MinGW_64_bit-Debug ctest --output-on-failure
 ctest -R layout_sizebound
 ```
+
+Exact exe paths depend on kit; use the link line from the build log if the kit folder name differs.
 
 ## Reference: layout tests
 
