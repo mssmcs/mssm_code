@@ -796,7 +796,7 @@ void NanovgWindow::pushClip(int x, int y, int w, int h, bool replace)
         rect.x = std::max(prev.x, x);
         rect.y = std::max(prev.y, y);
         auto oldEndX = prev.x + prev.w;
-        auto oldEndY = prev.y + prev.w;
+        auto oldEndY = prev.y + prev.h;
         auto endX = x + w;
         auto endY = y + h;
         rect.w = std::max(0, std::min(oldEndX, endX) - rect.x);

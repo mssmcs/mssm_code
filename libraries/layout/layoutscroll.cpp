@@ -73,8 +73,12 @@ void LayoutScroll::draw(const PropertyBag& parentProps, mssm::Canvas2d& g)
     constexpr const int scrollGutter = 2;
     int vScrollWidth = vScroll->width ? vScroll->width + scrollGutter : 0;
     int hScrollHeight = hScroll->height ? hScroll->height + scrollGutter : 0;
-    g.pushClip(left(), top(), std::max(0,width-vScrollWidth), std::max(0,height-hScrollHeight), false);
+    RectI viewport{{left(), top()},
+                   std::max(0, width - vScrollWidth),
+                   std::max(0, height - hScrollHeight)};
+    pushClip(g, viewport, false);
     child->draw(parentProps, g);
+    popClip(g);
     popClip(g);
 }
 
@@ -89,31 +93,46 @@ void LayoutScroll::resize(const PropertyBag& parentProps, const RectI& rect)
     
     xScroll = hScroll->value;
     yScroll = vScroll->value;
-    contentRect.pos = rect.pos-Vec2i32{xScroll, yScroll};
-    
+
     auto childBound = child->getBound(parentProps);
-    
+
     contentRect.width = childBound.xBound.minSize;
     contentRect.height = childBound.yBound.minSize;
-    
-    // compute what doesn't fit into rect
-    extraX = contentRect.width - rect.width;
-    extraY = contentRect.height - rect.height;
-    
+
+    int viewW = rect.width;
+    int viewH = rect.height;
+
+    extraY = std::max(0, contentRect.height - viewH);
+    extraX = std::max(0, contentRect.width - viewW);
+
+    if (extraY > 0) {
+        viewH -= barSize;
+    }
+    if (extraX > 0) {
+        viewW -= barSize;
+    }
+    if (extraY > 0) {
+        int extraX2 = std::max(0, contentRect.width - viewW);
+        if (extraX2 > 0) {
+            extraX = extraX2;
+            if (extraX > 0) {
+                viewH -= barSize;
+            }
+        }
+    }
+
     if (extraX > 0) {
         extraX += barSize;
         xScroll = std::max(0, std::min(xScroll, extraX));
-    }
-    else {
+    } else {
         extraX = 0;
         xScroll = 0;
     }
-    
+
     if (extraY > 0) {
         extraY += barSize;
         yScroll = std::max(0, std::min(yScroll, extraY));
-    }
-    else {
+    } else {
         extraY = 0;
         yScroll = 0;
     }

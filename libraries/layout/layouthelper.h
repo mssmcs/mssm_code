@@ -242,12 +242,16 @@ protected:
         Builder content;
     };
 
+public:
     class TabWrapper {
     public:
         std::string label;
         Wrapper content;
+        TabWrapper(std::string label, Wrapper content) : label{std::move(label)}, content{content} {}
         operator Tab() const { return { label, content }; }
     };
+
+protected:
 
     std::vector<Tab> children;
     bool isHorizontal;
@@ -313,16 +317,18 @@ protected:
         Item(std::string label, std::function<void(std::string label, int idx)> callback);
     };
 
+public:
     class ItemWrapper {
     public:
         std::string label;
         Wrapper content;
         std::function<void(std::string label, int idx)> callback;
-    public:
         ItemWrapper(std::string label, Wrapper content);
         ItemWrapper(std::string label, std::function<void(std::string label, int idx)> callback);
         operator Item() const;
     };
+
+protected:
 
     std::vector<Item> children;
 
@@ -344,6 +350,14 @@ public:
         }
     }
 
+    Menu(bool isHorizontal, std::initializer_list<Wrapper> kids)
+        : isHorizontal{isHorizontal}
+    {
+        for (const auto& kid : kids) {
+            children.push_back(Item{"", kid});
+        }
+    }
+
     operator Builder() const override;
 };
 
@@ -360,6 +374,11 @@ public:
         : Menu(true, kids)
     {
     }
+
+    HMenu(std::initializer_list<Wrapper> kids)
+        : Menu(true, kids)
+    {
+    }
 };
 
 class VMenu : public Menu  {
@@ -370,6 +389,11 @@ public:
     }
 
     VMenu(std::initializer_list<ItemWrapper> kids)
+        : Menu(false, kids)
+    {
+    }
+
+    VMenu(std::initializer_list<Wrapper> kids)
         : Menu(false, kids)
     {
     }

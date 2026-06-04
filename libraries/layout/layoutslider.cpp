@@ -27,6 +27,7 @@ LayoutBase::EvtRes LayoutSlider::onMouse(const PropertyBag& parentProps, MouseEv
         break;
     case MouseEvt::Action::scroll:
         applyWheel(evt.dragDelta.y);
+        context->setNeedsResize();
         return EvtRes::consumed;
     case MouseEvt::Action::move:
         hovering = true;
@@ -38,6 +39,7 @@ LayoutBase::EvtRes LayoutSlider::onMouse(const PropertyBag& parentProps, MouseEv
             auto origPos = posFromValue(dragStartValue);
             auto newPos = origPos + dragDistPixels;
             value = valueFromPos(newPos);
+            context->setNeedsResize();
         }
         break;
     case MouseEvt::Action::press:
@@ -99,6 +101,7 @@ void LayoutSlider::stepValue(int count)
     t += count * clickStep;
     t = std::clamp(t, 0., 1.);
     value = valueFromT(t);
+    context->setNeedsResize();
 }
 
 void LayoutSlider::applyWheel(int count)
@@ -107,4 +110,5 @@ void LayoutSlider::applyWheel(int count)
     t -= count * wheelStep;
     t = std::clamp(t, 0., 1.);
     value = valueFromT(t);
+    context->setNeedsResize();
 }
