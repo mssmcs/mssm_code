@@ -90,7 +90,7 @@ public:
     Array_iter<ArrayBase*, T> begin() { return {this, 0}; }
     Array_iter<ArrayBase*, T> end() { return {this, static_cast<int>(elements.size()) }; }
     Array_iter<const ArrayBase*, const T> begin() const { return {this, 0}; }
-    Array_iter<const ArrayBase*, const T> end() const { return {this, elements.size()}; }
+    Array_iter<const ArrayBase*, const T> end() const { return {this, static_cast<int>(elements.size()) }; }
     void sort();
     T& front();
     T& back();
@@ -102,6 +102,12 @@ public:
 
     operator std::vector<Q>&() { return elements; }
     operator const std::vector<Q>&() const { return elements; }
+
+    template<class... Args>
+    void emplace_back(Args&&... args)
+    {
+        elements.emplace_back(args...);
+    }
 
 private:
     constexpr bool isIndexInRangeIncludingEnd(int index) const { return index >= 0 && index <= elements.size(); }
