@@ -2,6 +2,8 @@
 # Cloned sibling repos (apps/, examples/, grading/, …) need no mention — ignored by /*.
 /*
 
+!/apps
+
 !/.gitignore
 !/.aiexclude
 !/.DS_Store
