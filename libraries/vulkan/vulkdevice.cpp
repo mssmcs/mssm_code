@@ -108,12 +108,10 @@ VkDevice VulkDevice::createLogicalDevice(VkPhysicalDevice physicalDevice, VkSurf
     createInfo.enabledExtensionCount = requiredExtensions.size();
     createInfo.ppEnabledExtensionNames = requiredExtensions.data();
 
-    if (validationLayersEnabled()) {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(getValidationLayers().size());
-        createInfo.ppEnabledLayerNames = getValidationLayers().data();
-    } else {
-        createInfo.enabledLayerCount = 0;
-    }
+    // Device layers are deprecated (VUID-VkDeviceCreateInfo-enabledLayerCount-12384);
+    // validation layers are enabled on the instance only.
+    createInfo.enabledLayerCount = 0;
+    createInfo.ppEnabledLayerNames = nullptr;
 
     VkDevice device;
 

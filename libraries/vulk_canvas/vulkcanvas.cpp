@@ -175,12 +175,12 @@ void VulkCanvas::initializePipelines()
         pipelineLayout,
         vBuff3dUV, true);
 
-    pl3dTriTextured = createPipeline(
-        VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-        "textured3d.vert.glsl.spv",
-        "textured3d.frag.glsl.spv",
-        pipelineLayout,
-        vBuff3dUV, true);
+    // pl3dTriTextured = createPipeline(
+    //     VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+    //     "textured3d.vert.glsl.spv",
+    //     "textured3d.frag.glsl.spv",
+    //     pipelineLayout,
+    //     vBuff3dUV, true);
 
     plTexturedRect = createPipeline(
         VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,

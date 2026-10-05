@@ -11,7 +11,6 @@ VulkFlightControl::VulkFlightControl(VulkDevice& device)
     fence_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
     if (device.fn.vkCreateSemaphore(device, &semaphore_info, nullptr, &available) != VK_SUCCESS
-        || device.fn.vkCreateSemaphore(device, &semaphore_info, nullptr, &finished) != VK_SUCCESS
         || device.fn.vkCreateFence(device, &fence_info, nullptr, &inFlight) != VK_SUCCESS) {
         throw std::runtime_error("failed to create synchronization objects for a frame");
     }
@@ -20,7 +19,6 @@ VulkFlightControl::VulkFlightControl(VulkDevice& device)
 VulkFlightControl::~VulkFlightControl()
 {
     device.fn.vkDestroySemaphore(device, available, nullptr);
-    device.fn.vkDestroySemaphore(device, finished, nullptr);
     device.fn.vkDestroyFence(device, inFlight, nullptr);
 }
 
@@ -38,6 +36,8 @@ void VulkFramebufferSynchronization::setup(VulkCommandPool& commandPool, int max
 {
     currentFlight = 0;
 
+    device = &commandPool.device();
+
     flightControls.clear();
 
     for (int i = 0; i < maxFramesInFlight; i++) {
@@ -54,8 +54,41 @@ void VulkFramebufferSynchronization::advanceFrameInFlight()
 
 void VulkFramebufferSynchronization::waitForFrameInFlight()
 {
-    auto &flightControl = flightControls[currentFlight];
-    flightControl->waitForFence();
-    flightControl->resetFence();
+    flightControls[currentFlight]->waitForFence();
+}
+
+// Only reset right before submitting work that will signal the fence. Resetting earlier
+// means a failed acquire (swapchain out of date) leaves the next wait blocked forever.
+void VulkFramebufferSynchronization::resetFrameInFlightFence()
+{
+    flightControls[currentFlight]->resetFence();
+}
+
+VulkFramebufferSynchronization::~VulkFramebufferSynchronization()
+{
+    destroyImageSemaphores();
+}
+
+void VulkFramebufferSynchronization::destroyImageSemaphores()
+{
+    for (auto sem : renderFinished) {
+        device->fn.vkDestroySemaphore(*device, sem, nullptr);
+    }
+    renderFinished.clear();
+}
+
+void VulkFramebufferSynchronization::setupImageSemaphores(size_t swapchainImageCount)
+{
+    destroyImageSemaphores();
+
+    VkSemaphoreCreateInfo semaphore_info = {};
+    semaphore_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+    renderFinished.resize(swapchainImageCount);
+    for (auto& sem : renderFinished) {
+        if (device->fn.vkCreateSemaphore(*device, &semaphore_info, nullptr, &sem) != VK_SUCCESS) {
+            throw std::runtime_error("failed to create render finished semaphore");
+        }
+    }
 }
 

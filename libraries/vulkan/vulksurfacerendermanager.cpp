@@ -48,6 +48,7 @@ void VulkSurfaceRenderManager::beginInitialization(VkInstance instance, VulkAbst
 
     // FLIGHT CONTROLS
     framebufferSync.setup(*graphicsCommandPool, maxFramesInFlight);
+    framebufferSync.setupImageSemaphores(framebuffers.size());
 
     // DRAW CONTEXT
     drawContext = std::make_unique<VulkDrawContext>(this);
@@ -209,6 +210,8 @@ void VulkSurfaceRenderManager::recreateSwapChain()
     framebuffers = VulkFrameBuffer::createOneToOneFromViews(*device, renderPass, swapChain->getImageExtent(), swapChain->createImageViews(), swapChain->getDepthBufferImageView());
    // framebuffersWithDepth = VulkFrameBuffer::createOneToOneFromViews(*device, renderPassDepth, swapChain->getImageExtent(), swapChain->createImageViews(), swapChain->getDepthBufferImageView());
 
+    framebufferSync.setupImageSemaphores(framebuffers.size());
+
     imageIndex = 0;
 }
 
@@ -282,7 +285,7 @@ bool VulkSurfaceRenderManager::processDrawCommands(uint32_t imageIndex)
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
     VkSemaphore wait_semaphores[]   = { framebufferSync.imageAvailableSemaphore() };
-    VkSemaphore signal_semaphores[] = { framebufferSync.renderFinishedSemaphore() };
+    VkSemaphore signal_semaphores[] = { framebufferSync.renderFinishedSemaphore(imageIndex) };
     VkPipelineStageFlags wait_stages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
     submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitSemaphores = wait_semaphores;
@@ -292,6 +295,7 @@ bool VulkSurfaceRenderManager::processDrawCommands(uint32_t imageIndex)
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signal_semaphores;  // signal renderfinished when done
 
+    framebufferSync.resetFrameInFlightFence();
     VkResult res= device->fn.vkQueueSubmit(device->getGraphicsQueue(), 1, &submitInfo, framebufferSync.inFlightFence());
     debugVkCall("vkQueueSubmit", res);
 
